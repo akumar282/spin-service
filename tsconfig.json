@@ -25,7 +25,7 @@
     "plugins": [
       { "name": "typescript-tslint-plugin", "packageManager": "npm" }
     ],
-    "baseUrl": "./service",
+    "baseUrl": "./lib",
     "paths": {
       "@services/*": ["lib/*"],
       "@lambdas/*": ["lambda/*"],
