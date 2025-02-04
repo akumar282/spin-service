@@ -1,8 +1,17 @@
 import axios from 'axios'
-import { HTMLElement, parse as parseHTML } from 'node-html-parser'
+import {HTMLElement, parse as parseHTML} from 'node-html-parser'
 
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=AskReddit&adDistance=2&ad_posts_served=1&feedLength=4'
+
+interface postInfo {
+  title: string,
+  content: string,
+  created_time: Date,
+  link: URL,
+  id: string,
+  pagination: string
+}
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
   try {
@@ -15,19 +24,29 @@ async function getPage(endpoint: string): Promise<HTMLElement | number> {
         "cookie": "intl_splash=false"
       },
     })
-    const parsedData = parseHTML(data.data);
-
-    return parsedData;
+    return parseHTML(data.data)
   } catch (error) {
-    console.error('An error occurred:', error);
-    throw error;
+    console.error('An error occurred:', error)
+    throw error
   }
 }
 
 async function testParse() {
   const data = await getPage(BASE_URL)
   const posts = (data as HTMLElement)?.querySelectorAll('article[class="w-full m-0"]')
-  console.log(posts)
+  for(let post of posts){
+    for(let elements of post.querySelectorAll('shreddit-post[class="block relative cursor-pointer group bg-neutral-background focus-within:bg-neutral-background-hover hover:bg-neutral-background-hover xs:rounded-[16px] px-md py-2xs my-2xs nd:visible"]')) {
+      const postData: postInfo = {
+        title: elements.getAttribute('post-title'),
+        content: elements.getAttribute('content-href'),
+        link: `https://www.reddit.com${elements.getAttribute('permalink')}` as unknown as URL,
+        created_time: new Date(elements.getAttribute('created-timestamp')),
+        id: elements.getAttribute('id'),
+        pagination: elements.getAttribute('more-posts-cursor') ?? null
+      }
+      console.log(postData)
+    }
+  }
 }
 
 testParse().then()
