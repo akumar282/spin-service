@@ -1,8 +1,10 @@
 import axios from 'axios'
 import {HTMLElement, parse as parseHTML} from 'node-html-parser'
 
+// TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=AskReddit&adDistance=2&ad_posts_served=1&feedLength=4'
+
 
 interface postInfo {
   title: string,
