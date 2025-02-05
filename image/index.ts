@@ -7,12 +7,12 @@ const BASE_URL =
 
 
 interface postInfo {
-  title: string,
-  content: string,
+  title: string | null | undefined,
+  content: string | null | undefined,
   created_time: Date,
   link: URL,
-  id: string,
-  pagination: string
+  postId: string | null | undefined,
+  pagination: string | null | undefined
 }
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
@@ -42,8 +42,8 @@ async function testParse() {
         title: elements.getAttribute('post-title'),
         content: elements.getAttribute('content-href'),
         link: `https://www.reddit.com${elements.getAttribute('permalink')}` as unknown as URL,
-        created_time: new Date(elements.getAttribute('created-timestamp')),
-        id: elements.getAttribute('id'),
+        created_time: new Date(elements.getAttribute('created-timestamp') as string),
+        postId: elements.getAttribute('id'),
         pagination: elements.getAttribute('more-posts-cursor') ?? null
       }
       console.log(postData)
