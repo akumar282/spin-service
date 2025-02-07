@@ -14,3 +14,5 @@ export const HttpMethod = z.enum([
 ])
 
 export type HttpMethod = z.infer<typeof HttpMethod>
+
+export type rawRecords = {}

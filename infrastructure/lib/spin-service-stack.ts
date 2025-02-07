@@ -77,22 +77,6 @@ export class SpinServiceStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
     })
 
-    const usersTable = new dynamodb.TableV2(this, 'usersTable', {
-      tableName: 'recordsTable',
-      partitionKey: {
-        name: 'id',
-        type: AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'user_name',
-        type: AttributeType.STRING,
-      },
-      billing: Billing.onDemand(),
-      pointInTimeRecovery: true,
-      timeToLiveAttribute: 'expires',
-      removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
-    })
-
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
       restApiName: 'spinRecordsApi',
       description: 'Master api for data ingestion, and user endpoints',
@@ -111,18 +95,20 @@ export class SpinServiceStack extends cdk.Stack {
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
       runtime: lambda.Runtime.NODEJS_LATEST,
-      code: lambda.Code.fromAsset('dist'),
+      code: lambda.Code.fromAsset('dist/rawDataIngestion'),
       handler: 'rawRecordDataHandler.handler',
       timeout: Duration.seconds(20),
       environment: {
         API_URL: recordsApi.url,
+        TABLE_NAME: recordsTable.tableName,
+        TABLE_ARN: recordsTable.tableArn,
       },
     })
 
     const publicHandler = new lambda.Function(this, 'PublicRecordDataHandler', {
       runtime: lambda.Runtime.NODEJS_LATEST,
-      code: lambda.Code.fromAsset('dist'),
-      handler: 'PublicRecordDataHandler.handler',
+      code: lambda.Code.fromAsset('dist/publicRecordDataHandler'),
+      handler: 'publicRecordDataHandler.handler',
       timeout: Duration.seconds(20),
       environment: {
         API_URL: recordsApi.url,
