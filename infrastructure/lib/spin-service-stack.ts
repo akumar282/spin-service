@@ -31,7 +31,7 @@ export class SpinServiceStack extends cdk.Stack {
           cpu: 512,
           desiredCount: 1,
           taskImageOptions: {
-            image: ecs.ContainerImage.fromAsset('./'),
+            image: ecs.ContainerImage.fromAsset('../../image'),
           },
         }
       )
@@ -112,19 +112,26 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         API_URL: recordsApi.url,
+        TABLE_NAME: recordsTable.tableName,
+        TABLE_ARN: recordsTable.tableArn,
       },
     })
 
+    const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
+    const publicDataIntegration = new apigateway.LambdaIntegration(
+      publicHandler
+    )
+
     const ingestionResource: Resource = recordsApi.root.addResource('raw')
-    ingestionResource.addMethod('POST')
-    ingestionResource.addResource('{id}').addMethod('GET')
-    ingestionResource.addResource('{id}').addMethod('DELETE')
-    ingestionResource.addResource('{id}').addMethod('PATCH')
+    ingestionResource.addMethod('POST', rawDataIntegration)
+    ingestionResource.addResource('{id}').addMethod('GET', rawDataIntegration)
+    ingestionResource
+      .addResource('{id}')
+      .addMethod('DELETE', rawDataIntegration)
+    ingestionResource.addResource('{id}').addMethod('PATCH', rawDataIntegration)
 
     const clientResource = recordsApi.root.addResource('public')
-    clientResource.addMethod('POST')
-    clientResource.addResource('{id}').addMethod('GET')
-    clientResource.addResource('{id}').addMethod('DELETE')
-    clientResource.addResource('{id}').addMethod('PATCH')
+    clientResource.addMethod('POST', publicDataIntegration)
+    clientResource.addResource('{id}').addMethod('GET', publicDataIntegration)
   }
 }
