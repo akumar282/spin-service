@@ -25,6 +25,12 @@ module.exports = {
                 map: [['@services', './lib/services']],
                 extensions: ['.js', '.ts'],
             },
+            node: {
+                moduleDirectory: ["node_modules"]
+            },
+            typescript: {
+                alwaysTryTypes: true,
+            },
         },
     },
     parser: '@typescript-eslint/parser',
@@ -32,7 +38,6 @@ module.exports = {
     rules: {
         'no-useless-constructor': 'off',
         '@typescript-eslint/no-unused-vars': 'error',
-        'no-unused-vars': 'off',
         '@typescript-eslint/no-useless-constructor': 'error',
         '@typescript-eslint/naming-convention': [
             'error',
