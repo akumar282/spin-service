@@ -1,10 +1,14 @@
 import * as cdk from 'aws-cdk-lib'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
-import { AttributeType, Billing } from 'aws-cdk-lib/aws-dynamodb'
+import {
+  AttributeType,
+  Billing,
+  ProjectionType,
+} from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { Construct } from 'constructs'
 import { Resource } from 'aws-cdk-lib/aws-apigateway'
+import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { FargateScheduleProps, FargateTask } from './fargate/fargateTask'
 
@@ -20,6 +24,7 @@ export class SpinServiceStack extends cdk.Stack {
         id: 'spinServiceContainer',
         assetPath: '../../image',
       },
+      enableDlq: true,
     }
 
     new FargateTask(this, 'fargateTaskId', spinScraperProps)
@@ -47,6 +52,15 @@ export class SpinServiceStack extends cdk.Stack {
         type: dynamodb.AttributeType.STRING,
       },
       projectionType: dynamodb.ProjectionType.ALL,
+    })
+
+    recordsTable.addGlobalSecondaryIndex({
+      indexName: 'rawPostId',
+      partitionKey: {
+        name: 'postId',
+        type: AttributeType.STRING,
+      },
+      projectionType: ProjectionType.ALL,
     })
 
     const usersTable = new dynamodb.TableV2(this, 'usersTable', {

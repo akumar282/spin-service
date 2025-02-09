@@ -19,6 +19,7 @@ export class FargateTask {
   constructor(scope: Construct, id: string, props: FargateScheduleProps) {
     const vpc = new ec2.Vpc(scope, props.vpcId, {
       maxAzs: 2,
+      natGateways: 1,
     })
 
     const cluster = new ecs.Cluster(scope, props.clusterId, {
@@ -46,6 +47,9 @@ export class FargateTask {
           weight: 1,
         },
       ],
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
     })
 
     new scheduler.CfnSchedule(scope, 'FargateSchedule', {
@@ -59,6 +63,21 @@ export class FargateTask {
         ...(props.enableDlq
           ? { deadLetterConfig: { arn: this.addDlq(scope, 'EventDlq') } }
           : {}),
+        ecsParameters: {
+          taskDefinitionArn: taskDefinition.taskDefinitionArn,
+          launchType: 'FARGATE',
+          networkConfiguration: {
+            awsvpcConfiguration: {
+              subnets: vpc.selectSubnets({
+                subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+              }).subnetIds,
+              securityGroups: [
+                new ec2.SecurityGroup(scope, 'SpinTaskSecGroup', { vpc })
+                  .securityGroupId,
+              ],
+            },
+          },
+        },
       },
     })
   }
