@@ -1,40 +1,28 @@
 import * as cdk from 'aws-cdk-lib'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
-import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import { AttributeType, Billing } from 'aws-cdk-lib/aws-dynamodb'
-import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import { Resource } from 'aws-cdk-lib/aws-apigateway'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
+import { FargateScheduleProps, FargateTask } from './fargate/fargateTask'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
-    const vpc = new ec2.Vpc(this, 'spinVpc', {
-      maxAzs: 2,
-    })
+    const spinScraperProps: FargateScheduleProps = {
+      taskDefId: 'spinServiceTaskId',
+      vpcId: 'spinService',
+      clusterId: 'spinServiceCluster',
+      container: {
+        id: 'spinServiceContainer',
+        assetPath: '../../image',
+      },
+    }
 
-    const cluster = new ecs.Cluster(this, 'spinCluster', {
-      vpc,
-    })
-
-    const spinServiceFargate =
-      new ecsPatterns.ApplicationLoadBalancedFargateService(
-        this,
-        'spinFargateService',
-        {
-          cluster,
-          cpu: 512,
-          desiredCount: 1,
-          taskImageOptions: {
-            image: ecs.ContainerImage.fromAsset('../../image'),
-          },
-        }
-      )
+    new FargateTask(this, 'fargateTaskId', spinScraperProps)
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTable', {
       tableName: 'recordsTable',

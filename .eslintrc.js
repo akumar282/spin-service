@@ -50,7 +50,7 @@ module.exports = {
                 selector: 'typeLike',
                 format: ['PascalCase'],
                 leadingUnderscore: 'allow',
-            },
+            }
         ],
         '@typescript-eslint/indent': 'off',
         '@typescript-eslint/no-use-before-define': 0,
