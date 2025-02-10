@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {HTMLElement, parse as parseHTML} from 'node-html-parser'
+import { DiscogsClient } from './discogs/client'
 
 // TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
@@ -49,6 +50,8 @@ async function testParse() {
       console.log(postData)
     }
   }
+
+  const dis = new DiscogsClient()
 }
 
 testParse().then()
