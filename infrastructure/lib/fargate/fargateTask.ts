@@ -3,20 +3,15 @@ import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { FargateService } from 'aws-cdk-lib/aws-ecs'
 import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
-
-export type FargateScheduleProps = {
-  taskDefId: string
-  vpcId: string
-  clusterId: string
-  container: {
-    id: string
-    assetPath: string
-  }
-  enableDlq: boolean
-}
+import { ContainerEnvVars, FargateScheduleProps } from './types'
 
 export class FargateTask {
-  constructor(scope: Construct, id: string, props: FargateScheduleProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: FargateScheduleProps,
+    passthroughProps?: ContainerEnvVars
+  ) {
     const vpc = new ec2.Vpc(scope, props.vpcId, {
       maxAzs: 2,
       natGateways: 1,
@@ -31,6 +26,9 @@ export class FargateTask {
 
     taskDefinition.addContainer(props.container.id, {
       image: ecs.ContainerImage.fromAsset(props.container.assetPath),
+      environment: {
+        ...passthroughProps?.environment,
+      },
     })
 
     new FargateService(scope, id, {
