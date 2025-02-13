@@ -10,24 +10,12 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Resource } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
-import { FargateScheduleProps, FargateTask } from './fargate/fargateTask'
+import { FargateTask } from './fargate/fargateTask'
+import { FargateScheduleProps } from './fargate/types'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
-
-    const spinScraperProps: FargateScheduleProps = {
-      taskDefId: 'spinServiceTaskId',
-      vpcId: 'spinService',
-      clusterId: 'spinServiceCluster',
-      container: {
-        id: 'spinServiceContainer',
-        assetPath: '../../image',
-      },
-      enableDlq: true,
-    }
-
-    new FargateTask(this, 'fargateTaskId', spinScraperProps)
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTable', {
       tableName: 'recordsTable',
@@ -95,6 +83,23 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
+    const spinScraperProps: FargateScheduleProps = {
+      taskDefId: 'spinServiceTaskId',
+      vpcId: 'spinService',
+      clusterId: 'spinServiceCluster',
+      container: {
+        id: 'spinServiceContainer',
+        assetPath: '../../image',
+      },
+      enableDlq: true,
+    }
+
+    new FargateTask(this, 'fargateTaskId', spinScraperProps, {
+      environment: {
+        API_URL: recordsApi.url,
+      },
+    })
+
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
       runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/rawDataIngestion'),
@@ -116,6 +121,7 @@ export class SpinServiceStack extends cdk.Stack {
         API_URL: recordsApi.url,
         TABLE_NAME: recordsTable.tableName,
         TABLE_ARN: recordsTable.tableArn,
+        USER_TABLE: usersTable.tableName,
       },
     })
 

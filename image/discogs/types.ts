@@ -1,4 +1,5 @@
-type ArtistSuccessResponseBody = {
+export type ArtistSuccessResponseBody = {
+  name: string
   namevariations: string[],
   profile: string,
   releases_url: URL,
@@ -7,6 +8,7 @@ type ArtistSuccessResponseBody = {
   urls: string[],
   data_quality: string,
   id: number,
+  aliases: Member[],
   images: ImageAsset[],
   members: Member[],
 }

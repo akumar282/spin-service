@@ -1,6 +1,7 @@
 import axios from 'axios'
 import {HTMLElement, parse as parseHTML} from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
+import { ResponseBody, ArtistSuccessResponseBody } from './discogs/types'
 
 // TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
@@ -50,8 +51,12 @@ async function testParse() {
       console.log(postData)
     }
   }
-
-  const dis = new DiscogsClient()
 }
 
-testParse().then()
+async function testGet() {
+  const dis = new DiscogsClient()
+  const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('artists/108713')
+  console.log(data)
+}
+
+testGet().then()

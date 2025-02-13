@@ -17,4 +17,15 @@ export class DiscogsClient {
       },
     })
   }
+
+  public getData<T>(resource: string, params?: {}): Promise<T> {
+    return this.axiosInstance
+      .get(resource, { params })
+      .then((response) => response.data)
+      .catch(err => { throw new Error('Request Failed with message: ' + err)})
+  }
+
+  _queryStringBuilder(): string {
+
+  }
 }
