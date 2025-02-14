@@ -18,14 +18,21 @@ export class DiscogsClient {
     })
   }
 
-  public getData<T>(resource: string, params?: {}): Promise<T> {
+  public getData<T>(resource: string, params?: {[key: string]: string | number}): Promise<T> {
+    let queryString = ''
+    if(params) {
+      queryString = this._queryStringBuilder(params)
+    }
     return this.axiosInstance
-      .get(resource, { params })
+      .get(`${resource}${queryString}`)
       .then((response) => response.data)
       .catch(err => { throw new Error('Request Failed with message: ' + err)})
   }
 
-  _queryStringBuilder(): string {
-
+  private _queryStringBuilder(params: {[key: string]: string | number}): string {
+    return '?' + Object.keys(params)
+      .filter(x => params[x] !== null)
+      .map(x => `${x}=${encodeURIComponent(params[x]).toString()}`)
+      .join('&')
   }
 }

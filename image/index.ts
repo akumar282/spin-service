@@ -54,9 +54,15 @@ async function testParse() {
 }
 
 async function testGet() {
-  const dis = new DiscogsClient()
-  const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('artists/108713')
+
+  const dis = new DiscogsClient(auth)
+  const test = {
+    release_title: 'never mind',
+    artist: 'nirvana'
+  }
+  const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('database/search', test)
   console.log(data)
+
 }
 
 testGet().then()
