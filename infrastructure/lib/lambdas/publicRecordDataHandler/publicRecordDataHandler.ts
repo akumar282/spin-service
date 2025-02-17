@@ -10,7 +10,7 @@ import {
   PutCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
-import { getEnv } from '../utils'
+import { getEnv } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
 
 const client = new DynamoDBClient({})

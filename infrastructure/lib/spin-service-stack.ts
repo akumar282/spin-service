@@ -12,6 +12,7 @@ import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { FargateTask } from './fargate/fargateTask'
 import { FargateScheduleProps } from './fargate/types'
+import { getEnv } from './shared/utils'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -97,6 +98,7 @@ export class SpinServiceStack extends cdk.Stack {
     new FargateTask(this, 'fargateTaskId', spinScraperProps, {
       environment: {
         API_URL: recordsApi.url,
+        DISCOGS_TOKEN: getEnv('DISCOGS_TOKEN'),
       },
     })
 

@@ -5,8 +5,10 @@ import { ResponseBody, ArtistSuccessResponseBody } from './discogs/types'
 
 // TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
-  'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=AskReddit&adDistance=2&ad_posts_served=1&feedLength=4'
+  'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=AskReddit&adDistance=2&ad_posts_served=1&feedLength=4&after='
 
+const rawPostsQueue: HTMLElement[] = []
+const pushPostsQueue = []
 
 interface postInfo {
   title: string | null | undefined,
@@ -16,6 +18,7 @@ interface postInfo {
   postId: string | null | undefined,
   pagination: string | null | undefined
 }
+
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
   try {
@@ -35,34 +38,47 @@ async function getPage(endpoint: string): Promise<HTMLElement | number> {
   }
 }
 
-async function testParse() {
-  const data = await getPage(BASE_URL)
-  const posts = (data as HTMLElement)?.querySelectorAll('article[class="w-full m-0"]')
-  for(let post of posts){
-    for(let elements of post.querySelectorAll('shreddit-post[class="block relative cursor-pointer group bg-neutral-background focus-within:bg-neutral-background-hover hover:bg-neutral-background-hover xs:rounded-[16px] px-md py-2xs my-2xs nd:visible"]')) {
-      const postData: postInfo = {
-        title: elements.getAttribute('post-title'),
-        content: elements.getAttribute('content-href'),
-        link: `https://www.reddit.com${elements.getAttribute('permalink')}` as unknown as URL,
-        created_time: new Date(elements.getAttribute('created-timestamp') as string),
-        postId: elements.getAttribute('id'),
-        pagination: elements.getAttribute('more-posts-cursor') ?? null
+async function getRawPosts(url: string) {
+  let paginationToken: string | null = null
+  for (let i = 0; i < 2; i++) {
+    let urlPage = url
+    if(paginationToken) {
+      if(paginationToken.includes('=DAY')) {
+        urlPage = urlPage.slice(0, 126)
       }
-      console.log(postData)
+      urlPage += `${paginationToken}%3D%3D&t=DAY`
+    }
+    const data = await getPage(urlPage)
+    const posts = (data as HTMLElement)?.querySelectorAll('article[class="w-full m-0"]')
+    for(let post of posts){
+      for(let elements of post.querySelectorAll('shreddit-post[class="' +
+        'block relative cursor-pointer group bg-neutral-background focus-within:bg-neutral-background-hover ' +
+        'hover:bg-neutral-background-hover xs:rounded-[16px] px-md py-2xs my-2xs nd:visible"]'))
+      {
+        rawPostsQueue.push(elements)
+        let token = elements.getAttribute('more-posts-cursor')
+        if (token !== undefined) {
+          paginationToken = token
+        }
+      }
     }
   }
 }
 
-async function testGet() {
 
+
+
+async function testGet() {
+  const auth = {
+    personalToken: ''
+  }
   const dis = new DiscogsClient(auth)
   const test = {
-    release_title: 'never mind',
-    artist: 'nirvana'
+    query: 'ARCHIE SHEPP Magic Of Ju-Ju Verve',
   }
   const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('database/search', test)
-  console.log(data)
+
 
 }
 
-testGet().then()
+getRawPosts(BASE_URL).then(() => console.log(rawPostsQueue.length))

@@ -1,43 +1,43 @@
 export type ArtistSuccessResponseBody = {
   name: string
-  namevariations: string[],
-  profile: string,
-  releases_url: URL,
-  resource_url: URL,
-  uri: URL,
-  urls: string[],
-  data_quality: string,
-  id: number,
-  aliases: Member[],
-  images: ImageAsset[],
-  members: Member[],
+  namevariations: string[]
+  profile: string
+  releases_url: URL
+  resource_url: URL
+  uri: URL
+  urls: string[]
+  data_quality: string
+  id: number
+  aliases: Member[]
+  images: ImageAsset[]
+  members: Member[]
 }
 
 type ImageAsset = {
-  height: number,
-  resource_url: URL,
-  type: string,
-  uri: URL,
-  uri150: URL,
+  height: number
+  resource_url: URL
+  type: string
+  uri: URL
+  uri150: URL
   width: number
 }
 
 type Member = {
-  active: boolean,
-  id: number,
-  name: string,
+  active: boolean
+  id: number
+  name: string
   resource_url: URL
 }
 
 type UnsuccessfulResponseBody = {
-  message: string,
+  message: string
 }
 
 export type ResponseBody<T> = T | UnsuccessfulResponseBody
 
 type ResultContributor = {
-  resource_url: URL,
-  username: string,
+  resource_url: URL
+  username: string
 }
 
 type Company = {
@@ -153,4 +153,38 @@ export type Release = {
   uri: URL
   videos: Video[]
   year: number
+}
+
+type ResultSearch =  {
+  style: string[]
+  thumb: string
+  title: string
+  country: string
+  format: string[]
+  uri: string
+  community: {
+    want: number
+    have: number
+  }
+  label: string[]
+  catno: string
+  year: number
+  genre: string[]
+  resource_url: URL
+  type: string
+  id: number
+}
+
+export type SearchResult = {
+  pagination: {
+    per_page: number
+    pages: number
+    page: number
+    urls: {
+      last: URL
+      next: URL
+    }
+    items: number
+  }
+  results: ResultSearch[]
 }
