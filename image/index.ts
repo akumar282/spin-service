@@ -1,7 +1,7 @@
 import axios from 'axios'
-import {HTMLElement, parse as parseHTML} from 'node-html-parser'
+import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
-import { ResponseBody, ArtistSuccessResponseBody } from './discogs/types'
+import { ArtistSuccessResponseBody, ResponseBody } from './discogs/types'
 
 // TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
@@ -65,6 +65,43 @@ async function getRawPosts(url: string) {
   }
 }
 
+function mapToAttributes(rawData: HTMLElement[]) {
+  rawData.map(post => {
+    pushPostsQueue.push({
+      title: post.getAttribute('post-title'),
+      content: post.getAttribute('content-href'),
+      link: `https://www.reddit.com${post.getAttribute('permalink')}`,
+      created_time: new Date(post.getAttribute('created-timestamp') as string),
+      postId: post.getAttribute('id'),
+      pagination: post.getAttribute('more-posts-cursor') ?? null,
+      searchString: transformString(post.getAttribute('post-title')),
+      color: getColor(post.getAttribute('post-title'))
+    })
+  })
+}
+
+function transformString(title: string | undefined): string {
+  if(title === undefined) {
+    return 'Void'
+  }
+  return title
+    .replace(/\(.*?\)/g, '')
+    .replace(/\s*\w*\s*vinyl/g, '')
+    .replace(/\s*\w*LP\w*/g, '')
+    .replace(/\$[^\s]*/g, '')
+    .replace(/-/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+function getColor(title: string | undefined) {
+  if(title === undefined) {
+    return 'Black'
+  }
+  const match = title.match(/\((\w+)\s+vinyl\)/)
+  return match ? match[1] : null
+}
+
 
 
 
@@ -74,11 +111,11 @@ async function testGet() {
   }
   const dis = new DiscogsClient(auth)
   const test = {
-    query: 'ARCHIE SHEPP Magic Of Ju-Ju Verve',
+    query: 'Renee Rapp Snow Angel Exclusive Blue',
   }
   const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('database/search', test)
-
+  console.log(data)
 
 }
 
-getRawPosts(BASE_URL).then(() => console.log(rawPostsQueue.length))
+testGet().then()
