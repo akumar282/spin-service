@@ -1,21 +1,25 @@
 import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
-import { ArtistSuccessResponseBody, ResponseBody } from './discogs/types'
+import { ArtistSuccessResponseBody, ResponseBody, SearchResult } from './discogs/types'
+import { getEnv } from './utils'
 
 // TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
 const rawPostsQueue: HTMLElement[] = []
-const pushPostsQueue: any[] = []
+const pushPostsQueue: Partial<PostInfo>[] = []
 
-interface postInfo {
+type PostInfo = {
   title: string | null | undefined,
   content: string | null | undefined,
   created_time: Date,
   link: URL,
   postId: string | null | undefined,
   pagination: string | null | undefined
+  searchString: string
+  color: string | null,
+  thumbnail: string | null
 }
 
 
@@ -121,6 +125,21 @@ async function main() {
     
   } catch (e) {
 
+  }
+}
+
+async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
+  const discogsClient = new DiscogsClient({
+    personalToken: getEnv('DISCOGS_TOKEN')
+  })
+  for (const item of postsQueue) {
+    if(!item.searchString) {
+      return
+    }
+    const data = await discogsClient.getData<ResponseBody<SearchResult>>(
+      'database/search',
+      { query: item.searchString }
+    )
   }
 }
 

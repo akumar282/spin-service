@@ -44,3 +44,11 @@ export async function requestWithBody(
   const requestURI = url.concat(postRequest.path)
   return await fetch(requestURI, postRequest)
 }
+
+export function getEnv(name: string): string {
+  const val = process.env[name]
+  if (!val) {
+    throw new Error('Error: AppSyncKey not defined')
+  }
+  return val
+}
