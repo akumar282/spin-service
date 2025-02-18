@@ -5,10 +5,9 @@ import { ArtistSuccessResponseBody, ResponseBody } from './discogs/types'
 
 // TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
-  'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=AskReddit&adDistance=2&ad_posts_served=1&feedLength=4&after='
-
+  'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
 const rawPostsQueue: HTMLElement[] = []
-const pushPostsQueue = []
+const pushPostsQueue: any[] = []
 
 interface postInfo {
   title: string | null | undefined,
@@ -75,7 +74,8 @@ function mapToAttributes(rawData: HTMLElement[]) {
       postId: post.getAttribute('id'),
       pagination: post.getAttribute('more-posts-cursor') ?? null,
       searchString: transformString(post.getAttribute('post-title')),
-      color: getColor(post.getAttribute('post-title'))
+      color: getColor(post.getAttribute('post-title')),
+      thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null
     })
   })
 }
@@ -104,7 +104,6 @@ function getColor(title: string | undefined) {
 
 
 
-
 async function testGet() {
   const auth = {
     personalToken: ''
@@ -115,7 +114,17 @@ async function testGet() {
   }
   const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('database/search', test)
   console.log(data)
-
 }
 
-testGet().then()
+async function main() {
+  try {
+    
+  } catch (e) {
+
+  }
+}
+
+getRawPosts(BASE_URL).then(() => {
+  mapToAttributes(rawPostsQueue)
+  console.log(pushPostsQueue)
+})

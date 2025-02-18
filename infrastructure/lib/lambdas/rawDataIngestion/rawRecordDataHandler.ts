@@ -45,6 +45,7 @@ export async function handler(
                 Item: {
                   body,
                 },
+                ConditionExpression: 'attribute_not_exists(postId)',
               })
               const response = await docClient.send(command)
               return apiResponse(response, 200)
