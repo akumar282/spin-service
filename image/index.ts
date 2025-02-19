@@ -39,7 +39,7 @@ async function getPage(endpoint: string): Promise<HTMLElement | number> {
     })
     return parseHTML(data.data)
   } catch (error) {
-    console.error('An error occurred:', error)
+    console.error('[GET_PAGE]: Execution failed with message ' + error)
     return 400
   }
 }
@@ -130,6 +130,8 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
         item.label = first.label
         item.thumbnail ||= first.thumb
       }
+    } else {
+      console.warn(`[DISCOGS_CALL]: ${item.postTitle} not found in Discogs`)
     }
   }
 }
@@ -141,9 +143,13 @@ async function main() {
     mapToAttributes(rawPostsQueue)
     await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
-      await requestWithBody('/raw', endpointUrl, item, requestHttpMethod.POST)
+      try {
+        await requestWithBody('/raw', endpointUrl, item, requestHttpMethod.POST)
+      } catch (e) {
+        console.error(`[API_INGESTION_CALL] Post call failed for ${item.postId}`)
+      }
     }
   } catch (e) {
-
+    console.error('[MAIN]: Execution failed with message ' + e)
   }
 }

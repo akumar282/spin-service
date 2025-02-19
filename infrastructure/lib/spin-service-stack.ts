@@ -13,10 +13,16 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { FargateTask } from './fargate/fargateTask'
 import { FargateScheduleProps } from './fargate/types'
 import { getEnv } from './shared/utils'
+import { LogGroup } from 'aws-cdk-lib/aws-logs'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
+
+    const logGroup = new LogGroup(this, 'DataAggLogGroup', {
+      logGroupName: '/ecs/spinServiceContainer',
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTable', {
       tableName: 'recordsTable',
@@ -100,6 +106,7 @@ export class SpinServiceStack extends cdk.Stack {
         API_URL: recordsApi.url,
         DISCOGS_TOKEN: getEnv('DISCOGS_TOKEN'),
       },
+      logs: logGroup,
     })
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {

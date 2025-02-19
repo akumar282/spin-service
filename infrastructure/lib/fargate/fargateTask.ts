@@ -29,6 +29,10 @@ export class FargateTask {
       environment: {
         ...passthroughProps?.environment,
       },
+      logging: new ecs.AwsLogDriver({
+        streamPrefix: 'ecsSpinService',
+        logGroup: passthroughProps?.logs,
+      }),
     })
 
     new FargateService(scope, id, {

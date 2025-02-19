@@ -1,3 +1,5 @@
+import { LogGroup } from 'aws-cdk-lib/aws-logs'
+
 export type FargateScheduleProps = {
   taskDefId: string
   vpcId: string
@@ -13,4 +15,5 @@ export type ContainerEnvVars = {
   environment: {
     [p: string]: string
   }
+  logs: LogGroup
 }
