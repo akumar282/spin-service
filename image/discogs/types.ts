@@ -155,7 +155,7 @@ export type Release = {
   year: number
 }
 
-type ResultSearch =  {
+export type ResultSearch =  {
   style: string[]
   thumb: string
   title: string

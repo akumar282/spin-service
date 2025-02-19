@@ -1,27 +1,30 @@
 import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
-import { ArtistSuccessResponseBody, ResponseBody, SearchResult } from './discogs/types'
-import { getEnv } from './utils'
+import { ResponseBody, SearchResult } from './discogs/types'
+import { getEnv, requestHttpMethod, requestWithBody } from './utils'
 
-// TODO: Change to vinyl releases URL after api creation
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
+
 const rawPostsQueue: HTMLElement[] = []
 const pushPostsQueue: Partial<PostInfo>[] = []
 
 type PostInfo = {
-  title: string | null | undefined,
+  postTitle: string | null | undefined,
   content: string | null | undefined,
   created_time: Date,
-  link: URL,
+  link: string,
   postId: string | null | undefined,
   pagination: string | null | undefined
   searchString: string
   color: string | null,
   thumbnail: string | null
+  genre: string[]
+  title: string,
+  label: string[],
+  resource_url: URL
 }
-
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
   try {
@@ -37,7 +40,7 @@ async function getPage(endpoint: string): Promise<HTMLElement | number> {
     return parseHTML(data.data)
   } catch (error) {
     console.error('An error occurred:', error)
-    throw error
+    return 400
   }
 }
 
@@ -71,7 +74,7 @@ async function getRawPosts(url: string) {
 function mapToAttributes(rawData: HTMLElement[]) {
   rawData.map(post => {
     pushPostsQueue.push({
-      title: post.getAttribute('post-title'),
+      postTitle: post.getAttribute('post-title'),
       content: post.getAttribute('content-href'),
       link: `https://www.reddit.com${post.getAttribute('permalink')}`,
       created_time: new Date(post.getAttribute('created-timestamp') as string),
@@ -106,28 +109,6 @@ function getColor(title: string | undefined) {
   return match ? match[1] : null
 }
 
-
-
-async function testGet() {
-  const auth = {
-    personalToken: ''
-  }
-  const dis = new DiscogsClient(auth)
-  const test = {
-    query: 'Renee Rapp Snow Angel Exclusive Blue',
-  }
-  const data = await dis.getData<ResponseBody<ArtistSuccessResponseBody>>('database/search', test)
-  console.log(data)
-}
-
-async function main() {
-  try {
-    
-  } catch (e) {
-
-  }
-}
-
 async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
   const discogsClient = new DiscogsClient({
     personalToken: getEnv('DISCOGS_TOKEN')
@@ -140,10 +121,29 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
       'database/search',
       { query: item.searchString }
     )
+    if('results' in data) {
+      const first = data.results.pop()
+      if(first !== undefined) {
+        item.title = first.title
+        item.resource_url = first.resource_url
+        item.genre = first.genre
+        item.label = first.label
+        item.thumbnail ||= first.thumb
+      }
+    }
   }
 }
 
-getRawPosts(BASE_URL).then(() => {
-  mapToAttributes(rawPostsQueue)
-  console.log(pushPostsQueue)
-})
+async function main() {
+  try {
+    const endpointUrl = getEnv('API_URL')
+    await getRawPosts(BASE_URL)
+    mapToAttributes(rawPostsQueue)
+    await joinWithDiscogs(pushPostsQueue)
+    for (const item of pushPostsQueue) {
+      await requestWithBody('/raw', endpointUrl, item, requestHttpMethod.POST)
+    }
+  } catch (e) {
+
+  }
+}
