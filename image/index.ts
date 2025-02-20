@@ -153,3 +153,10 @@ async function main() {
     console.error('[MAIN]: Execution failed with message ' + e)
   }
 }
+
+main().then(() => {
+  const time = new Date().toString()
+  console.info('Run complete: ' + time)
+}).catch((error) => {
+  console.error(error)
+})
