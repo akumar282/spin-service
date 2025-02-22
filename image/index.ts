@@ -19,8 +19,8 @@ type PostInfo = {
   pagination: string | null | undefined
   searchString: string
   color: string | null,
-  thumbnail: string | null
-  genre: string[]
+  thumbnail: string | null,
+  genre: string[],
   title: string,
   label: string[],
   resource_url: URL
@@ -91,22 +91,16 @@ function transformString(title: string | undefined): string {
   if(title === undefined) {
     return 'Void'
   }
-  return title
-    .replace(/\(.*?\)/g, '')
-    .replace(/\s*\w*\s*vinyl/g, '')
-    .replace(/\s*\w*LP\w*/g, '')
-    .replace(/\$[^\s]*/g, '')
-    .replace(/-/g, '')
-    .toLowerCase()
-    .trim()
+  const match = title.match(/^(.+?)(?=\s*[\(\[\|"]|$)/)
+  return match ? match[1].trim() : title.trim()
 }
 
 function getColor(title: string | undefined) {
   if(title === undefined) {
     return 'Black'
   }
-  const match = title.match(/\((\w+)\s+vinyl\)/)
-  return match ? match[1] : null
+  const match = title.match(/(\w+)\s+Vinyl/i)
+  return match ? match[1] : 'Black'
 }
 
 async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {

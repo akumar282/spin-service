@@ -1,3 +1,10 @@
+ifneq ($(ENV),)
+    include .env.$(ENV)
+else
+    include .env.default
+endif
+export
+
 install:
 	npm ci
 
