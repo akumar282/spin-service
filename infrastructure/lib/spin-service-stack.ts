@@ -37,7 +37,7 @@ export class SpinServiceStack extends cdk.Stack {
       billing: Billing.onDemand(),
       pointInTimeRecovery: true,
       timeToLiveAttribute: 'expires',
-      removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
+      removalPolicy: RemovalPolicy.DESTROY,
     })
 
     recordsTable.addGlobalSecondaryIndex({
@@ -96,7 +96,7 @@ export class SpinServiceStack extends cdk.Stack {
       clusterId: 'spinServiceCluster',
       container: {
         id: 'spinServiceContainer',
-        assetPath: '../../image',
+        assetPath: './image',
       },
       enableDlq: true,
     }

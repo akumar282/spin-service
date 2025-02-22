@@ -10,7 +10,8 @@
     "build-lambdas": "webpack --mode=production",
     "build": "tsc && npm run build-lambdas",
     "prettier": "prettier './lib/*.ts' './lib/**/*.ts' './lib/**/**/*.ts' './bin/*.ts' --write",
-    "lint": "eslint --ext .ts bin/ lib/ test/"
+    "lint": "eslint --ext .ts bin/ lib/ test/",
+    "cdk": "cdk"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,5 @@
 {
-  "app": "ts-node -r tsconfig-paths/register --prefer-ts-exts bin/spin-service.ts",
+  "app": "ts-node -r tsconfig-paths/register --prefer-ts-exts infrastructure/bin/spin-service.ts",
   "watch": {
     "include": [
       "**"

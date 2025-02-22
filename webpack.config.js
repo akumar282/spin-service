@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const nodeBuiltins = require('builtin-modules')
 
-const lambdaDir = 'lib/lambdas'
+const lambdaDir = 'infrastructure/lib/lambdas'
 const lambdaNames = fs.readdirSync(path.join(__dirname, lambdaDir))
 
 const entry = lambdaNames.reduce((entryMap, lambdaName) => {

@@ -1,0 +1,5 @@
+### GET request to example server
+# @no-cookie-jar
+GET https://api.discogs.com/artists/12765
+
+###

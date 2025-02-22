@@ -1,0 +1,1 @@
+{"version":3,"file":"publicRecordDataHandler.d.ts","sourceRoot":"","sources":["../../../../infrastructure/lib/lambdas/publicRecordDataHandler/publicRecordDataHandler.ts"],"names":[],"mappings":"AAAA,OAAO,EACL,oBAAoB,EACpB,qBAAqB,EACrB,OAAO,EACR,MAAM,YAAY,CAAA;AAcnB,wBAAsB,OAAO,CAC3B,KAAK,EAAE,oBAAoB,EAC3B,OAAO,EAAE,OAAO,GACf,OAAO,CAAC,qBAAqB,CAAC,CAmFhC"}
