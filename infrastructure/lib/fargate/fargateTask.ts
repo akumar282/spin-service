@@ -1,9 +1,17 @@
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { FargateService } from 'aws-cdk-lib/aws-ecs'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import { ContainerEnvVars, FargateScheduleProps } from './types'
+import {
+  Effect,
+  Policy,
+  PolicyDocument,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
 
 export class FargateTask {
   constructor(
@@ -21,6 +29,24 @@ export class FargateTask {
       vpc,
       enableFargateCapacityProviders: true,
     })
+
+    const schedulerRole = new Role(scope, 'scheduleRole', {
+      assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
+    })
+
+    const schedulerPolicy = new Policy(scope, 'schedulerPolicy', {
+      document: new PolicyDocument({
+        statements: [
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ['sts:AssumeRole'],
+            resources: ['*'],
+          }),
+        ],
+      }),
+    })
+
+    schedulerRole.attachInlinePolicy(schedulerPolicy)
 
     const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
 
@@ -60,8 +86,8 @@ export class FargateTask {
       },
       scheduleExpression: 'rate(15 minutes)',
       target: {
-        arn: taskDefinition.taskDefinitionArn,
-        roleArn: taskDefinition.taskDefinitionArn,
+        arn: cluster.clusterArn,
+        roleArn: schedulerRole.roleArn,
         ...(props.enableDlq
           ? { deadLetterConfig: { arn: this.addDlq(scope, 'EventDlq') } }
           : {}),

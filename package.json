@@ -33,7 +33,7 @@
     "@typescript-eslint/parser": "5.58.0",
     "ansi-regex": "6.0.1",
     "audit-ci": "6.6.1",
-    "aws-cdk": "2.95.1",
+    "aws-cdk": "2.1000.2",
     "builtin-functions": "1.0.0",
     "builtin-modules": "3.2.0",
     "degenerator": "3.0.1",

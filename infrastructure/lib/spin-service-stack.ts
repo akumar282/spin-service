@@ -26,6 +26,7 @@ export class SpinServiceStack extends cdk.Stack {
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTable', {
       tableName: 'recordsTable',
+      tags: [{ key: 'SpinServiceRecords', value: 'SpinServiceRecords' }],
       partitionKey: {
         name: 'id',
         type: AttributeType.STRING,
@@ -59,7 +60,8 @@ export class SpinServiceStack extends cdk.Stack {
     })
 
     const usersTable = new dynamodb.TableV2(this, 'usersTable', {
-      tableName: 'recordsTable',
+      tableName: 'usersTable',
+      tags: [{ key: 'SpinServiceUsers', value: 'SpinServiceUsers' }],
       partitionKey: {
         name: 'id',
         type: AttributeType.STRING,
@@ -115,7 +117,6 @@ export class SpinServiceStack extends cdk.Stack {
       handler: 'rawRecordDataHandler.handler',
       timeout: Duration.seconds(20),
       environment: {
-        API_URL: recordsApi.url,
         TABLE_NAME: recordsTable.tableName,
         TABLE_ARN: recordsTable.tableArn,
       },
@@ -127,7 +128,6 @@ export class SpinServiceStack extends cdk.Stack {
       handler: 'publicRecordDataHandler.handler',
       timeout: Duration.seconds(20),
       environment: {
-        API_URL: recordsApi.url,
         TABLE_NAME: recordsTable.tableName,
         TABLE_ARN: recordsTable.tableArn,
         USER_TABLE: usersTable.tableName,
@@ -141,11 +141,10 @@ export class SpinServiceStack extends cdk.Stack {
 
     const ingestionResource: Resource = recordsApi.root.addResource('raw')
     ingestionResource.addMethod('POST', rawDataIntegration)
-    ingestionResource.addResource('{id}').addMethod('GET', rawDataIntegration)
-    ingestionResource
-      .addResource('{id}')
-      .addMethod('DELETE', rawDataIntegration)
-    ingestionResource.addResource('{id}').addMethod('PATCH', rawDataIntegration)
+    const ingestionResourceId = ingestionResource.addResource('{id}')
+    ingestionResourceId.addMethod('GET', rawDataIntegration)
+    ingestionResourceId.addMethod('DELETE', rawDataIntegration)
+    ingestionResourceId.addMethod('PATCH', rawDataIntegration)
 
     const clientResource = recordsApi.root.addResource('public')
     clientResource.addMethod('POST', publicDataIntegration)

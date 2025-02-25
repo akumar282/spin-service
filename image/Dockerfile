@@ -1,6 +1,6 @@
 # Build stage, includings NPM and tools necessary for the build
 FROM public.ecr.aws/docker/library/node:20 as build
-WORKDIR /srv
+WORKDIR /app
 
 # Install dependencies based on the `package.json` and `package-lock.json`
 # files in the host folder
@@ -16,9 +16,9 @@ FROM public.ecr.aws/docker/library/node:20-slim
 ENV NODE_ENV production
 USER node
 
-COPY --from=build /srv .
+COPY --from=build /app .
 ADD . .
 
 # Specify the command to run when launching the container
 EXPOSE 3000
-CMD node index.js
+CMD ["npm", "start"]
