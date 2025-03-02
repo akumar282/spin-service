@@ -23,6 +23,10 @@ diff:
 	npm run cdk -- diff $(ENV)-$(STACK_NAME) \
 	--output cdk_stack/$(ENV)-$(STACK_NAME)
 
+destroy:
+	npm run cdk -- destroy $(ENV)-$(STACK_NAME) \
+    --output cdk_stack/$(ENV)-$(STACK_NAME)
+
 buildDiff: build diff
 
 buildDeploy: build deploy

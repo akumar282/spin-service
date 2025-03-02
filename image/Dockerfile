@@ -1,5 +1,5 @@
 # Build stage, includings NPM and tools necessary for the build
-FROM public.ecr.aws/docker/library/node:20 as build
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/node:20 as build
 WORKDIR /app
 
 # Install dependencies based on the `package.json` and `package-lock.json`
@@ -11,7 +11,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 
 # Production stage, only includes what is needed for production
-FROM public.ecr.aws/docker/library/node:20-slim
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/node:20-slim
 
 ENV NODE_ENV production
 USER node

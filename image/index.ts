@@ -3,6 +3,7 @@ import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
 import { ResponseBody, SearchResult } from './discogs/types'
 import { getEnv, requestHttpMethod, requestWithBody } from './utils'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
@@ -37,6 +38,7 @@ async function getPage(endpoint: string): Promise<HTMLElement | number> {
         "cookie": "intl_splash=false"
       },
     })
+    console.log(data.data)
     return parseHTML(data.data)
   } catch (error) {
     console.error('[GET_PAGE]: Execution failed with message ' + error)

@@ -114,7 +114,7 @@ export class SpinServiceStack extends cdk.Stack {
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
       runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/rawDataIngestion'),
-      handler: 'rawRecordDataHandler.handler',
+      handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
         TABLE_NAME: recordsTable.tableName,
@@ -125,7 +125,7 @@ export class SpinServiceStack extends cdk.Stack {
     const publicHandler = new lambda.Function(this, 'PublicRecordDataHandler', {
       runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/publicRecordDataHandler'),
-      handler: 'publicRecordDataHandler.handler',
+      handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
         TABLE_NAME: recordsTable.tableName,

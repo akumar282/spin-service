@@ -61,24 +61,24 @@ export class FargateTask {
       }),
     })
 
-    new FargateService(scope, id, {
-      cluster,
-      taskDefinition,
-      minHealthyPercent: 100,
-      capacityProviderStrategies: [
-        {
-          capacityProvider: 'FARGATE_SPOT',
-          weight: 2,
-        },
-        {
-          capacityProvider: 'FARGATE',
-          weight: 1,
-        },
-      ],
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-    })
+    // new FargateService(scope, id, {
+    //   cluster,
+    //   taskDefinition,
+    //   minHealthyPercent: 100,
+    //   capacityProviderStrategies: [
+    //     {
+    //       capacityProvider: 'FARGATE_SPOT',
+    //       weight: 2,
+    //     },
+    //     {
+    //       capacityProvider: 'FARGATE',
+    //       weight: 1,
+    //     },
+    //   ],
+    //   vpcSubnets: {
+    //     subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+    //   },
+    // })
 
     new scheduler.CfnSchedule(scope, 'FargateSchedule', {
       flexibleTimeWindow: {
