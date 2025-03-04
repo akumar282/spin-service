@@ -1,6 +1,5 @@
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
-import { FargateService } from 'aws-cdk-lib/aws-ecs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import { ContainerEnvVars, FargateScheduleProps } from './types'
@@ -23,12 +22,26 @@ export class FargateTask {
     const vpc = new ec2.Vpc(scope, props.vpcId, {
       maxAzs: 2,
       natGateways: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'PublicSubnet',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'PrivateSubnet',
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+      ],
     })
 
     const cluster = new ecs.Cluster(scope, props.clusterId, {
       vpc,
       enableFargateCapacityProviders: true,
     })
+
+    const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
 
     const schedulerRole = new Role(scope, 'scheduleRole', {
       assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
@@ -39,7 +52,12 @@ export class FargateTask {
         statements: [
           new PolicyStatement({
             effect: Effect.ALLOW,
-            actions: ['sts:AssumeRole'],
+            actions: ['ecs:RunTask'],
+            resources: [taskDefinition.taskDefinitionArn, cluster.clusterArn],
+          }),
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ['iam:PassRole'],
             resources: ['*'],
           }),
         ],
@@ -47,8 +65,6 @@ export class FargateTask {
     })
 
     schedulerRole.attachInlinePolicy(schedulerPolicy)
-
-    const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
 
     taskDefinition.addContainer(props.container.id, {
       image: ecs.ContainerImage.fromAsset(props.container.assetPath),
@@ -61,24 +77,10 @@ export class FargateTask {
       }),
     })
 
-    // new FargateService(scope, id, {
-    //   cluster,
-    //   taskDefinition,
-    //   minHealthyPercent: 100,
-    //   capacityProviderStrategies: [
-    //     {
-    //       capacityProvider: 'FARGATE_SPOT',
-    //       weight: 2,
-    //     },
-    //     {
-    //       capacityProvider: 'FARGATE',
-    //       weight: 1,
-    //     },
-    //   ],
-    //   vpcSubnets: {
-    //     subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-    //   },
-    // })
+    const securityGroup = new ec2.SecurityGroup(scope, 'SpinTaskSecGroup', {
+      vpc,
+      allowAllOutbound: true,
+    })
 
     new scheduler.CfnSchedule(scope, 'FargateSchedule', {
       flexibleTimeWindow: {
@@ -99,10 +101,7 @@ export class FargateTask {
               subnets: vpc.selectSubnets({
                 subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
               }).subnetIds,
-              securityGroups: [
-                new ec2.SecurityGroup(scope, 'SpinTaskSecGroup', { vpc })
-                  .securityGroupId,
-              ],
+              securityGroups: [securityGroup.securityGroupId],
             },
           },
         },
