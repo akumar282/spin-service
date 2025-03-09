@@ -107,6 +107,7 @@ export class SpinServiceStack extends cdk.Stack {
       environment: {
         API_URL: recordsApi.url,
         DISCOGS_TOKEN: getEnv('DISCOGS_TOKEN'),
+        PROXY_IP: getEnv('PROXY_IP'),
       },
       logs: logGroup,
     })
