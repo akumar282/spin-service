@@ -26,7 +26,7 @@ export async function handler(
   context: Context
 ): Promise<APIGatewayProxyResult> {
   const resource = event.path
-  if (resource !== 'raw' && resource !== 'raw/{id}') {
+  if (resource !== '/raw' && resource !== '/raw/{id}') {
     const info = {
       context,
       event,
@@ -35,7 +35,7 @@ export async function handler(
     return apiResponse(info, 400)
   } else {
     switch (event.path) {
-      case 'raw': {
+      case '/raw': {
         if (event.httpMethod === 'POST') {
           if (event.body) {
             try {
@@ -65,7 +65,7 @@ export async function handler(
           return apiResponse('invalid method', 405)
         }
       }
-      case 'raw/{id}': {
+      case '/raw/{id}': {
         const id = event.pathParameters?.id
         if (id !== undefined) {
           switch (event.httpMethod) {
@@ -128,14 +128,14 @@ export async function handler(
                 const body: Partial<Records> = JSON.parse(event.body)
                 const input: UpdateCommandInput = {
                   ExpressionAttributeNames: {
-                    '#al': 'album',
+                    '#ti': 'title',
                     '#ar': 'artist',
                     '#ye': 'year',
                     '#me': 'media',
                   },
                   ExpressionAttributeValues: {
-                    ':a': {
-                      S: body.album,
+                    ':t': {
+                      S: body.title,
                     },
                     ':ar': {
                       S: body.artist,
@@ -155,7 +155,7 @@ export async function handler(
                   ReturnValues: 'ALL_NEW',
                   TableName: getEnv('TABLE_NAME'),
                   UpdateExpression:
-                    'SET #al = :a, #ar = :ar, #ye = :y, #me = :m',
+                    'SET #ti = :t, #ar = :ar, #ye = :y, #me = :m',
                 }
                 const command = new UpdateItemCommand(input)
                 const response = await client.send(command)

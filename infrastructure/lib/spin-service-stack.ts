@@ -135,6 +135,9 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
+    recordsTable.grantReadWriteData(rawDataHandler)
+    recordsTable.grantReadWriteData(publicHandler)
+
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
     const publicDataIntegration = new apigateway.LambdaIntegration(
       publicHandler

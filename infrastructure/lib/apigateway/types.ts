@@ -17,15 +17,20 @@ export type HttpMethod = z.infer<typeof HttpMethod>
 
 export type Records = {
   id: string
-  album: string
-  artist: string
-  year: string
+  artist: string | null | undefined
+  year: string | null | undefined
   media: 'cd' | 'vinyl'
-  color: string
-  label: string
-  raw_post_title: string
-  raw_content: string
-  raw_link: string
-  post_time: Date
-  postId: string
+  postTitle: string | null | undefined
+  content: string | null | undefined
+  created_time: Date
+  link: string
+  postId: string | null | undefined
+  pagination: string | null | undefined
+  searchString: string
+  color: string | null
+  thumbnail: string | null
+  genre: string[]
+  title: string
+  label: string[]
+  resource_url: URL
 }

@@ -8,5 +8,5 @@ module.exports = {
     transform: {
         '^.+\\.tsx?$': 'ts-jest',
     },
-    setupFiles: ["<rootDir>/.jest/setupEnvVars.js"],
+    //setupFiles: ["<rootDir>/.jest/setupEnvVars.js"],
 }

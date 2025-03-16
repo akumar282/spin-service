@@ -86,7 +86,7 @@ export class FargateTask {
       flexibleTimeWindow: {
         mode: 'OFF',
       },
-      scheduleExpression: 'rate(15 minutes)',
+      scheduleExpression: 'rate(20 minutes)',
       target: {
         arn: cluster.clusterArn,
         roleArn: schedulerRole.roleArn,
