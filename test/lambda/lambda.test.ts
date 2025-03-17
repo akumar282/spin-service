@@ -34,7 +34,5 @@ test('Lambda Test', async () => {
     ),
     <Context>mockContext
   )
-
-  console.log(result)
   expect(result)
 }, 15000)

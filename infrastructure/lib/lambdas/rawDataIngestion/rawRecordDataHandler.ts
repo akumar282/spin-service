@@ -42,9 +42,7 @@ export async function handler(
               const body: Records = JSON.parse(event.body)
               const command = new PutCommand({
                 TableName: getEnv('TABLE_NAME'),
-                Item: {
-                  body,
-                },
+                Item: body,
                 ConditionExpression: 'attribute_not_exists(postId)',
               })
               const response = await docClient.send(command)

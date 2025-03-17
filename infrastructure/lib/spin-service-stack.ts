@@ -24,11 +24,11 @@ export class SpinServiceStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
-    const recordsTable = new dynamodb.TableV2(this, 'recordsTable', {
-      tableName: 'recordsTable',
+    const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
+      tableName: 'recordsTableNew',
       tags: [{ key: 'SpinServiceRecords', value: 'SpinServiceRecords' }],
       partitionKey: {
-        name: 'id',
+        name: 'postId',
         type: AttributeType.STRING,
       },
       sortKey: {
@@ -51,9 +51,9 @@ export class SpinServiceStack extends cdk.Stack {
     })
 
     recordsTable.addGlobalSecondaryIndex({
-      indexName: 'rawPostId',
+      indexName: 'idIndex',
       partitionKey: {
-        name: 'postId',
+        name: 'id',
         type: AttributeType.STRING,
       },
       projectionType: ProjectionType.ALL,
