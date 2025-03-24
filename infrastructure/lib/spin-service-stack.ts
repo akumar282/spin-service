@@ -5,6 +5,7 @@ import {
   AttributeType,
   Billing,
   ProjectionType,
+  StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Resource } from 'aws-cdk-lib/aws-apigateway'
@@ -13,7 +14,8 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { FargateTask } from './fargate/fargateTask'
 import { FargateScheduleProps } from './fargate/types'
 import { getEnv } from './shared/utils'
-import { LogGroup } from 'aws-cdk-lib/aws-logs'
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -39,6 +41,7 @@ export class SpinServiceStack extends cdk.Stack {
       pointInTimeRecovery: true,
       timeToLiveAttribute: 'expires',
       removalPolicy: RemovalPolicy.DESTROY,
+      dynamoStream: StreamViewType.NEW_IMAGE,
     })
 
     recordsTable.addGlobalSecondaryIndex({
@@ -74,6 +77,19 @@ export class SpinServiceStack extends cdk.Stack {
       pointInTimeRecovery: true,
       timeToLiveAttribute: 'expires',
       removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
+      dynamoStream: StreamViewType.NEW_IMAGE,
+    })
+
+    const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
+      logGroupName: 'OpenSearchIngestionLogs',
+      removalPolicy: RemovalPolicy.DESTROY,
+      retention: RetentionDays.FIVE_DAYS,
+    })
+
+    const s3SearchBucket = new Bucket(this, 'OpenSearchBucket', {
+      bucketName: 'opensearch_bucket',
+      encryption: BucketEncryption.S3_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
     })
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {

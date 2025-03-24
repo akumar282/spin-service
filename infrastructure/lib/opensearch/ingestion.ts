@@ -1,0 +1,114 @@
+import { aws_opensearchserverless as oss } from 'aws-cdk-lib'
+import { Construct } from 'constructs'
+
+export type OpenSearchProps = {
+  collectionName: string
+  pipelineRoleArn: string
+}
+
+export class OpenSearchIngestion {
+  constructor(scope: Construct, id: string, props: OpenSearchProps) {
+    const collection = new oss.CfnCollection(
+      scope,
+      'OpenSearchRecordsCluster',
+      {
+        name: props.collectionName,
+        description: 'Integrate Table with improved search',
+        standbyReplicas: 'ENABLED',
+        tags: [{ key: 'SpinServiceRecords', value: 'SpinServiceRecords' }],
+        type: 'SEARCH',
+      }
+    )
+
+    const encryptionPolicy = new oss.CfnSecurityPolicy(
+      scope,
+      'EncryptionPolicy',
+      {
+        name: 'ddb-etl-encryption-policy',
+        type: 'encryption',
+        description: `Encryption policy for ${props.collectionName} collection.`,
+        policy: `
+      {
+        "Rules": [
+          {
+            "ResourceType": "collection",
+            "Resource": ["collection/${props.collectionName}*"]
+          }
+        ],
+        "AWSOwnedKey": true
+      }
+      `,
+      }
+    )
+
+    const networkPolicy = new oss.CfnSecurityPolicy(scope, 'NetworkPolicy', {
+      name: 'ddb-etl-network-policy',
+      type: 'network',
+      description: `Network policy for ${props.collectionName} collection.`,
+      policy: `
+        [
+          {
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": ["collection/${props.collectionName}"]
+              },
+              {
+                "ResourceType": "dashboard",
+                "Resource": ["collection/${props.collectionName}"]
+              }
+            ],
+            "AllowFromPublic": true
+          }
+        ]
+      `,
+    })
+
+    const dataAccessPolicy = new oss.CfnAccessPolicy(
+      scope,
+      'DataAccessPolicy',
+      {
+        name: 'ddb-etl-access-policy',
+        type: 'data',
+        description: `Data access policy for ${props.collectionName} collection.`,
+        policy: `
+        [
+          {
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": ["collection/${props.collectionName}*"],
+                "Permission": [
+                  "aoss:CreateCollectionItems",
+                  "aoss:DescribeCollectionItems",
+                  "aoss:DeleteCollectionItems",
+                  "aoss:UpdateCollectionItems"
+                ]
+              },
+              {
+                "ResourceType": "index",
+                "Resource": ["index/${props.collectionName}*/*"],
+                "Permission": [
+                  "aoss:CreateIndex",
+                  "aoss:DeleteIndex",
+                  "aoss:UpdateIndex",
+                  "aoss:DescribeIndex",
+                  "aoss:ReadDocument",
+                  "aoss:WriteDocument"
+                ]
+              }
+            ],
+            "Principal": [
+              "${props.pipelineRoleArn}",
+            ]
+          }
+        ]
+      `,
+      }
+    )
+
+    collection.node.addDependency(encryptionPolicy)
+    collection.node.addDependency(networkPolicy)
+    collection.node.addDependency(dataAccessPolicy)
+  }
+}
