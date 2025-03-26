@@ -16,6 +16,10 @@ import { FargateScheduleProps } from './fargate/types'
 import { getEnv } from './shared/utils'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
+import { pipelineConfig } from './opensearch/pipelineConfig'
+import { pipelineRole } from './opensearch/pipelineRoles'
+import { ManagedPolicy } from 'aws-cdk-lib/aws-iam'
+import { OpenSearchIngestion } from './opensearch/ingestion'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -91,6 +95,34 @@ export class SpinServiceStack extends cdk.Stack {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
     })
+
+    const pipeRole = pipelineRole(scope)
+
+    pipeRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
+    )
+
+    pipeRole.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
+    )
+
+    const ingestionOpenSearchResource = new OpenSearchIngestion(
+      scope,
+      'IndexAbility',
+      {
+        collectionName: 'Ingestion',
+        pipelineRoleArn: pipeRole.roleArn,
+      }
+    )
+
+    pipelineConfig(
+      recordsTable,
+      usersTable,
+      s3SearchBucket.bucketName,
+      pipeRole.roleArn,
+      ingestionOpenSearchResource.getEndpoint(),
+      ingestionOpenSearchResource.getNetworkName()
+    )
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
       restApiName: 'spinRecordsApi',

@@ -7,6 +7,9 @@ export type OpenSearchProps = {
 }
 
 export class OpenSearchIngestion {
+  public networkName: string
+  public collectionEndpoint: string
+
   constructor(scope: Construct, id: string, props: OpenSearchProps) {
     const collection = new oss.CfnCollection(
       scope,
@@ -107,8 +110,19 @@ export class OpenSearchIngestion {
       }
     )
 
+    this.networkName = networkPolicy.name
+    this.collectionEndpoint = collection.attrCollectionEndpoint
+
     collection.node.addDependency(encryptionPolicy)
     collection.node.addDependency(networkPolicy)
     collection.node.addDependency(dataAccessPolicy)
+  }
+
+  public getNetworkName(): string {
+    return this.networkName
+  }
+
+  public getEndpoint(): string {
+    return this.collectionEndpoint
   }
 }
