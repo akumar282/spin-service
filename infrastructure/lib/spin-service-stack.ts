@@ -20,6 +20,7 @@ import { pipelineConfig } from './opensearch/pipelineConfig'
 import { pipelineRole } from './opensearch/pipelineRoles'
 import { ManagedPolicy } from 'aws-cdk-lib/aws-iam'
 import { OpenSearchIngestion } from './opensearch/ingestion'
+import { openSearchPipeline } from './opensearch/pipeline'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -115,13 +116,20 @@ export class SpinServiceStack extends cdk.Stack {
       }
     )
 
-    pipelineConfig(
+    const pipeConfig = pipelineConfig(
       recordsTable,
       usersTable,
       s3SearchBucket.bucketName,
       pipeRole.roleArn,
       ingestionOpenSearchResource.getEndpoint(),
       ingestionOpenSearchResource.getNetworkName()
+    )
+
+    const pipeline = openSearchPipeline(
+      scope,
+      pipeConfig,
+      openSearchLogs.logGroupName,
+      'OpenSearchPipeline'
     )
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {

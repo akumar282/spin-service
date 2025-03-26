@@ -7,7 +7,7 @@ export const openSearchPipeline = (
   logGroup: string,
   pipelineName: string
 ) => {
-  new osis.CfnPipeline(scope, 'OpenSearchPipelineConstruct', {
+  return new osis.CfnPipeline(scope, 'OpenSearchPipelineConstruct', {
     maxUnits: 4,
     minUnits: 1,
     pipelineConfigurationBody: pipelineConfig,

@@ -1,6 +1,5 @@
 import {
   Effect,
-  ManagedPolicy,
   PolicyDocument,
   PolicyStatement,
   Role,
