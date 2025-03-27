@@ -125,7 +125,7 @@ export class SpinServiceStack extends cdk.Stack {
       ingestionOpenSearchResource.getNetworkName()
     )
 
-    const pipeline = openSearchPipeline(
+    openSearchPipeline(
       scope,
       pipeConfig,
       openSearchLogs.logGroupName,

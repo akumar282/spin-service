@@ -34,3 +34,20 @@ export type Records = {
   label: string[]
   resource_url: URL
 }
+
+enum NotifyTypes {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+  'INAPP' = 'INAPP',
+}
+
+export type User = {
+  id: string
+  email: string
+  phone?: string
+  notifyType: NotifyTypes[]
+  genres: string[]
+  labels: string[]
+  artists: string[]
+  albums: string[]
+}
