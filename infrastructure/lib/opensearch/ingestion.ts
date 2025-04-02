@@ -102,7 +102,7 @@ export class OpenSearchIngestion {
               }
             ],
             "Principal": [
-              "${props.pipelineRoleArn}",
+              "${props.pipelineRoleArn}"
             ]
           }
         ]

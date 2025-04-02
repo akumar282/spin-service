@@ -86,18 +86,18 @@ export class SpinServiceStack extends cdk.Stack {
     })
 
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
-      logGroupName: 'OpenSearchIngestionLogs',
+      logGroupName: '/aws/vendedlogs/ingestionPipeline',
       removalPolicy: RemovalPolicy.DESTROY,
       retention: RetentionDays.FIVE_DAYS,
     })
 
     const s3SearchBucket = new Bucket(this, 'OpenSearchBucket', {
-      bucketName: 'opensearch_bucket',
+      bucketName: 'open-search-bucket-1738',
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
-    const pipeRole = pipelineRole(scope)
+    const pipeRole = pipelineRole(this)
 
     pipeRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
@@ -108,10 +108,10 @@ export class SpinServiceStack extends cdk.Stack {
     )
 
     const ingestionOpenSearchResource = new OpenSearchIngestion(
-      scope,
+      this,
       'IndexAbility',
       {
-        collectionName: 'Ingestion',
+        collectionName: 'ingestion',
         pipelineRoleArn: pipeRole.roleArn,
       }
     )
@@ -126,10 +126,10 @@ export class SpinServiceStack extends cdk.Stack {
     )
 
     openSearchPipeline(
-      scope,
+      this,
       pipeConfig,
       openSearchLogs.logGroupName,
-      'OpenSearchPipeline'
+      'open-search-pipeline'
     )
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {

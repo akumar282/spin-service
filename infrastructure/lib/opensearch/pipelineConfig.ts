@@ -30,18 +30,9 @@ export const pipelineConfig = (
         aws:
           region: "us-west-2"
           sts_role_arn: "${iamRoleArn}"
-    transform:
-      route:
-        # Route data from the usersTable to the 'user' route
-        - match:
-            metadata:
-              table_arn: "${dynamoDbTable2.tableArn}"
-          to_label: "user"
-        # Route data from the recordsTable to the 'record' route
-        - match:
-            metadata:
-              table_arn: "${dynamoDbTable.tableArn}"
-          to_label: "record"
+    route:
+      - user: 'metadata.table_arn == "${dynamoDbTable2.tableArn}"'
+      - records: 'metadata.table_arn == "${dynamoDbTable.tableArn}"'
     sink: 
       - opensearch:
           hosts:
@@ -82,5 +73,5 @@ export const pipelineConfig = (
               bucket: "${s3BucketName}"
               key_path_prefix: "dlq/record"
               region: "us-west-2"
-              sts_role_arn: "${iamRoleArn}"\\
+              sts_role_arn: "${iamRoleArn}"
 `

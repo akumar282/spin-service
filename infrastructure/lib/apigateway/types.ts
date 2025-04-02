@@ -15,6 +15,12 @@ export const HttpMethod = z.enum([
 
 export type HttpMethod = z.infer<typeof HttpMethod>
 
+enum NotifyTypes {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+  INAPP = 'INAPP',
+}
+
 export type Records = {
   id: string
   artist: string | null | undefined
@@ -33,12 +39,6 @@ export type Records = {
   title: string
   label: string[]
   resource_url: URL
-}
-
-enum NotifyTypes {
-  EMAIL = 'EMAIL',
-  SMS = 'SMS',
-  'INAPP' = 'INAPP',
 }
 
 export type User = {
