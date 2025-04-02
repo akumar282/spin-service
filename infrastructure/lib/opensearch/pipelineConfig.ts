@@ -2,11 +2,11 @@ import { aws_dynamodb as dynamodb } from 'aws-cdk-lib'
 
 export const pipelineConfig = (
   dynamoDbTable: dynamodb.TableV2,
-  dynamoDbTable2: dynamodb.TableV2,
   s3BucketName: string,
   iamRoleArn: string,
   openSearchHost: string,
-  networkName: string
+  networkName: string,
+  sink: string
 ) => `
   version: "2"
   dynamo-pipeline:
@@ -20,46 +20,16 @@ export const pipelineConfig = (
             stream:
               start_position: "LATEST"
               view_on_remove: NEW_IMAGE
-          - table_arn: "${dynamoDbTable2.tableArn}"
-            export:
-              s3_bucket: "${s3BucketName}"
-              s3_prefix: "${dynamoDbTable2.tableName}"
-            stream:
-              start_position: "LATEST"
-              view_on_remove: NEW_IMAGE
         aws:
           region: "us-west-2"
           sts_role_arn: "${iamRoleArn}"
-    route:
-      - user: 'metadata.table_arn == "${dynamoDbTable2.tableArn}"'
-      - records: 'metadata.table_arn == "${dynamoDbTable.tableArn}"'
     sink: 
       - opensearch:
           hosts:
             - "${openSearchHost}"
-          index: "user"
+          index: "${sink}"
           routes:
-            - "user"
-          document_id: '\${getMetadata("primary_key")}'
-          action: '\${getMetadata("opensearch_action")}'
-          aws:
-            sts_role_arn: "${iamRoleArn}"
-            region: "us-west-2"
-            serverless: true
-            serverless_options:
-              network_policy_name: "${networkName}"
-          dlq:
-            s3:
-              bucket: "${s3BucketName}"
-              key_path_prefix: "dlq/user"
-              region: "us-west-2"
-              sts_role_arn: "${iamRoleArn}"
-      - opensearch:
-          hosts:
-            - "${openSearchHost}"
-          index: "record"
-          routes:
-            - "record"
+            - ${sink}
           document_id: '\${getMetadata("primary_key")}'
           action: '\${getMetadata("opensearch_action")}'
           aws:

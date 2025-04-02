@@ -116,20 +116,36 @@ export class SpinServiceStack extends cdk.Stack {
       }
     )
 
-    const pipeConfig = pipelineConfig(
+    const recordsPipeConfig = pipelineConfig(
       recordsTable,
+      s3SearchBucket.bucketName,
+      pipeRole.roleArn,
+      ingestionOpenSearchResource.getEndpoint(),
+      ingestionOpenSearchResource.getNetworkName(),
+      'records'
+    )
+
+    const usersPipeConfig = pipelineConfig(
       usersTable,
       s3SearchBucket.bucketName,
       pipeRole.roleArn,
       ingestionOpenSearchResource.getEndpoint(),
-      ingestionOpenSearchResource.getNetworkName()
+      ingestionOpenSearchResource.getNetworkName(),
+      'users'
     )
 
     openSearchPipeline(
       this,
-      pipeConfig,
+      recordsPipeConfig,
       openSearchLogs.logGroupName,
-      'open-search-pipeline'
+      'records-open-search-pipeline'
+    )
+
+    openSearchPipeline(
+      this,
+      usersPipeConfig,
+      openSearchLogs.logGroupName,
+      'users-open-search-pipeline'
     )
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
