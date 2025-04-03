@@ -138,14 +138,16 @@ export class SpinServiceStack extends cdk.Stack {
       this,
       recordsPipeConfig,
       openSearchLogs.logGroupName,
-      'records-open-search-pipeline'
+      'records-open-search-pipeline',
+      'recordsPipelineConstruct'
     )
 
     openSearchPipeline(
       this,
       usersPipeConfig,
       openSearchLogs.logGroupName,
-      'users-open-search-pipeline'
+      'users-open-search-pipeline',
+      'usersPipelineConstruct'
     )
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
@@ -225,5 +227,9 @@ export class SpinServiceStack extends cdk.Stack {
     const clientResource = recordsApi.root.addResource('public')
     clientResource.addMethod('POST', publicDataIntegration)
     clientResource.addResource('{id}').addMethod('GET', publicDataIntegration)
+
+    new cdk.CfnOutput(this, 'OpenSearchServerlessCollectionEndpoint', {
+      value: `${ingestionOpenSearchResource.getEndpoint()}`,
+    })
   }
 }

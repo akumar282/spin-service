@@ -5,9 +5,10 @@ export const openSearchPipeline = (
   scope: Construct,
   pipelineConfig: string,
   logGroup: string,
-  pipelineName: string
+  pipelineName: string,
+  id: string
 ) => {
-  return new osis.CfnPipeline(scope, 'OpenSearchPipelineConstruct', {
+  return new osis.CfnPipeline(scope, id, {
     maxUnits: 4,
     minUnits: 1,
     pipelineConfigurationBody: pipelineConfig,

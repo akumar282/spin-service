@@ -57,6 +57,12 @@ export const pipelineRole = (scope: Construct): Role => {
             resources: ['*'],
           }),
           new PolicyStatement({
+            sid: 'allowBatchGet',
+            effect: Effect.ALLOW,
+            actions: ['aoss:BatchGetCollection', 'aoss:DescribeCollection'],
+            resources: ['*'],
+          }),
+          new PolicyStatement({
             actions: ['es:DescribeDomain'],
             resources: ['*'],
             effect: Effect.ALLOW,
