@@ -9,7 +9,7 @@ import { Construct } from 'constructs'
 
 export const pipelineRole = (scope: Construct): Role => {
   return new Role(scope, 'OpenSearchPipeline', {
-    roleName: 'OpenSerchPipelineRole',
+    roleName: 'OpenSearchPipelineRole',
     assumedBy: new ServicePrincipal('osis-pipelines.amazonaws.com'),
     inlinePolicies: {
       OpenSearchPolicy: new PolicyDocument({
@@ -40,6 +40,8 @@ export const pipelineRole = (scope: Construct): Role => {
             effect: Effect.ALLOW,
             actions: [
               'dynamodb:DescribeStream',
+              'dynamodb:ExportTableToPointInTime',
+              'dynamodb:DescribeExport',
               'dynamodb:GetRecords',
               'dynamodb:GetShardIterator',
             ],
@@ -49,6 +51,7 @@ export const pipelineRole = (scope: Construct): Role => {
             sid: 'allowReadAndWriteToS3ForExport',
             effect: Effect.ALLOW,
             actions: [
+              's3:ListBucket',
               's3:GetObject',
               's3:AbortMultipartUpload',
               's3:PutObject',
@@ -59,7 +62,11 @@ export const pipelineRole = (scope: Construct): Role => {
           new PolicyStatement({
             sid: 'allowBatchGet',
             effect: Effect.ALLOW,
-            actions: ['aoss:BatchGetCollection', 'aoss:DescribeCollection'],
+            actions: [
+              'aoss:BatchGetCollection',
+              'aoss:DescribeCollection',
+              'aoss:DashboardsAccessAll',
+            ],
             resources: ['*'],
           }),
           new PolicyStatement({

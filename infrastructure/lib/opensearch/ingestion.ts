@@ -1,5 +1,6 @@
 import { aws_opensearchserverless as oss } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
+import { getEnv } from '../shared/utils'
 
 export type OpenSearchProps = {
   collectionName: string
@@ -102,7 +103,8 @@ export class OpenSearchIngestion {
               }
             ],
             "Principal": [
-              "${props.pipelineRoleArn}"
+              "${props.pipelineRoleArn}",
+              "arn:aws:iam::${getEnv('ACCOUNT')}:root"
             ]
           }
         ]

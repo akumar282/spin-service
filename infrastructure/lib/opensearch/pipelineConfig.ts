@@ -16,7 +16,8 @@ export const pipelineConfig = (
           - table_arn: "${dynamoDbTable.tableArn}"
             export:
               s3_bucket: "${s3BucketName}"
-              s3_prefix: "${dynamoDbTable.tableName}"
+              s3_region: "us-west-2"
+              s3_prefix: "${dynamoDbTable.tableName}/"
             stream:
               start_position: "LATEST"
               view_on_remove: NEW_IMAGE

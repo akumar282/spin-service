@@ -138,16 +138,16 @@ export class SpinServiceStack extends cdk.Stack {
       this,
       recordsPipeConfig,
       openSearchLogs.logGroupName,
-      'records-open-search-pipeline',
-      'recordsPipelineConstruct'
+      'records-opensearchpipelinev2',
+      'recordsPipelineConstructV2'
     )
 
     openSearchPipeline(
       this,
       usersPipeConfig,
       openSearchLogs.logGroupName,
-      'users-open-search-pipeline',
-      'usersPipelineConstruct'
+      'users-opensearchpipelinev2',
+      'usersPipelineConstructV2'
     )
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
