@@ -1,4 +1,5 @@
 import {
+  CompositePrincipal,
   Effect,
   PolicyDocument,
   PolicyStatement,
@@ -10,7 +11,10 @@ import { Construct } from 'constructs'
 export const pipelineRole = (scope: Construct): Role => {
   return new Role(scope, 'OpenSearchPipeline', {
     roleName: 'OpenSearchPipelineRole',
-    assumedBy: new ServicePrincipal('osis-pipelines.amazonaws.com'),
+    assumedBy: new CompositePrincipal(
+      new ServicePrincipal('osis-pipelines.amazonaws.com'),
+      new ServicePrincipal('opensearchservice.amazonaws.com')
+    ),
     inlinePolicies: {
       OpenSearchPolicy: new PolicyDocument({
         statements: [
@@ -62,11 +66,7 @@ export const pipelineRole = (scope: Construct): Role => {
           new PolicyStatement({
             sid: 'allowBatchGet',
             effect: Effect.ALLOW,
-            actions: [
-              'aoss:BatchGetCollection',
-              'aoss:DescribeCollection',
-              'aoss:DashboardsAccessAll',
-            ],
+            actions: ['aoss:*'],
             resources: ['*'],
           }),
           new PolicyStatement({

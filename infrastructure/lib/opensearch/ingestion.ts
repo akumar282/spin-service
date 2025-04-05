@@ -91,7 +91,11 @@ export class OpenSearchIngestion {
               },
               {
                 "ResourceType": "index",
-                "Resource": ["index/${props.collectionName}*/*"],
+                "Resource": [
+                  "index/${props.collectionName}/*", 
+                  "index/${props.collectionName}/records", 
+                  "index/${props.collectionName}/users"
+                ],
                 "Permission": [
                   "aoss:CreateIndex",
                   "aoss:DeleteIndex",
