@@ -27,6 +27,7 @@ type PostInfo = {
   thumbnail: string | null,
   genre: string[],
   title: string,
+  artist: string | null,
   label: string[],
   resource_url: URL
 }

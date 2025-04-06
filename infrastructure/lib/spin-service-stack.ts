@@ -1,5 +1,10 @@
 import * as cdk from 'aws-cdk-lib'
-import { Duration, RemovalPolicy } from 'aws-cdk-lib'
+import {
+  Duration,
+  RemovalPolicy,
+  aws_sqs as sqs,
+  aws_pipes as pipes,
+} from 'aws-cdk-lib'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import {
   AttributeType,
@@ -21,6 +26,8 @@ import { pipelineRole } from './opensearch/pipelineRoles'
 import { ManagedPolicy } from 'aws-cdk-lib/aws-iam'
 import { OpenSearchIngestion } from './opensearch/ingestion'
 import { openSearchPipeline } from './opensearch/pipeline'
+import { queueRole } from './iam/queueRole'
+import { CfnPipeProps } from 'aws-cdk-lib/aws-pipes'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -184,6 +191,17 @@ export class SpinServiceStack extends cdk.Stack {
         PROXY_IP: getEnv('PROXY_IP'),
       },
       logs: logGroup,
+    })
+
+    const processingQueue = new sqs.Queue(this, 'processing_queue')
+    const processingRole = queueRole(this)
+
+    const processingPipeline = new pipes.CfnPipe(this, 'processing-pipe', <
+      CfnPipeProps
+    >{
+      roleArn: processingRole.roleArn,
+      source: recordsTable.tableStreamArn,
+      target: processingQueue.queueArn,
     })
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
