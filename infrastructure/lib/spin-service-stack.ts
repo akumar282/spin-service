@@ -201,6 +201,18 @@ export class SpinServiceStack extends cdk.Stack {
     >{
       roleArn: processingRole.roleArn,
       source: recordsTable.tableStreamArn,
+      sourceParameters: {
+        dynamoDbStreamParameters: {
+          startingPosition: 'LATEST',
+        },
+        filterCriteria: {
+          filters: [
+            {
+              pattern: '{"eventName":["INSERT","MODIFY"]}',
+            },
+          ],
+        },
+      },
       target: processingQueue.queueArn,
     })
 

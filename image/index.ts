@@ -89,6 +89,7 @@ function mapToAttributes(rawData: HTMLElement[]) {
       pagination: post.getAttribute('more-posts-cursor') ?? null,
       searchString: transformString(post.getAttribute('post-title')),
       color: getColor(post.getAttribute('post-title')),
+      artist: getArtist(post.getAttribute('post-title')),
       thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null
     })
   })
@@ -108,6 +109,15 @@ function getColor(title: string | undefined) {
   }
   const match = title.match(/(\w+)\s+Vinyl/i)
   return match ? match[1] : 'Black'
+}
+
+function getArtist(input: string | undefined): string {
+  const clean = transformString(input)
+  const index = clean.indexOf('-')
+  if (index === -1 ) {
+    return clean
+  }
+  return clean.substring(0, index).trim()
 }
 
 async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
