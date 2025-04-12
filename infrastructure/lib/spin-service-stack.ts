@@ -204,11 +204,12 @@ export class SpinServiceStack extends cdk.Stack {
       sourceParameters: {
         dynamoDbStreamParameters: {
           startingPosition: 'LATEST',
+          batchSize: 10,
         },
         filterCriteria: {
           filters: [
             {
-              pattern: '{"eventName":["INSERT","MODIFY"]}',
+              pattern: '{"eventName":["INSERT"]}',
             },
           ],
         },
