@@ -1,6 +1,7 @@
 import {
   CompositePrincipal,
   Effect,
+  ManagedPolicy,
   PolicyDocument,
   PolicyStatement,
   Role,
@@ -15,6 +16,10 @@ export const pipelineRole = (scope: Construct): Role => {
       new ServicePrincipal('osis-pipelines.amazonaws.com'),
       new ServicePrincipal('opensearchservice.amazonaws.com')
     ),
+    managedPolicies: [
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess'),
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
+    ],
     inlinePolicies: {
       OpenSearchPolicy: new PolicyDocument({
         statements: [

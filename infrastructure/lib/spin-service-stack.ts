@@ -1,9 +1,10 @@
 import * as cdk from 'aws-cdk-lib'
 import {
+  aws_pipes as pipes,
+  aws_sqs as sqs,
   Duration,
   RemovalPolicy,
-  aws_sqs as sqs,
-  aws_pipes as pipes,
+  SecretValue,
 } from 'aws-cdk-lib'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import {
@@ -21,13 +22,10 @@ import { FargateScheduleProps } from './fargate/types'
 import { getEnv } from './shared/utils'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
-import { pipelineConfig } from './opensearch/pipelineConfig'
-import { pipelineRole } from './opensearch/pipelineRoles'
-import { ManagedPolicy } from 'aws-cdk-lib/aws-iam'
-import { OpenSearchIngestion } from './opensearch/ingestion'
-import { openSearchPipeline } from './opensearch/pipeline'
+import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { queueRole } from './iam/queueRole'
 import { CfnPipeProps } from 'aws-cdk-lib/aws-pipes'
+import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -104,58 +102,33 @@ export class SpinServiceStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
-    const pipeRole = pipelineRole(this)
-
-    pipeRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
-    )
-
-    pipeRole.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess')
-    )
-
-    const ingestionOpenSearchResource = new OpenSearchIngestion(
-      this,
-      'IndexAbility',
-      {
-        collectionName: 'ingestion',
-        pipelineRoleArn: pipeRole.roleArn,
-      }
-    )
-
-    const recordsPipeConfig = pipelineConfig(
-      recordsTable,
-      s3SearchBucket.bucketName,
-      pipeRole.roleArn,
-      ingestionOpenSearchResource.getEndpoint(),
-      ingestionOpenSearchResource.getNetworkName(),
-      'records'
-    )
-
-    const usersPipeConfig = pipelineConfig(
-      usersTable,
-      s3SearchBucket.bucketName,
-      pipeRole.roleArn,
-      ingestionOpenSearchResource.getEndpoint(),
-      ingestionOpenSearchResource.getNetworkName(),
-      'users'
-    )
-
-    openSearchPipeline(
-      this,
-      recordsPipeConfig,
-      openSearchLogs.logGroupName,
-      'records-opensearchpipelinev9',
-      'recordsPipelineConstructV9'
-    )
-
-    openSearchPipeline(
-      this,
-      usersPipeConfig,
-      openSearchLogs.logGroupName,
-      'users-opensearchpipelinev9',
-      'usersPipelineConstructV9'
-    )
+    const dataIndexingDomain = new Domain(this, 'SpinDataDomain', {
+      version: EngineVersion.OPENSEARCH_2_17,
+      domainName: 'spin-data',
+      logging: {
+        appLogGroup: openSearchLogs,
+      },
+      removalPolicy: RemovalPolicy.DESTROY,
+      fineGrainedAccessControl: {
+        masterUserName: 'admin',
+        masterUserPassword: SecretValue.unsafePlainText(getEnv('DASHPASS')),
+      },
+      capacity: {
+        dataNodeInstanceType: 't3.small.search',
+        dataNodes: 1,
+        multiAzWithStandbyEnabled: false,
+      },
+      nodeToNodeEncryption: true,
+      encryptionAtRest: {
+        enabled: true,
+      },
+      ebs: {
+        volumeType: EbsDeviceVolumeType.GP3,
+        volumeSize: 15,
+      },
+      enforceHttps: true,
+      enableAutoSoftwareUpdate: true,
+    })
 
     const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
       restApiName: 'spinRecordsApi',
@@ -240,6 +213,22 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
+    const exportlambda = new lambda.Function(this, 'oneTimeExportLambda', {
+      runtime: lambda.Runtime.NODEJS_LATEST,
+      code: lambda.Code.fromAsset('dist/oneTimeExportLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(20),
+      environment: {
+        OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        BUCKET_ARN: s3SearchBucket.bucketArn,
+        BUCKET_NAME: s3SearchBucket.bucketName,
+        TABLE_NAME: recordsTable.tableName,
+        USERS_TABLE: usersTable.tableArn,
+      },
+    })
+
+    s3SearchBucket.grantReadWrite(exportlambda)
+
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
 
@@ -259,8 +248,8 @@ export class SpinServiceStack extends cdk.Stack {
     clientResource.addMethod('POST', publicDataIntegration)
     clientResource.addResource('{id}').addMethod('GET', publicDataIntegration)
 
-    new cdk.CfnOutput(this, 'OpenSearchServerlessCollectionEndpoint', {
-      value: `${ingestionOpenSearchResource.getEndpoint()}`,
+    new cdk.CfnOutput(this, 'OpenSearchEndpoint', {
+      value: `${dataIndexingDomain.domainEndpoint}`,
     })
   }
 }
