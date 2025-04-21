@@ -26,7 +26,7 @@ export async function handler(
 
     if (extractedDataRecords.length > 0) {
       for (const records of extractedDataRecords) {
-        const queryString = `records/_doc/${records.postId}`
+        const queryString = `users/_doc/${records.postId}`
         await requestWithBody(queryString, endpoint, records, 'POST')
       }
     }

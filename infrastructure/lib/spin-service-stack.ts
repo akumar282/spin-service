@@ -92,6 +92,20 @@ export class SpinServiceStack extends cdk.Stack {
       dynamoStream: StreamViewType.NEW_IMAGE,
     })
 
+    const ledgerTable = new dynamodb.TableV2(this, 'ledgerTable', {
+      tableName: 'ledgerTable',
+      partitionKey: {
+        name: 'postId',
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'created_time',
+        type: AttributeType.STRING,
+      },
+      timeToLiveAttribute: 'expires',
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
       logGroupName: '/aws/vendedlogs/ingestionPipeline',
       removalPolicy: RemovalPolicy.DESTROY,
@@ -212,7 +226,6 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         TABLE_NAME: recordsTable.tableName,
-        TABLE_ARN: recordsTable.tableArn,
         USER_TABLE: usersTable.tableName,
       },
     })
@@ -224,10 +237,22 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
-        BUCKET_ARN: s3SearchBucket.bucketArn,
-        BUCKET_NAME: s3SearchBucket.bucketName,
         TABLE_NAME: recordsTable.tableName,
-        USERS_TABLE: usersTable.tableArn,
+        USERS_TABLE: usersTable.tableName,
+      },
+    })
+
+    const processinglambda = new lambda.Function(this, 'processsingLambda', {
+      runtime: lambda.Runtime.PROVIDED_AL2023,
+      code: lambda.Code.fromAsset('dist/processingLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(20),
+      environment: {
+        OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        TABLE_NAME: recordsTable.tableName,
+        USERS_TABLE: usersTable.tableName,
+        SQS_URL: processingQueue.queueUrl,
+        LEDGER_TABLE: ledgerTable.tableName,
       },
     })
 
@@ -269,7 +294,7 @@ export class SpinServiceStack extends cdk.Stack {
     clientResource.addResource('{id}').addMethod('GET', publicDataIntegration)
 
     new cdk.CfnOutput(this, 'OpenSearchEndpoint', {
-      value: `${dataIndexingDomain.domainEndpoint}`,
+      value: `https://${dataIndexingDomain.domainEndpoint}/`,
     })
   }
 }
