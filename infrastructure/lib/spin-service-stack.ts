@@ -17,6 +17,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Resource } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
+import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
 import { FargateTask } from './fargate/fargateTask'
 import { FargateScheduleProps } from './fargate/types'
 import { getEnv } from './shared/utils'
@@ -26,6 +27,7 @@ import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { queueRole } from './iam/queueRole'
 import { CfnPipeProps } from 'aws-cdk-lib/aws-pipes'
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2'
+import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -166,7 +168,9 @@ export class SpinServiceStack extends cdk.Stack {
       logs: logGroup,
     })
 
-    const processingQueue = new sqs.Queue(this, 'processing_queue')
+    const processingQueue = new sqs.Queue(this, 'processing_queue', {
+      retentionPeriod: Duration.days(14),
+    })
     const processingRole = queueRole(this)
 
     const processingPipeline = new pipes.CfnPipe(this, 'processing-pipe', <
@@ -213,9 +217,9 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
-    const exportlambda = new lambda.Function(this, 'oneTimeExportLambda', {
+    const streamlambda = new lambda.Function(this, 'streamLambda', {
       runtime: lambda.Runtime.NODEJS_LATEST,
-      code: lambda.Code.fromAsset('dist/oneTimeExportLambda'),
+      code: lambda.Code.fromAsset('dist/streamLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
@@ -227,10 +231,26 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
-    s3SearchBucket.grantReadWrite(exportlambda)
+    s3SearchBucket.grantReadWrite(streamlambda)
+    recordsTable.grantReadWriteData(streamlambda)
+    recordsTable.grantStreamRead(streamlambda)
+    usersTable.grantReadWriteData(streamlambda)
+    usersTable.grantStreamRead(streamlambda)
 
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
+
+    streamlambda.addEventSource(
+      new DynamoEventSource(recordsTable, {
+        startingPosition: StartingPosition.LATEST,
+      })
+    )
+
+    streamlambda.addEventSource(
+      new DynamoEventSource(usersTable, {
+        startingPosition: StartingPosition.LATEST,
+      })
+    )
 
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
     const publicDataIntegration = new apigateway.LambdaIntegration(
