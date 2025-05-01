@@ -5,7 +5,7 @@ import {
 } from './schemaType'
 import { Construct } from 'constructs'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { Resource, RestApi } from 'aws-cdk-lib/aws-apigateway'
+import { IResource, Resource, RestApi } from 'aws-cdk-lib/aws-apigateway'
 
 export class Api {
   public api: RestApi
@@ -25,17 +25,17 @@ export class Api {
     this.resources = []
 
     if ('resources' in definition) {
-      this.generateResources(definition)
+      this.generateResources(definition.resources)
     }
   }
 
-  private generateResources(schema: ResourceDefinition) {
-    const resources = schema.resources
+  private generateResources(
+    schema: ResourceDefinition[],
+    parentNode: Resource | IResource = this.api.root
+  ) {
+    const resources = schema
     for (const resource of resources) {
-      const newRec = this.api.root.addResource(
-        resource.pathPart,
-        resource.options
-      )
+      const newRec = parentNode.addResource(resource.pathPart, resource.options)
       if (resource.methods) {
         const methods = resource.methods
         for (const method of methods) {
@@ -43,10 +43,16 @@ export class Api {
         }
       }
       this.resources.push(newRec)
+      if (resource.resources) {
+        this.generateResources(
+          resource.resources,
+          this.resources[resources.length - 1]
+        )
+      }
     }
   }
 
-  public addResources(resources: ResourceDefinition) {
+  public addResources(resources: ResourceDefinition[]) {
     this.generateResources(resources)
   }
 }

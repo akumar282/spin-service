@@ -16,7 +16,7 @@ describe('generation test', () => {
       requestTemplates: {},
     })
 
-    const ApiDef: FullApiDefinition = {
+    const apiDef: FullApiDefinition = {
       id: 'spin-records-api',
       props: {
         restApiName: 'spinRecordsApi',
@@ -42,18 +42,32 @@ describe('generation test', () => {
               integration: mockIntegration,
             },
           ],
+          resources: [
+            {
+              pathPart: '{id}',
+              methods: [
+                {
+                  method: 'GET',
+                  integration: mockIntegration,
+                },
+              ],
+            },
+          ],
         },
       ],
     }
 
-    new Api(stack, ApiDef)
+    new Api(stack, apiDef)
 
     const template = Template.fromStack(stack)
 
-    console.info(template)
+    console.info(template.toJSON())
 
     template.hasResourceProperties('AWS::ApiGateway::Method', {
       HttpMethod: 'POST',
+    })
+    template.hasResourceProperties('AWS::ApiGateway::Resource', {
+      PathPart: '{id}',
     })
   })
 })
