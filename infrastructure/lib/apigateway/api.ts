@@ -44,10 +44,7 @@ export class Api {
       }
       this.resources.push(newRec)
       if (resource.resources) {
-        this.generateResources(
-          resource.resources,
-          this.resources[resources.length - 1]
-        )
+        this.generateResources(resource.resources, newRec)
       }
     }
   }

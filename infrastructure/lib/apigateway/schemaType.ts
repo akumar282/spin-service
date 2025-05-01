@@ -1,5 +1,4 @@
 import {
-  CorsOptions,
   Integration,
   MethodOptions,
   ResourceOptions,
@@ -20,12 +19,10 @@ export type ResourceDefinition = {
 export type FullApiDefinition = {
   id: string
   props: RestApiProps
-  defaultCorsPreflightOptions: CorsOptions | undefined
   resources: ResourceDefinition[]
 }
 
 export type BaseApiDefinition = {
   id: string
   props: RestApiProps
-  defaultCorsPreflightOptions: CorsOptions | undefined
 }

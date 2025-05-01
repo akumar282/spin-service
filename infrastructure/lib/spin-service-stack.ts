@@ -14,7 +14,6 @@ import {
   StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { Resource } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
@@ -31,6 +30,7 @@ import {
   DynamoEventSource,
   SqsEventSource,
 } from 'aws-cdk-lib/aws-lambda-event-sources'
+import { Api } from './apigateway/api'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -149,19 +149,22 @@ export class SpinServiceStack extends cdk.Stack {
       enableAutoSoftwareUpdate: true,
     })
 
-    const recordsApi = new apigateway.RestApi(this, 'spin-records-api', {
-      restApiName: 'spinRecordsApi',
-      description: 'Master api for data ingestion, and user endpoints',
-      defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: [
-          'Content-Type',
-          'X-Amz-Date',
-          'Authorization',
-          'X-Api-Key',
-        ],
-        allowCredentials: true,
+    const recordsApi = new Api(this, {
+      id: 'spin-records-api',
+      props: {
+        restApiName: 'spinRecordsApi',
+        description: 'Master api for data ingestion, and user endpoints',
+        defaultCorsPreflightOptions: {
+          allowOrigins: apigateway.Cors.ALL_ORIGINS,
+          allowMethods: apigateway.Cors.ALL_METHODS,
+          allowHeaders: [
+            'Content-Type',
+            'X-Amz-Date',
+            'Authorization',
+            'X-Api-Key',
+          ],
+          allowCredentials: true,
+        },
       },
     })
 
@@ -178,7 +181,7 @@ export class SpinServiceStack extends cdk.Stack {
 
     new FargateTask(this, 'fargateTaskId', spinScraperProps, {
       environment: {
-        API_URL: recordsApi.url,
+        API_URL: recordsApi.api.url,
         DISCOGS_TOKEN: getEnv('DISCOGS_TOKEN'),
         PROXY_IP: getEnv('PROXY_IP'),
       },
@@ -293,16 +296,56 @@ export class SpinServiceStack extends cdk.Stack {
       publicHandler
     )
 
-    const ingestionResource: Resource = recordsApi.root.addResource('raw')
-    ingestionResource.addMethod('POST', rawDataIntegration)
-    const ingestionResourceId = ingestionResource.addResource('{id}')
-    ingestionResourceId.addMethod('GET', rawDataIntegration)
-    ingestionResourceId.addMethod('DELETE', rawDataIntegration)
-    ingestionResourceId.addMethod('PATCH', rawDataIntegration)
-
-    const clientResource = recordsApi.root.addResource('public')
-    clientResource.addMethod('POST', publicDataIntegration)
-    clientResource.addResource('{id}').addMethod('GET', publicDataIntegration)
+    recordsApi.addResources([
+      {
+        pathPart: 'raw',
+        methods: [
+          {
+            method: 'POST',
+            integration: rawDataIntegration,
+          },
+        ],
+        resources: [
+          {
+            pathPart: '{id}',
+            methods: [
+              {
+                method: 'GET',
+                integration: rawDataIntegration,
+              },
+              {
+                method: 'DELETE',
+                integration: rawDataIntegration,
+              },
+              {
+                method: 'PATCH',
+                integration: rawDataIntegration,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        pathPart: 'public',
+        methods: [
+          {
+            method: 'POST',
+            integration: publicDataIntegration,
+          },
+        ],
+        resources: [
+          {
+            pathPart: '{id}',
+            methods: [
+              {
+                method: 'GET',
+                integration: publicDataIntegration,
+              },
+            ],
+          },
+        ],
+      },
+    ])
 
     new cdk.CfnOutput(this, 'OpenSearchEndpoint', {
       value: `https://${dataIndexingDomain.domainEndpoint}/`,
