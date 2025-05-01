@@ -27,7 +27,10 @@ import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { queueRole } from './iam/queueRole'
 import { CfnPipeProps } from 'aws-cdk-lib/aws-pipes'
 import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2'
-import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
+import {
+  DynamoEventSource,
+  SqsEventSource,
+} from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -243,7 +246,7 @@ export class SpinServiceStack extends cdk.Stack {
     })
 
     const processinglambda = new lambda.Function(this, 'processsingLambda', {
-      runtime: lambda.Runtime.PROVIDED_AL2023,
+      runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/processingLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
@@ -274,6 +277,14 @@ export class SpinServiceStack extends cdk.Stack {
     streamlambda.addEventSource(
       new DynamoEventSource(usersTable, {
         startingPosition: StartingPosition.LATEST,
+      })
+    )
+
+    processinglambda.addEventSource(
+      new SqsEventSource(processingQueue, {
+        batchSize: 50,
+        maxBatchingWindow: Duration.minutes(1),
+        maxConcurrency: 3,
       })
     )
 
