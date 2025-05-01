@@ -27,6 +27,9 @@ destroy:
 	npm run cdk -- destroy $(ENV)-$(STACK_NAME) \
     --output cdk_stack/$(ENV)-$(STACK_NAME)
 
+meta:
+	cdk metadata --name SpinServiceStack
+
 buildDiff: build diff
 
 buildDeploy: build deploy
