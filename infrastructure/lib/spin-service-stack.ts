@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib'
 import {
+  aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
   Duration,
@@ -107,6 +108,27 @@ export class SpinServiceStack extends cdk.Stack {
       },
       timeToLiveAttribute: 'expires',
       removalPolicy: RemovalPolicy.DESTROY,
+    })
+
+    const userPool = new cognito.UserPool(this, 'SpinUsers', {
+      userPoolName: 'SpinUsers',
+      signInAliases: {
+        email: true,
+        phone: true,
+        username: false,
+      },
+      autoVerify: {
+        email: false,
+        phone: false,
+      },
+      accountRecovery: cognito.AccountRecovery.NONE,
+      selfSignUpEnabled: true,
+    })
+
+    const userPoolClient = userPool.addClient('SpinClient', {
+      authFlows: {
+        userPassword: true,
+      },
     })
 
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
@@ -262,6 +284,17 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
+    const authLambda = new lambda.Function(this, 'authLambda', {
+      runtime: lambda.Runtime.NODEJS_LATEST,
+      code: lambda.Code.fromAsset('dist/authLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(20),
+      environment: {
+        COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
+        COGNITO_CLIENT_NAME: userPoolClient.userPoolClientName,
+      },
+    })
+
     s3SearchBucket.grantReadWrite(streamlambda)
     recordsTable.grantReadWriteData(streamlambda)
     recordsTable.grantStreamRead(streamlambda)
@@ -343,12 +376,25 @@ export class SpinServiceStack extends cdk.Stack {
               },
             ],
           },
+          {
+            pathPart: 'auth',
+            methods: [
+              {
+                method: 'POST',
+                integration: publicDataIntegration,
+              },
+            ],
+          },
         ],
       },
     ])
 
     new cdk.CfnOutput(this, 'OpenSearchEndpoint', {
       value: `https://${dataIndexingDomain.domainEndpoint}/`,
+    })
+
+    new cdk.CfnOutput(this, 'PipeArn', {
+      value: processingPipeline.attrArn,
     })
   }
 }

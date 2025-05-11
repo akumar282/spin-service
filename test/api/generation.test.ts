@@ -21,17 +21,17 @@ describe('generation test', () => {
       props: {
         restApiName: 'spinRecordsApi',
         description: 'Master api for data ingestion, and user endpoints',
-      },
-      defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: [
-          'Content-Type',
-          'X-Amz-Date',
-          'Authorization',
-          'X-Api-Key',
-        ],
-        allowCredentials: true,
+        defaultCorsPreflightOptions: {
+          allowOrigins: apigateway.Cors.ALL_ORIGINS,
+          allowMethods: apigateway.Cors.ALL_METHODS,
+          allowHeaders: [
+            'Content-Type',
+            'X-Amz-Date',
+            'Authorization',
+            'X-Api-Key',
+          ],
+          allowCredentials: true,
+        },
       },
       resources: [
         {
