@@ -51,3 +51,13 @@ export type User = {
   artists: string[]
   albums: string[]
 }
+
+export type AuthRequest = {
+  type: 'login' | 'new_user'
+  platform: 'mobile' | 'web'
+  credentials: {
+    username: string
+    password: string
+  }
+  clientId: string
+}

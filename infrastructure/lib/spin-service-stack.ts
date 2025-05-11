@@ -129,6 +129,17 @@ export class SpinServiceStack extends cdk.Stack {
       authFlows: {
         userPassword: true,
       },
+      generateSecret: false,
+      idTokenValidity: Duration.hours(2),
+    })
+
+    const userPoolClientMobile = userPool.addClient('SpinClientMobile', {
+      authFlows: {
+        userPassword: true,
+      },
+      generateSecret: false,
+      idTokenValidity: Duration.hours(8),
+      refreshTokenValidity: Duration.days(365),
     })
 
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
@@ -288,10 +299,26 @@ export class SpinServiceStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/authLambda'),
       handler: 'index.handler',
-      timeout: Duration.seconds(20),
+      timeout: Duration.seconds(10),
       environment: {
-        COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
-        COGNITO_CLIENT_NAME: userPoolClient.userPoolClientName,
+        WEB_CLIENT_ID: userPoolClient.userPoolClientId,
+        WEB_CLIENT_NAME: userPoolClient.userPoolClientName,
+        MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
+        MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
+        USER_TABLE_ARN: usersTable.tableArn,
+      },
+    })
+
+    const refreshLambda = new lambda.Function(this, 'refreshLambda', {
+      runtime: lambda.Runtime.NODEJS_LATEST,
+      code: lambda.Code.fromAsset('dist/refreshLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+      environment: {
+        WEB_CLIENT_ID: userPoolClient.userPoolClientId,
+        WEB_CLIENT_NAME: userPoolClient.userPoolClientName,
+        MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
+        MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
       },
     })
 
@@ -324,6 +351,8 @@ export class SpinServiceStack extends cdk.Stack {
       })
     )
 
+    const authIntegration = new apigateway.LambdaIntegration(authLambda)
+    const refreshIntegration = new apigateway.LambdaIntegration(refreshLambda)
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
     const publicDataIntegration = new apigateway.LambdaIntegration(
       publicHandler
@@ -381,7 +410,16 @@ export class SpinServiceStack extends cdk.Stack {
             methods: [
               {
                 method: 'POST',
-                integration: publicDataIntegration,
+                integration: authIntegration,
+              },
+            ],
+          },
+          {
+            pathPart: 'refresh',
+            methods: [
+              {
+                method: 'POST',
+                integration: refreshIntegration,
               },
             ],
           },
