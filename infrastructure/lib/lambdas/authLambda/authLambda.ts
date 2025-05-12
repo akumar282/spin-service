@@ -11,7 +11,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider'
 import { AuthRequest } from '../../apigateway/types'
 import { apiResponse } from '../../apigateway/responses'
-import { getEnv } from '../../shared/utils'
+import { cookies, getEnv } from '../../shared/utils'
 import { CreateUser } from './createUser'
 
 const client = new DynamoDBClient({})
@@ -49,12 +49,11 @@ export async function handler(
       if (result.AuthenticationResult) {
         const { AccessToken, IdToken, RefreshToken } =
           result.AuthenticationResult
-        const cookies = [
-          `accessToken=${AccessToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`,
-          `idToken=${IdToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`,
-          `refreshToken=${RefreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=2592000`,
-        ]
-        return apiResponse('Login Successful', 200, cookies)
+        return apiResponse(
+          'Login Successful',
+          200,
+          cookies(AccessToken, IdToken, RefreshToken)
+        )
       }
     } else if (body.type === 'new_user') {
       const command = new SignUpCommand({
@@ -85,12 +84,11 @@ export async function handler(
         if (loginCommand.AuthenticationResult) {
           const { AccessToken, IdToken, RefreshToken } =
             loginCommand.AuthenticationResult
-          const cookies = [
-            `accessToken=${AccessToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`,
-            `idToken=${IdToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`,
-            `refreshToken=${RefreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=2592000`,
-          ]
-          return apiResponse('Login Successful', 200, cookies)
+          return apiResponse(
+            'Login Successful',
+            200,
+            cookies(AccessToken, IdToken, RefreshToken)
+          )
         }
       }
     }
