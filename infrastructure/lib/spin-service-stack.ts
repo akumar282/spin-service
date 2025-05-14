@@ -126,6 +126,7 @@ export class SpinServiceStack extends cdk.Stack {
     })
 
     const userPoolClient = userPool.addClient('SpinClient', {
+      userPoolClientName: 'WebAuthClient',
       authFlows: {
         userPassword: true,
       },
@@ -134,6 +135,7 @@ export class SpinServiceStack extends cdk.Stack {
     })
 
     const userPoolClientMobile = userPool.addClient('SpinClientMobile', {
+      userPoolClientName: 'MobileAuthClient',
       authFlows: {
         userPassword: true,
       },
@@ -281,7 +283,7 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
-    const processinglambda = new lambda.Function(this, 'processsingLambda', {
+    const processinglambda = new lambda.Function(this, 'processingLambda', {
       runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/processingLambda'),
       handler: 'index.handler',
@@ -420,6 +422,26 @@ export class SpinServiceStack extends cdk.Stack {
               {
                 method: 'POST',
                 integration: refreshIntegration,
+              },
+            ],
+          },
+          {
+            pathPart: 'user',
+            methods: [
+              {
+                method: 'POST',
+                integration: authIntegration,
+              },
+            ],
+            resources: [
+              {
+                pathPart: '{id}',
+                methods: [
+                  {
+                    method: 'GET',
+                    integration: publicDataIntegration,
+                  },
+                ],
               },
             ],
           },
