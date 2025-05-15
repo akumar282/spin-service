@@ -7,13 +7,13 @@ export async function handler(
   event: DynamoDBStreamEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> {
-  const endpoint = getEnv('OPEN_SEARCH_ENDPOINT')
+  const endpoint = `https://${getEnv('OPEN_SEARCH_ENDPOINT')}/`
 
   try {
     const modifiedItems = event.Records.filter((x) => x.eventName === 'MODIFY')
     const newItems = event.Records.filter((x) => x.eventName === 'INSERT')
-    await transformAndPost(modifiedItems, endpoint)
-    await transformAndPost(newItems, endpoint)
+    await transformAndPost(modifiedItems, endpoint, true)
+    await transformAndPost(newItems, endpoint, false)
   } catch (e) {
     return apiResponse({ e, context }, 200)
   }
