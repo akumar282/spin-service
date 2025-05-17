@@ -12,10 +12,12 @@ export interface SESConstructProps {
     hostedZoneId: string
     zoneName: string
   }
+  privateKey: SecretValue
+  publicKey?: string
 }
 
 export class SESConstruct {
-  public hostedZone
+  public hostedZone: route53.IHostedZone
 
   constructor(scope: Construct, id: string, props: SESConstructProps) {
     this.hostedZone = route53.PublicHostedZone.fromHostedZoneId(
@@ -27,8 +29,8 @@ export class SESConstruct {
     new ses.EmailIdentity(scope, 'Identity', {
       identity: Identity.publicHostedZone(this.hostedZone),
       dkimIdentity: ses.DkimIdentity.byoDkim({
-        privateKey: SecretValue.unsafePlainText(getEnv('SES_PRIVATE_KEY')),
-        publicKey: getEnv('SES_PRIVATE_KEY'),
+        privateKey: props.privateKey,
+        publicKey: props.publicKey,
         selector: 'spin',
       }),
     })

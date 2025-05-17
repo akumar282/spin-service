@@ -32,6 +32,7 @@ import {
   SqsEventSource,
 } from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Api } from './apigateway/api'
+import { SESConstruct } from './ses/ses'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -184,6 +185,15 @@ export class SpinServiceStack extends cdk.Stack {
       enableAutoSoftwareUpdate: true,
     })
 
+    const mailer = new SESConstruct(this, 'SpinMailer', {
+      existingHostedZone: {
+        hostedZoneId: getEnv('ZONE_ID'),
+        zoneName: getEnv('ZONE_NAME'),
+      },
+      privateKey: SecretValue.unsafePlainText(getEnv('SES_PRIVATE_KEY')),
+      publicKey: getEnv('SES_PRIVATE_KEY'),
+    })
+
     const recordsApi = new Api(this, {
       id: 'spin-records-api',
       props: {
@@ -271,7 +281,7 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
-    const streamlambda = new lambda.Function(this, 'streamLambda', {
+    const streamLambda = new lambda.Function(this, 'streamLambda', {
       runtime: lambda.Runtime.NODEJS_LATEST,
       code: lambda.Code.fromAsset('dist/streamLambda'),
       handler: 'index.handler',
@@ -324,22 +334,33 @@ export class SpinServiceStack extends cdk.Stack {
       },
     })
 
-    s3SearchBucket.grantReadWrite(streamlambda)
-    recordsTable.grantReadWriteData(streamlambda)
-    recordsTable.grantStreamRead(streamlambda)
-    usersTable.grantReadWriteData(streamlambda)
-    usersTable.grantStreamRead(streamlambda)
+    const userLambda = new lambda.Function(this, 'UserLambda', {
+      runtime: lambda.Runtime.NODEJS_LATEST,
+      code: lambda.Code.fromAsset('dist/userLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+      environment: {
+        TABLE_NAME: usersTable.tableName,
+      },
+    })
+
+    s3SearchBucket.grantReadWrite(streamLambda)
+    recordsTable.grantReadWriteData(streamLambda)
+    recordsTable.grantStreamRead(streamLambda)
+    usersTable.grantReadWriteData(streamLambda)
+    usersTable.grantReadWriteData(userLambda)
+    usersTable.grantStreamRead(streamLambda)
 
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
 
-    streamlambda.addEventSource(
+    streamLambda.addEventSource(
       new DynamoEventSource(recordsTable, {
         startingPosition: StartingPosition.LATEST,
       })
     )
 
-    streamlambda.addEventSource(
+    streamLambda.addEventSource(
       new DynamoEventSource(usersTable, {
         startingPosition: StartingPosition.LATEST,
       })
@@ -354,6 +375,7 @@ export class SpinServiceStack extends cdk.Stack {
     )
 
     const authIntegration = new apigateway.LambdaIntegration(authLambda)
+    const userIntegration = new apigateway.LambdaIntegration(userLambda)
     const refreshIntegration = new apigateway.LambdaIntegration(refreshLambda)
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
     const publicDataIntegration = new apigateway.LambdaIntegration(
@@ -430,7 +452,7 @@ export class SpinServiceStack extends cdk.Stack {
             methods: [
               {
                 method: 'POST',
-                integration: authIntegration,
+                integration: userIntegration,
               },
             ],
             resources: [
@@ -439,7 +461,7 @@ export class SpinServiceStack extends cdk.Stack {
                 methods: [
                   {
                     method: 'GET',
-                    integration: publicDataIntegration,
+                    integration: userIntegration,
                   },
                 ],
               },
