@@ -6,22 +6,24 @@ export async function CreateUser(
   username: string,
   client: DynamoDBDocumentClient
 ): Promise<boolean> {
-  const command = new PutCommand({
-    TableName: getEnv('TABLE_NAME'),
-    Item: {
-      id: sub,
-      email: username.includes('@') ? username : '',
-      phone: !username.includes('@') ? username : '',
-      notifyType: [],
-      genres: [],
-      labels: [],
-      artists: [],
-      albums: [],
-    },
-  })
-  const response = await client.send(command)
-  if (response.$metadata.httpStatusCode === 200) {
-    return true
+  try {
+    const command = new PutCommand({
+      TableName: getEnv('TABLE_NAME'),
+      Item: {
+        id: sub,
+        user_name: username,
+        email: username.includes('@') ? username : '',
+        phone: !username.includes('@') ? username : '',
+        notifyType: [],
+        genres: [],
+        labels: [],
+        artists: [],
+        albums: [],
+      },
+    })
+    const response = await client.send(command)
+    return response.$metadata.httpStatusCode === 200
+  } catch (e) {
+    return false
   }
-  return false
 }

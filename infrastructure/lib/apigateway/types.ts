@@ -30,7 +30,7 @@ export type Records = {
   content: string | null | undefined
   created_time: Date
   link: string
-  postId: string | null | undefined
+  postId: string
   pagination: string | null | undefined
   searchString: string
   color: string | null
@@ -39,6 +39,13 @@ export type Records = {
   title: string
   label: string[]
   resource_url: URL
+}
+
+export type Ledger = {
+  postId: string
+  status: string
+  processed: boolean
+  ttl: string
 }
 
 export type User = {
@@ -50,6 +57,22 @@ export type User = {
   labels: string[]
   artists: string[]
   albums: string[]
+}
+
+export type SQSBody = {
+  eventID: string
+  eventName: string
+  eventVersion: string
+  eventSource: string
+  awsRegion: string
+  dynamodb: {
+    ApproximateCreationDateTime: number
+    Keys: Records
+  }
+  SequenceNumber: string
+  SizeBytes: number
+  StreamViewType: string
+  eventSourceArn: string
 }
 
 export type AuthRequest = {

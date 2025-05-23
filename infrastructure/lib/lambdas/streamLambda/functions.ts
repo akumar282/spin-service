@@ -1,7 +1,7 @@
 import { DynamoDBRecord } from 'aws-lambda'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 import type { AttributeValue } from '@aws-sdk/client-dynamodb'
-import { requestWithBody } from './utils'
+import { getEnv, requestWithBody } from '../../shared/utils'
 
 export async function transformAndPost(
   items: DynamoDBRecord[],
@@ -13,11 +13,11 @@ export async function transformAndPost(
   const extractedDataUsers = undynamo(items, 'users')
 
   if (extractedDataRecords.length > 0) {
-    await postItems(extractedDataRecords, endpoint, 'records', update)
+    await postItems(extractedDataRecords, endpoint, 'records', update, 'postId')
   }
 
   if (extractedDataUsers.length > 0) {
-    await postItems(extractedDataUsers, endpoint, 'users', update)
+    await postItems(extractedDataUsers, endpoint, 'users', update, 'id')
   }
 }
 
@@ -33,12 +33,22 @@ const postItems = async (
   items: Record<string, any>[],
   endpoint: string,
   index: string,
-  update: boolean
+  update: boolean,
+  idAttribute: string
 ) => {
   for (const item of items) {
     const queryString = update
-      ? `${index}/_doc/${item.postId}`
-      : `${index}/_update/${item.postId}`
-    await requestWithBody(queryString, endpoint, item, 'POST')
+      ? `${index}/_update/${item[idAttribute]}`
+      : `${index}/_doc/${item[idAttribute]}`
+    console.info('Sending: ', item)
+    await requestWithBody(
+      queryString,
+      endpoint,
+      item,
+      'POST',
+      `Basic ${Buffer.from(`${getEnv('USER')}:${getEnv('DASHPASS')}`).toString(
+        'base64'
+      )}`
+    )
   }
 }

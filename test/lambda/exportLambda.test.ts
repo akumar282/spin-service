@@ -7,7 +7,9 @@ describe('environmental variables', () => {
     // Set the variables
     process.env.BUCKET_NAME = 'open-search-bucket-1738'
     process.env.OPEN_SEARCH_ENDPOINT =
-      'https://search-spin-data-ncvue37awszjvvba2vsoz5rhym.us-west-2.es.amazonaws.com/'
+      'search-spin-data-ncvue37awszjvvba2vsoz5rhym.us-west-2.es.amazonaws.com'
+    process.env.DASHPASS = 'xxxxxxxx'
+    process.env.USER = 'xxxxx'
 
     const mockContext: Partial<Context> = {
       logGroupName: 'mockLogGroupName',
@@ -24,11 +26,11 @@ describe('environmental variables', () => {
             'arn:aws:dynamodb:us-west-2:123456789012:table/records/stream/2025-04-08T00:00:00.000',
           dynamodb: {
             Keys: {
-              postId: { S: 'TestID1' },
+              postId: { S: 'TestID23' },
             },
             NewImage: {
               created_time: { S: '2025-04-08T01:29:31.271Z' },
-              postId: { S: 'TestID1' },
+              postId: { S: 'TestID23' },
               content: {
                 S: 'https://www.dominomusic.com/releases/fat-dog/peace-song/12?fbclid=PAZXh0bgNhZW0CMTEAAadlCOAWcIXNo4NObpmdg3kvL7SS_UiQDlDwsdFy_CYJ2ZNHzdT4lWEp4wz5yw_aem_ibAaYwiDlsqxq1eBUmfy5A',
               },

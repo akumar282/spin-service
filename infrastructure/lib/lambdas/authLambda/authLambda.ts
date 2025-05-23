@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
 import {
+  AdminConfirmSignUpCommand,
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
   InitiateAuthCommandOutput,
@@ -64,6 +65,13 @@ export async function handler(
       const result: SignUpCommandOutput = await cognitoClient.send(command)
 
       if (result.UserSub) {
+        await cognitoClient.send(
+          new AdminConfirmSignUpCommand({
+            UserPoolId: getEnv('USER_POOL_ID'),
+            Username: username,
+          })
+        )
+
         const register = await CreateUser(result.UserSub, username, docClient)
 
         if (!register) {

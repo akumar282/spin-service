@@ -28,7 +28,11 @@ export const queueRole = (scope: Construct): Role => {
           new PolicyStatement({
             sid: 'SendSQSMessage',
             effect: Effect.ALLOW,
-            actions: ['sqs:SendMessage'],
+            actions: [
+              'sqs:SendMessage',
+              'sqs:GetQueueAttributes',
+              'sqs:ReceiveMessage',
+            ],
             resources: ['*'],
           }),
         ],

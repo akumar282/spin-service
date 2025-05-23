@@ -33,6 +33,7 @@ import {
 } from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Api } from './apigateway/api'
 import { SESConstruct } from './ses/ses'
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 
 export class SpinServiceStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -233,6 +234,11 @@ export class SpinServiceStack extends cdk.Stack {
       logs: logGroup,
     })
 
+    const pipelogGroup = new LogGroup(this, 'PipeLogGroup', {
+      logGroupName: '/pipes/dynamoToSqs',
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+
     const processingQueue = new sqs.Queue(this, 'processing_queue', {
       retentionPeriod: Duration.days(14),
     })
@@ -257,6 +263,12 @@ export class SpinServiceStack extends cdk.Stack {
         },
       },
       target: processingQueue.queueArn,
+      logConfiguration: {
+        cloudwatchLogsLogDestination: {
+          logGroupArn: pipelogGroup.logGroupArn,
+        },
+        level: 'TRACE',
+      },
     })
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
@@ -288,6 +300,8 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        DASHPASS: getEnv('DASHPASS'),
+        USER: getEnv('USER'),
         TABLE_NAME: recordsTable.tableName,
         USERS_TABLE: usersTable.tableName,
       },
@@ -300,7 +314,7 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
-        TABLE_NAME: recordsTable.tableName,
+        RECORDS_TABLE: recordsTable.tableName,
         USERS_TABLE: usersTable.tableName,
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
@@ -317,6 +331,8 @@ export class SpinServiceStack extends cdk.Stack {
         WEB_CLIENT_NAME: userPoolClient.userPoolClientName,
         MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
         MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
+        USER_POOL_ID: userPool.userPoolId,
+        TABLE_NAME: usersTable.tableName,
         USER_TABLE_ARN: usersTable.tableArn,
       },
     })
@@ -353,6 +369,15 @@ export class SpinServiceStack extends cdk.Stack {
 
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
+    usersTable.grantReadWriteData(authLambda)
+    authLambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'AdminApproveUser',
+        effect: Effect.ALLOW,
+        actions: ['cognito-idp:AdminConfirmSignUp'],
+        resources: ['*'],
+      })
+    )
 
     streamLambda.addEventSource(
       new DynamoEventSource(recordsTable, {
@@ -370,7 +395,7 @@ export class SpinServiceStack extends cdk.Stack {
       new SqsEventSource(processingQueue, {
         batchSize: 50,
         maxBatchingWindow: Duration.minutes(1),
-        maxConcurrency: 3,
+        maxConcurrency: 10,
       })
     )
 

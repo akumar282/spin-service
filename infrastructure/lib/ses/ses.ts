@@ -5,7 +5,6 @@ import {
   SecretValue,
 } from 'aws-cdk-lib'
 import { Identity } from 'aws-cdk-lib/aws-ses'
-import { getEnv } from '../shared/utils'
 
 export interface SESConstructProps {
   existingHostedZone: {
@@ -20,10 +19,13 @@ export class SESConstruct {
   public hostedZone: route53.IHostedZone
 
   constructor(scope: Construct, id: string, props: SESConstructProps) {
-    this.hostedZone = route53.PublicHostedZone.fromHostedZoneId(
+    this.hostedZone = route53.PublicHostedZone.fromHostedZoneAttributes(
       scope,
-      props.existingHostedZone.zoneName,
-      props.existingHostedZone.hostedZoneId
+      'SpinZone',
+      {
+        zoneName: props.existingHostedZone.zoneName,
+        hostedZoneId: props.existingHostedZone.hostedZoneId,
+      }
     )
 
     new ses.EmailIdentity(scope, 'Identity', {
