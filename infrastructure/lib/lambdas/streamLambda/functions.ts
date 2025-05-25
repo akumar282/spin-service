@@ -37,6 +37,12 @@ const postItems = async (
   idAttribute: string
 ) => {
   for (const item of items) {
+    const docItem = {
+      doc: {
+        ...item,
+      },
+    }
+
     const queryString = update
       ? `${index}/_update/${item[idAttribute]}`
       : `${index}/_doc/${item[idAttribute]}`
@@ -44,7 +50,7 @@ const postItems = async (
     await requestWithBody(
       queryString,
       endpoint,
-      item,
+      update ? docItem : item,
       'POST',
       `Basic ${Buffer.from(`${getEnv('USER')}:${getEnv('DASHPASS')}`).toString(
         'base64'
