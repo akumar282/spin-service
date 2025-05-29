@@ -180,7 +180,6 @@ describe('Assorted test for functions', () => {
       ReturnValues: 'ALL_NEW',
     })
 
-    console.log(result)
     expect(result).toEqual(expected)
   })
 })
