@@ -1,7 +1,9 @@
 import {
   createQuery,
+  deleteSQSMessage,
   determineNotificationMethods,
   sendEmail,
+  updateLedgerItem,
 } from '../../../infrastructure/lib/lambdas/processingLambda/functions'
 import {
   getEnv,
@@ -13,8 +15,10 @@ import { User } from '../../../infrastructure/lib/apigateway/types'
 import { mockClient } from 'aws-sdk-client-mock'
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { SQSClient } from '@aws-sdk/client-sqs'
+import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
+import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import { marshall } from '@aws-sdk/util-dynamodb'
+import 'aws-sdk-client-mock-jest'
 
 describe('Assorted test for functions', () => {
   const sesMock = mockClient(SESClient)
@@ -112,5 +116,71 @@ describe('Assorted test for functions', () => {
     expect(result).toEqual({
       MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
     })
+  })
+
+  test('Send Email Test', async () => {
+    process.env.SQS_URL = 'https://sqsurl.com'
+
+    sqsClient.on(DeleteMessageCommand).resolves({
+      $metadata: {
+        httpStatusCode: 200,
+      },
+    })
+
+    const result = await deleteSQSMessage('Handle', new SQSClient({}))
+    expect(result).toEqual({
+      $metadata: {
+        httpStatusCode: 200,
+      },
+    })
+  })
+
+  test('Send Email Test', async () => {
+    process.env.TABLE_NAME = 'RECORDS_TABLE'
+
+    const marshallItem = marshall(users)
+
+    const expected = {
+      Attributes: {
+        postId: { S: 'testId' },
+        status: { S: 'COMPLETED' },
+        processed: { BOOL: true },
+        to: { L: marshallItem },
+        ttl: { N: '' },
+      },
+    }
+
+    dynamoDocumentMock.on(UpdateItemCommand).resolves(expected)
+
+    const result = await updateLedgerItem(
+      DynamoDBDocumentClient.from(
+        new DynamoDBClient({
+          retryMode: 'standard',
+          maxAttempts: 3,
+        })
+      ),
+      users as User[],
+      'testId'
+    )
+
+    expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateItemCommand)
+    expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateItemCommand, {
+      TableName: 'RECORDS_TABLE',
+      Key: { id: { S: 'testId' } },
+      ExpressionAttributeNames: {
+        '#st': 'status',
+        '#pr': 'processed',
+        '#to': 'to',
+      },
+      ExpressionAttributeValues: expect.objectContaining({
+        ':st': { S: 'COMPLETED' },
+        ':pr': { BOOL: true },
+      }),
+      UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
+      ReturnValues: 'ALL_NEW',
+    })
+
+    console.log(result)
+    expect(result).toEqual(expected)
   })
 })

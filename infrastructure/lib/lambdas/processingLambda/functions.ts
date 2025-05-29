@@ -5,7 +5,11 @@ import {
   SendEmailCommandOutput,
   SESClient,
 } from '@aws-sdk/client-ses'
-import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import {
+  DeleteMessageCommand,
+  DeleteMessageCommandOutput,
+  SQSClient,
+} from '@aws-sdk/client-sqs'
 import { getEnv } from '../../shared/utils'
 import {
   DynamoDBDocumentClient,
@@ -92,7 +96,7 @@ export function determineNotificationMethods(users: User[]) {
 export async function deleteSQSMessage(
   ReceiptHandle: string,
   client: SQSClient
-) {
+): Promise<DeleteMessageCommandOutput> {
   const command = new DeleteMessageCommand({
     QueueUrl: getEnv('SQS_URL'),
     ReceiptHandle,
@@ -116,7 +120,7 @@ export async function updateLedgerItem(
         S: 'COMPLETED',
       },
       ':pr': {
-        B: true,
+        BOOL: true,
       },
       ':to': {
         L: to,
