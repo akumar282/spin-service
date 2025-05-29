@@ -7,6 +7,11 @@ import {
 } from '@aws-sdk/client-ses'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { getEnv } from '../../shared/utils'
+import {
+  DynamoDBDocumentClient,
+  UpdateCommandInput,
+} from '@aws-sdk/lib-dynamodb'
+import { UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 
 export function createQuery(artist: string, genres: string[]) {
   const shouldList = []
@@ -92,5 +97,40 @@ export async function deleteSQSMessage(
     QueueUrl: getEnv('SQS_URL'),
     ReceiptHandle,
   })
+  return await client.send(command)
+}
+
+export async function updateLedgerItem(
+  client: DynamoDBDocumentClient,
+  to: User[],
+  id: string
+) {
+  const input: UpdateCommandInput = {
+    ExpressionAttributeNames: {
+      '#st': 'status',
+      '#pr': 'processed',
+      '#to': 'to',
+    },
+    ExpressionAttributeValues: {
+      ':st': {
+        S: 'COMPLETED',
+      },
+      ':pr': {
+        B: true,
+      },
+      ':to': {
+        L: to,
+      },
+    },
+    Key: {
+      id: {
+        S: id,
+      },
+    },
+    ReturnValues: 'ALL_NEW',
+    TableName: getEnv('TABLE_NAME'),
+    UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
+  }
+  const command = new UpdateItemCommand(input)
   return await client.send(command)
 }

@@ -10,6 +10,7 @@ import {
   deleteSQSMessage,
   determineNotificationMethods,
   sendEmail,
+  updateLedgerItem,
 } from './functions'
 import { SQSClient } from '@aws-sdk/client-sqs'
 
@@ -26,9 +27,11 @@ const sqsClient = new SQSClient({})
 
 const docClient = DynamoDBDocumentClient.from(client)
 
+/*
+TODO: Update handler with deadlock logic, adding dropped users, and adding actual processed users.
+ Currently all users are "processed". As well as Pinpoint for inapp notifications
+*/
 export async function handler(event: SQSEvent, context: Context) {
-  const userTableName = getEnv('USERS_TABLE')
-  const recordsTableName = getEnv('RECORDS_TABLE')
   const ledgerTableName = getEnv('LEDGER_TABLE')
   const endpoint = `https://${getEnv('OPEN_SEARCH_ENDPOINT')}/`
 
@@ -86,19 +89,15 @@ export async function handler(event: SQSEvent, context: Context) {
           eventRecord.receiptHandle,
           sqsClient
         )
+
+        const updateLedger = await updateLedgerItem(
+          client,
+          usersToProcess,
+          eventRecord.dynamodb.Keys.postId
+        )
       }
     }
   } catch (e) {}
-
-  // intialize notified list
-  // for each record
-  // add to ledger status = unprocessed
-  // get users by genre & artist for now
-  // check noti prefs per user
-  // send text & email
-  // add user to notified list for that record
-  // remove message from sqs if necessary
-  // once all users done update ledger with processed users & status processed
 
   console.log(event)
   return apiResponse('Records processed successfully', 200)
