@@ -15,7 +15,7 @@ export const HttpMethod = z.enum([
 
 export type HttpMethod = z.infer<typeof HttpMethod>
 
-enum NotifyTypes {
+export enum NotifyTypes {
   EMAIL = 'EMAIL',
   SMS = 'SMS',
   INAPP = 'INAPP',
@@ -83,4 +83,30 @@ export type AuthRequest = {
     password: string
   }
   clientId: string
+}
+
+export type OpenSearchResult = {
+  took: number
+  timed_out: boolean
+  _shards: {
+    total: number
+    successful: number
+    skipped: number
+    failed: number
+  }
+  hits: {
+    total: {
+      value: number
+      relation: string
+    }
+    max_score: number
+    hits: [
+      {
+        _index: string
+        _id: string
+        _score: number
+        _source: User
+      }
+    ]
+  }
 }

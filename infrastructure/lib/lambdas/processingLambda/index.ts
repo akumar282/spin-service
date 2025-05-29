@@ -5,8 +5,8 @@ import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
 import { getEnv, requestWithBody } from '../../shared/utils'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { SQSBody } from '../../apigateway/types'
-import { createQuery } from './functions'
+import { SQSBody, OpenSearchResult, User } from '../../apigateway/types'
+import { createQuery, determineNotificationMethods } from './functions'
 
 const client = new DynamoDBClient({
   retryMode: 'standard',
@@ -26,12 +26,15 @@ export async function handler(event: SQSEvent, context: Context) {
   const endpoint = `https://${getEnv('OPEN_SEARCH_ENDPOINT')}/`
 
   const eventRecords: SQSBody[] = event.Records.map((record) => JSON.parse(record.body) as SQSBody)
-  const notifiedUsers = []
-  const usersToProcess = []
+  const notifiedUsers = new Set<User>
+  const usersToProcess: User[] = []
 
   try {
     for (const event of eventRecords) {
+      const item = event.dynamodb.Keys
+
       let userQueryBody
+
       const ledgerTableResponse = await docClient.send(new PutCommand({
         TableName: ledgerTableName,
         Item: {
@@ -55,6 +58,14 @@ export async function handler(event: SQSEvent, context: Context) {
             'base64'
           )}`
         )
+        const users: OpenSearchResult = await data.json()
+
+        users.hits.hits.forEach((x) => usersToProcess.push(x._source))
+
+        const { email, phone, inapp} = determineNotificationMethods(usersToProcess)
+
+
+
       }
     }
   } catch (e) {
