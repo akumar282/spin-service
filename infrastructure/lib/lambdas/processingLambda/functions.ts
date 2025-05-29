@@ -6,6 +6,12 @@ import {
   SendEmailResponse,
   SESClient,
 } from '@aws-sdk/client-ses'
+import {
+  DeleteMessageCommand,
+  DeleteMessageCommandInput,
+  SQSClient,
+} from '@aws-sdk/client-sqs'
+import { getEnv } from '../../shared/utils'
 
 export function createQuery(artist: string, genres: string[]) {
   const shouldList = []
@@ -81,4 +87,15 @@ export function determineNotificationMethods(users: User[]) {
     phone,
     inapp,
   }
+}
+
+export async function deleteSQSMessage(
+  ReceiptHandle: string,
+  client: SQSClient
+) {
+  const command = new DeleteMessageCommand({
+    QueueUrl: getEnv('SQS_URL'),
+    ReceiptHandle,
+  })
+  return await client.send(command)
 }
