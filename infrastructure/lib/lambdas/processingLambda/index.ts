@@ -1,12 +1,11 @@
-import { Context, DynamoDBRecord, SQSEvent } from 'aws-lambda'
+import { Context, SQSEvent } from 'aws-lambda'
 import { apiResponse } from '../../apigateway/responses'
-import { type AttributeValue, DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
 import { getEnv, requestWithBody } from '../../shared/utils'
-import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { SQSBody, OpenSearchResult, User } from '../../apigateway/types'
-import { createQuery, determineNotificationMethods } from './functions'
+import { createQuery, determineNotificationMethods, sendEmail } from './functions'
 
 const client = new DynamoDBClient({
   retryMode: 'standard',
@@ -16,6 +15,7 @@ const client = new DynamoDBClient({
 const ses = new SESClient({
   region: 'us-west-2',
 })
+
 
 const docClient = DynamoDBDocumentClient.from(client)
 
@@ -63,6 +63,9 @@ export async function handler(event: SQSEvent, context: Context) {
         users.hits.hits.forEach((x) => usersToProcess.push(x._source))
 
         const { email, phone, inapp} = determineNotificationMethods(usersToProcess)
+
+        const emailUsers = await sendEmail(ses, email, item)
+        // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
 
 
 

@@ -192,7 +192,7 @@ export class SpinServiceStack extends cdk.Stack {
         zoneName: getEnv('ZONE_NAME'),
       },
       privateKey: SecretValue.unsafePlainText(getEnv('SES_PRIVATE_KEY')),
-      publicKey: getEnv('SES_PRIVATE_KEY'),
+      publicKey: getEnv('SES_PUBLIC_KEY'),
     })
 
     const recordsApi = new Api(this, {
