@@ -73,6 +73,7 @@ export type SQSBody = {
   SizeBytes: number
   StreamViewType: string
   eventSourceArn: string
+  receiptHandle: string
 }
 
 export type AuthRequest = {
@@ -85,7 +86,7 @@ export type AuthRequest = {
   clientId: string
 }
 
-export type OpenSearchResult = {
+export type OpenSearchUserResult = {
   took: number
   timed_out: boolean
   _shards: {

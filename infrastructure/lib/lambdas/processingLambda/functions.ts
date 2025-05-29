@@ -3,14 +3,9 @@ import {
   SendEmailCommand,
   SendEmailCommandInput,
   SendEmailCommandOutput,
-  SendEmailResponse,
   SESClient,
 } from '@aws-sdk/client-ses'
-import {
-  DeleteMessageCommand,
-  DeleteMessageCommandInput,
-  SQSClient,
-} from '@aws-sdk/client-sqs'
+import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { getEnv } from '../../shared/utils'
 
 export function createQuery(artist: string, genres: string[]) {
