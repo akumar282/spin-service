@@ -2,7 +2,6 @@ import { Construct } from 'constructs'
 import {
   aws_route53 as route53,
   aws_ses as ses,
-  Duration,
   SecretValue,
 } from 'aws-cdk-lib'
 import { Identity } from 'aws-cdk-lib/aws-ses'

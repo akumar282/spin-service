@@ -28,7 +28,7 @@ export type Records = {
   media: 'cd' | 'vinyl'
   postTitle: string | null | undefined
   content: string | null | undefined
-  created_time: Date
+  created_time: string
   link: string
   postId: string
   pagination: string | null | undefined
@@ -38,7 +38,7 @@ export type Records = {
   genre: string[]
   title: string
   label: string[]
-  resource_url: URL
+  resource_url: string
 }
 
 export type Ledger = {

@@ -4,7 +4,7 @@ import {
   APIGatewayProxyEventBase,
   Context,
 } from 'aws-lambda'
-import { handler } from '../../infrastructure/lib/lambdas/rawDataIngestion'
+import { handler } from '../../../infrastructure/lib/lambdas/rawDataIngestion'
 
 test('Lambda Test', async () => {
   const mockEvent: Partial<APIGatewayProxyEvent> = {

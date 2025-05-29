@@ -1,4 +1,4 @@
-import { handler } from '../../infrastructure/lib/lambdas/streamLambda'
+import { handler } from '../../../infrastructure/lib/lambdas/streamLambda'
 import * as process from 'node:process'
 import { Context, DynamoDBStreamEvent } from 'aws-lambda'
 
