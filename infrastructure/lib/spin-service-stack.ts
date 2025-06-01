@@ -314,8 +314,6 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
-        RECORDS_TABLE: recordsTable.tableName,
-        USERS_TABLE: usersTable.tableName,
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
       },

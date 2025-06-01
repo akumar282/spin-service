@@ -14,8 +14,8 @@ import { getEnv } from '../../shared/utils'
 import {
   DynamoDBDocumentClient,
   UpdateCommandInput,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { UpdateItemCommand } from '@aws-sdk/client-dynamodb'
 
 export function createQuery(artist: string, genres: string[]) {
   const shouldList = []
@@ -135,6 +135,6 @@ export async function updateLedgerItem(
     TableName: getEnv('TABLE_NAME'),
     UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
   }
-  const command = new UpdateItemCommand(input)
+  const command = new UpdateCommand(input)
   return await client.send(command)
 }

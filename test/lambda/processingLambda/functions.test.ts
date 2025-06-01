@@ -14,8 +14,8 @@ import { record1, users } from './testConsts'
 import { User } from '../../../infrastructure/lib/apigateway/types'
 import { mockClient } from 'aws-sdk-client-mock'
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
-import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { marshall } from '@aws-sdk/util-dynamodb'
 import 'aws-sdk-client-mock-jest'
@@ -150,7 +150,7 @@ describe('Assorted test for functions', () => {
       },
     }
 
-    dynamoDocumentMock.on(UpdateItemCommand).resolves(expected)
+    dynamoDocumentMock.on(UpdateCommand).resolves(expected)
 
     const result = await updateLedgerItem(
       DynamoDBDocumentClient.from(
@@ -163,8 +163,8 @@ describe('Assorted test for functions', () => {
       'testId'
     )
 
-    expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateItemCommand)
-    expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateItemCommand, {
+    expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
+    expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateCommand, {
       TableName: 'RECORDS_TABLE',
       Key: { id: { S: 'testId' } },
       ExpressionAttributeNames: {

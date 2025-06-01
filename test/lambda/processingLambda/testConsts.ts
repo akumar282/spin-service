@@ -58,7 +58,7 @@ export const testUser = {
 }
 
 export const record1 = {
-  id: 'ulid',
+  id: 't3_1jtink0',
   year: '2024',
   media: 'vinyl' as 'cd' | 'vinyl',
   created_time: '2025-04-07T11:09:20.321Z',
