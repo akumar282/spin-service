@@ -8,7 +8,7 @@ import {
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import * as Utils from '../../../infrastructure/lib/shared/utils'
-import { sqsEvent, users, wrappedReturn } from './testConsts'
+import { sqsEvent, users, userTest, wrappedReturn } from './testConsts'
 import { Records, SQSBody } from '../../../infrastructure/lib/apigateway/types'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/processingLambda'
@@ -30,14 +30,17 @@ describe('Test for procesing handler', () => {
   })
 
   test('Handler mock test', async () => {
-    process.env.LEDGER_TABLE = 'LedgerTable'
+    process.env.LEDGER_TABLE = 'ledgerTable'
+    process.env.USER = 'admin'
+    process.env.DASHPASS = 'testpass'
     process.env.OPEN_SEARCH_ENDPOINT =
       'search-spin-data-ncvue37awszjvvba2vsoz5rhym.us-west-2.es.amazonaws.com'
+    process.env.SQS_URL = 'testurl'
     const marshallItem = marshall(users)
     jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(wrappedReturn)
     dynamoDocumentMock
       .on(PutCommand, {
-        TableName: 'LedgerTable',
+        TableName: 'ledgerTable',
       })
       .resolves({
         Attributes: {
@@ -49,7 +52,7 @@ describe('Test for procesing handler', () => {
         },
       })
       .on(UpdateCommand, {
-        TableName: 'LedgerTable',
+        TableName: 'ledgerTable',
       })
       .resolves({
         Attributes: {
@@ -77,12 +80,13 @@ describe('Test for procesing handler', () => {
 
     const result = await handler(sqsEvent, <Context>mockContext)
     expect(dynamoDocumentMock).toHaveReceivedCommand(PutCommand)
+    expect(sesMock).toHaveReceivedCommand(SendEmailCommand)
+    expect(sqsClient).toHaveReceivedCommand(DeleteMessageCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
-    console.log(dynamoDocumentMock.commandCalls(UpdateCommand))
 
     expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateCommand, {
-      TableName: 'LedgerTable',
-      Key: { id: 'testId' },
+      TableName: 'ledgerTable',
+      Key: { id: 't3_1jtink0' },
       ExpressionAttributeNames: {
         '#st': 'status',
         '#pr': 'processed',
@@ -91,6 +95,7 @@ describe('Test for procesing handler', () => {
       ExpressionAttributeValues: expect.objectContaining({
         ':st': 'COMPLETED',
         ':pr': true,
+        ':to': [userTest],
       }),
       UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
       ReturnValues: 'ALL_NEW',
@@ -108,7 +113,7 @@ describe('Test for procesing handler', () => {
 
     for (const eventRecord of eventRecords) {
       const item = eventRecord.dynamodb.NewImage
-      const unmarshalled = unmarshall(item)
+      const unmarshalled = unmarshall(item) as Records
       console.log(unmarshalled)
     }
   })

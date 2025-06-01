@@ -104,10 +104,6 @@ export class SpinServiceStack extends cdk.Stack {
         name: 'postId',
         type: AttributeType.STRING,
       },
-      sortKey: {
-        name: 'created_time',
-        type: AttributeType.STRING,
-      },
       timeToLiveAttribute: 'expires',
       removalPolicy: RemovalPolicy.DESTROY,
     })

@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { AttributeValue } from '@aws-sdk/client-dynamodb'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const HttpMethod = z.enum([
@@ -52,6 +53,7 @@ export type User = {
   id: string
   email: string
   phone?: string
+  user_name: string
   notifyType: NotifyTypes[]
   genres: string[]
   labels: string[]
@@ -67,7 +69,7 @@ export type SQSBody = {
   awsRegion: string
   dynamodb: {
     ApproximateCreationDateTime: number
-    Keys: Records
+    NewImage: Record<string, AttributeValue>
   }
   SequenceNumber: string
   SizeBytes: number

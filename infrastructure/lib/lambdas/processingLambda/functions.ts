@@ -116,23 +116,15 @@ export async function updateLedgerItem(
       '#to': 'to',
     },
     ExpressionAttributeValues: {
-      ':st': {
-        S: 'COMPLETED',
-      },
-      ':pr': {
-        BOOL: true,
-      },
-      ':to': {
-        L: to,
-      },
+      ':st': 'COMPLETED',
+      ':pr': true,
+      ':to': to,
     },
     Key: {
-      id: {
-        S: id,
-      },
+      id,
     },
     ReturnValues: 'ALL_NEW',
-    TableName: getEnv('TABLE_NAME'),
+    TableName: getEnv('LEDGER_TABLE'),
     UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
   }
   const command = new UpdateCommand(input)

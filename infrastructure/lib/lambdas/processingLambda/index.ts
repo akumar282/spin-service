@@ -4,7 +4,12 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
 import { getEnv, requestWithBody } from '../../shared/utils'
-import { SQSBody, OpenSearchUserResult, User } from '../../apigateway/types'
+import {
+  SQSBody,
+  OpenSearchUserResult,
+  User,
+  Records,
+} from '../../apigateway/types'
 import {
   createQuery,
   deleteSQSMessage,
@@ -13,18 +18,16 @@ import {
   updateLedgerItem,
 } from './functions'
 import { SQSClient } from '@aws-sdk/client-sqs'
-
-const client = new DynamoDBClient({
-  retryMode: 'standard',
-  maxAttempts: 3,
-})
+import { unmarshall } from '@aws-sdk/util-dynamodb'
 
 const ses = new SESClient({
   region: 'us-west-2',
 })
-
 const sqsClient = new SQSClient({})
-
+const client = new DynamoDBClient({
+  retryMode: 'standard',
+  maxAttempts: 3,
+})
 const docClient = DynamoDBDocumentClient.from(client)
 
 /*
@@ -46,7 +49,7 @@ export async function handler(event: SQSEvent, context: Context) {
 
   try {
     for (const eventRecord of eventRecords) {
-      const item = eventRecord.dynamodb.Keys
+      const item = unmarshall(eventRecord.dynamodb.NewImage) as Records
 
       let userQueryBody
 
@@ -54,7 +57,7 @@ export async function handler(event: SQSEvent, context: Context) {
         new PutCommand({
           TableName: ledgerTableName,
           Item: {
-            postId: eventRecord.dynamodb.Keys.postId,
+            postId: item.postId,
             status: 'STARTED',
             processed: false,
             to: [],
@@ -63,9 +66,9 @@ export async function handler(event: SQSEvent, context: Context) {
         })
       )
 
-      const artistName = eventRecord.dynamodb.Keys.artist
+      const artistName = item.artist
       if (artistName) {
-        userQueryBody = createQuery(artistName, eventRecord.dynamodb.Keys.genre)
+        userQueryBody = createQuery(artistName, item.genre)
         const data = await requestWithBody(
           'users/_search',
           endpoint,
@@ -76,29 +79,38 @@ export async function handler(event: SQSEvent, context: Context) {
           ).toString('base64')}`
         )
         const users: OpenSearchUserResult = await data.json()
-
         users.hits.hits.forEach((x) => usersToProcess.push(x._source))
-
         const { email, phone, inapp } =
           determineNotificationMethods(usersToProcess)
 
-        const emailUsers = await sendEmail(ses, email, item)
+        try {
+          const emailUsers = await sendEmail(ses, email, item)
+        } catch (e) {
+          return apiResponse('Error emailing users', 500)
+        }
+
         // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
 
-        const deleteMessage = await deleteSQSMessage(
-          eventRecord.receiptHandle,
-          sqsClient
-        )
+        try {
+          const deleteMessage = await deleteSQSMessage(
+            eventRecord.receiptHandle,
+            sqsClient
+          )
+        } catch (e) {
+          return apiResponse('Error deleting message', 500)
+        }
 
-        const updateLedger = await updateLedgerItem(
-          client,
-          usersToProcess,
-          eventRecord.dynamodb.Keys.postId
-        )
+        try {
+          const updateLedger = await updateLedgerItem(
+            docClient,
+            usersToProcess,
+            item.postId
+          )
+        } catch (e) {
+          return apiResponse('Error updating ledger', 500)
+        }
       }
     }
   } catch (e) {}
-
-  console.log(event)
   return apiResponse('Records processed successfully', 200)
 }
