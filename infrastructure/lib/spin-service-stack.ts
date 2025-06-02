@@ -20,7 +20,6 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
 import { FargateTask } from './fargate/fargateTask'
 import { FargateScheduleProps } from './fargate/types'
-import { getEnv } from './shared/utils'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
@@ -34,10 +33,10 @@ import {
 import { Api } from './apigateway/api'
 import { SESConstruct } from './ses/ses'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
-import { CdkExtendedProps } from '../bin/cdkExtendedProps'
+import { CdkExtendedProps } from './cdkExtendedProps'
 
 export class SpinServiceStack extends cdk.Stack {
-  public constructor(scope: Construct, id: string, props?: CdkExtendedProps) {
+  public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
 
     const logGroup = new LogGroup(this, 'DataAggLogGroup', {
@@ -164,7 +163,7 @@ export class SpinServiceStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       fineGrainedAccessControl: {
         masterUserName: 'admin',
-        masterUserPassword: SecretValue.unsafePlainText(getEnv('DASHPASS')),
+        masterUserPassword: SecretValue.unsafePlainText(props.opensearch_user),
       },
       capacity: {
         dataNodeInstanceType: 't3.small.search',
@@ -185,11 +184,11 @@ export class SpinServiceStack extends cdk.Stack {
 
     const mailer = new SESConstruct(this, 'SpinMailer', {
       existingHostedZone: {
-        hostedZoneId: getEnv('ZONE_ID'),
-        zoneName: getEnv('ZONE_NAME'),
+        hostedZoneId: props.zone_id,
+        zoneName: props.zone_name,
       },
-      privateKey: SecretValue.unsafePlainText(getEnv('SES_PRIVATE_KEY')),
-      publicKey: getEnv('SES_PUBLIC_KEY'),
+      privateKey: SecretValue.unsafePlainText(props.ses_private_key),
+      publicKey: props.ses_public_key,
     })
 
     const recordsApi = new Api(this, {
@@ -225,8 +224,8 @@ export class SpinServiceStack extends cdk.Stack {
     new FargateTask(this, 'fargateTaskId', spinScraperProps, {
       environment: {
         API_URL: recordsApi.api.url,
-        DISCOGS_TOKEN: getEnv('DISCOGS_TOKEN'),
-        PROXY_IP: getEnv('PROXY_IP'),
+        DISCOGS_TOKEN: props.discogs_token,
+        PROXY_IP: props.proxy_ip,
       },
       logs: logGroup,
     })
@@ -297,8 +296,8 @@ export class SpinServiceStack extends cdk.Stack {
       timeout: Duration.seconds(20),
       environment: {
         OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
-        DASHPASS: getEnv('DASHPASS'),
-        USER: getEnv('USER'),
+        DASHPASS: props.dashpass,
+        USER: props.opensearch_user,
         TABLE_NAME: recordsTable.tableName,
         USERS_TABLE: usersTable.tableName,
       },

@@ -9,6 +9,7 @@ const app = new cdk.App()
 
 const ACCOUNT = app.node.tryGetContext('ACCOUNT_ID')
 const REGION = app.node.tryGetContext('REGION')
+const DISCOGS_TOKEN = app.node.tryGetContext('DISCOGS_TOKEN')
 const PROXY_IP = app.node.tryGetContext('PROXY_IP')
 const USER = app.node.tryGetContext('USER')
 const DASHPASS = app.node.tryGetContext('DASHPASS')
@@ -19,6 +20,7 @@ const SES_PUBLIC_KEY = app.node.tryGetContext('SES_PUBLIC_KEY')
 
 if (validBuildParams()) {
   new SpinServiceStack(app, 'SpinServiceStack', {
+    discogs_token: DISCOGS_TOKEN,
     proxy_ip: PROXY_IP,
     opensearch_user: USER,
     dashpass: DASHPASS,
@@ -36,6 +38,7 @@ function validBuildParams() {
     ACCOUNT,
     REGION,
     PROXY_IP,
+    DISCOGS_TOKEN,
     USER,
     DASHPASS,
     ZONE_NAME,
