@@ -1,5 +1,6 @@
-import * as cdk from 'aws-cdk-lib'
 import {
+  CfnOutput,
+  Stack,
   aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
@@ -35,7 +36,7 @@ import { SESConstruct } from './ses/ses'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
 
-export class SpinServiceStack extends cdk.Stack {
+export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
 
@@ -490,11 +491,11 @@ export class SpinServiceStack extends cdk.Stack {
       },
     ])
 
-    new cdk.CfnOutput(this, 'OpenSearchEndpoint', {
+    new CfnOutput(this, 'OpenSearchEndpoint', {
       value: `https://${dataIndexingDomain.domainEndpoint}/`,
     })
 
-    new cdk.CfnOutput(this, 'PipeArn', {
+    new CfnOutput(this, 'PipeArn', {
       value: processingPipeline.attrArn,
     })
   }

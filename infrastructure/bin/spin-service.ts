@@ -1,9 +1,5 @@
 import * as cdk from 'aws-cdk-lib'
 import { SpinServiceStack } from '../lib/spin-service-stack'
-import { getEnv } from '../lib/shared/utils'
-
-const region = getEnv('REGION')
-const accountId = getEnv('ACCOUNT_ID')
 
 const app = new cdk.App()
 
@@ -28,7 +24,7 @@ if (validBuildParams()) {
     zone_id: ZONE_ID,
     ses_private_key: SES_PRIVATE_KEY,
     ses_public_key: SES_PUBLIC_KEY,
-    env: { account: accountId, region },
+    env: { account: ACCOUNT, region: REGION },
     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
   })
 }
