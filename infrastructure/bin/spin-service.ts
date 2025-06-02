@@ -19,14 +19,13 @@ const SES_PUBLIC_KEY = app.node.tryGetContext('SES_PUBLIC_KEY')
 
 if (validBuildParams()) {
   new SpinServiceStack(app, 'SpinServiceStack', {
-    /* If you don't specify 'env', this stack will be environment-agnostic.
-     * Account/Region-dependent features and context lookups will not work,
-     * but a single synthesized template can be deployed anywhere. */
-    /* Uncomment the next line to specialize this stack for the AWS Account
-     * and Region that are implied by the current CLI configuration. */
-    // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-    /* Uncomment the next line if you know exactly what Account and Region you
-     * want to deploy the stack to. */
+    proxy_ip: PROXY_IP,
+    opensearch_user: USER,
+    dashpass: DASHPASS,
+    zone_name: ZONE_NAME,
+    zone_id: ZONE_ID,
+    ses_private_key: SES_PRIVATE_KEY,
+    ses_public_key: SES_PUBLIC_KEY,
     env: { account: accountId, region },
     /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
   })

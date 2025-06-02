@@ -34,9 +34,10 @@ import {
 import { Api } from './apigateway/api'
 import { SESConstruct } from './ses/ses'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import { CdkExtendedProps } from '../bin/cdkExtendedProps'
 
 export class SpinServiceStack extends cdk.Stack {
-  public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  public constructor(scope: Construct, id: string, props?: CdkExtendedProps) {
     super(scope, id, props)
 
     const logGroup = new LogGroup(this, 'DataAggLogGroup', {
