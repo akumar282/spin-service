@@ -36,7 +36,6 @@ describe('Test for procesing handler', () => {
     process.env.OPEN_SEARCH_ENDPOINT =
       'search-spin-data-ncvue37awszjvvba2vsoz5rhym.us-west-2.es.amazonaws.com'
     process.env.SQS_URL = 'testurl'
-    const marshallItem = marshall(users)
     jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(wrappedReturn)
     dynamoDocumentMock
       .on(PutCommand, {
@@ -59,7 +58,7 @@ describe('Test for procesing handler', () => {
           postId: 't3_1jtink0',
           status: 'COMPLETED',
           processed: true,
-          to: marshallItem,
+          to: [userTest],
           ttl: Date.now(),
         },
       })
@@ -114,7 +113,7 @@ describe('Test for procesing handler', () => {
     for (const eventRecord of eventRecords) {
       const item = eventRecord.dynamodb.NewImage
       const unmarshalled = unmarshall(item) as Records
-      console.log(unmarshalled)
+      console.info(unmarshalled)
     }
   })
 })
