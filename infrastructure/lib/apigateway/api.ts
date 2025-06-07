@@ -9,6 +9,7 @@ import { IResource, Resource, RestApi } from 'aws-cdk-lib/aws-apigateway'
 
 export class Api {
   public api: RestApi
+  public url: string
   readonly resources: Resource[]
 
   constructor(
@@ -22,6 +23,7 @@ export class Api {
       defaultCorsPreflightOptions: props.defaultCorsPreflightOptions,
     })
 
+    this.url = this.api.url
     this.resources = []
 
     if ('resources' in definition) {

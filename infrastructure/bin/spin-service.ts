@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib'
 import { SpinServiceStack } from '../lib/spin-service-stack'
+import { ComputingNetworkingStack } from '../lib/computing-networking-stack'
 
 const app = new cdk.App()
 
@@ -15,17 +16,22 @@ const SES_PRIVATE_KEY = app.node.tryGetContext('SES_PRIVATE_KEY')
 const SES_PUBLIC_KEY = app.node.tryGetContext('SES_PUBLIC_KEY')
 
 if (validBuildParams()) {
-  new SpinServiceStack(app, 'SpinServiceStack', {
-    discogs_token: DISCOGS_TOKEN,
-    proxy_ip: PROXY_IP,
+  const spinStack = new SpinServiceStack(app, 'SpinServiceStack', {
     opensearch_user: USER,
     dashpass: DASHPASS,
+    env: { account: ACCOUNT, region: REGION },
+  })
+  new ComputingNetworkingStack(app, 'SpinCompute', {
+    discogs_token: DISCOGS_TOKEN,
+    proxy_ip: PROXY_IP,
     zone_name: ZONE_NAME,
     zone_id: ZONE_ID,
     ses_private_key: SES_PRIVATE_KEY,
     ses_public_key: SES_PUBLIC_KEY,
+    api: spinStack.spinApi,
+    opensearch_user: USER,
+    dashpass: DASHPASS,
     env: { account: ACCOUNT, region: REGION },
-    /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
   })
 }
 

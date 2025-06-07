@@ -19,7 +19,6 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
-import { FargateTask } from './fargate/fargateTask'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
@@ -31,11 +30,8 @@ import {
   SqsEventSource,
 } from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Api } from './apigateway/api'
-import { SESConstruct } from './ses/ses'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
-import * as ecs from 'aws-cdk-lib/aws-ecs'
 
 /*
 TODO: This stackfile is getting too big. Need to organize into multiple stacks.
@@ -44,35 +40,10 @@ TODO: This stackfile is getting too big. Need to organize into multiple stacks.
  be a good alternative since this is just a big cron job with public data access
  */
 export class SpinServiceStack extends Stack {
+  public readonly spinApi: Api
+
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
-
-    const vpc = new ec2.Vpc(this, 'spinService', {
-      maxAzs: 2,
-      natGateways: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'PublicSubnet',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'PrivateSubnet',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
-    })
-
-    const cluster = new ecs.Cluster(scope, 'spinServiceCluster', {
-      vpc,
-      enableFargateCapacityProviders: true,
-    })
-
-    const logGroup = new LogGroup(this, 'DataAggLogGroup', {
-      logGroupName: '/ecs/spinServiceContainer',
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
       tableName: 'recordsTableNew',
@@ -212,15 +183,6 @@ export class SpinServiceStack extends Stack {
       enableAutoSoftwareUpdate: true,
     })
 
-    const mailer = new SESConstruct(this, 'SpinMailer', {
-      existingHostedZone: {
-        hostedZoneId: props.zone_id,
-        zoneName: props.zone_name,
-      },
-      privateKey: SecretValue.unsafePlainText(props.ses_private_key),
-      publicKey: props.ses_public_key,
-    })
-
     const recordsApi = new Api(this, {
       id: 'spin-records-api',
       props: {
@@ -239,29 +201,6 @@ export class SpinServiceStack extends Stack {
         },
       },
     })
-
-    new FargateTask(
-      this,
-      'fargateTaskId',
-      {
-        taskDefId: 'spinServiceTaskId',
-        container: {
-          id: 'spinServiceContainer',
-          assetPath: './image',
-        },
-        enableDlq: true,
-      },
-      vpc,
-      cluster,
-      {
-        environment: {
-          API_URL: recordsApi.api.url,
-          DISCOGS_TOKEN: props.discogs_token,
-          PROXY_IP: props.proxy_ip,
-        },
-        logs: logGroup,
-      }
-    )
 
     const pipelogGroup = new LogGroup(this, 'PipeLogGroup', {
       logGroupName: '/pipes/dynamoToSqs',
@@ -522,6 +461,8 @@ export class SpinServiceStack extends Stack {
         ],
       },
     ])
+
+    this.spinApi = recordsApi
 
     new CfnOutput(this, 'OpenSearchEndpoint', {
       value: `https://${dataIndexingDomain.domainEndpoint}/`,
