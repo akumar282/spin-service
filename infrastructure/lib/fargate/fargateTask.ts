@@ -5,7 +5,6 @@ import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import { ContainerEnvVars, FargateScheduleProps } from './types'
 import {
   Effect,
-  Policy,
   PolicyDocument,
   PolicyStatement,
   Role,

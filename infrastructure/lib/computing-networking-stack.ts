@@ -1,7 +1,5 @@
 import { RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
-import * as cdk from 'aws-cdk-lib'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import { LogGroup } from 'aws-cdk-lib/aws-logs'
 import { FargateTask } from './fargate/fargateTask'
@@ -25,7 +23,7 @@ export class ComputingNetworkingStack extends Stack {
       publicKey: props.ses_public_key,
     })
 
-    const cluster = new ecs.Cluster(scope, 'spinServiceCluster', {
+    const cluster = new ecs.Cluster(this, 'spinServiceCluster', {
       enableFargateCapacityProviders: true,
       vpc: props.vpc,
     })

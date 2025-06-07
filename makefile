@@ -5,6 +5,9 @@ else
 endif
 export
 
+bootstrap:
+	cdk bootstrap
+
 install:
 	npm ci
 
