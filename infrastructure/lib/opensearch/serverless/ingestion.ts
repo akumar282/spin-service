@@ -1,6 +1,6 @@
 import { aws_opensearchserverless as oss } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
-import { getEnv } from '../shared/utils'
+import { getEnv } from '../../shared/utils'
 
 export type OpenSearchProps = {
   collectionName: string

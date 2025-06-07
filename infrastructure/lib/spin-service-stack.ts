@@ -20,7 +20,6 @@ import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
 import { FargateTask } from './fargate/fargateTask'
-import { FargateScheduleProps } from './fargate/types'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
@@ -35,10 +34,40 @@ import { Api } from './apigateway/api'
 import { SESConstruct } from './ses/ses'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import * as ecs from 'aws-cdk-lib/aws-ecs'
 
+/*
+TODO: This stackfile is getting too big. Need to organize into multiple stacks.
+ This will be better architecture wise as well. Things may be tightly coupled
+ so I dont know how that will look. might have to see if state machines would
+ be a good alternative since this is just a big cron job with public data access
+ */
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
+
+    const vpc = new ec2.Vpc(this, 'spinService', {
+      maxAzs: 2,
+      natGateways: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'PublicSubnet',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'PrivateSubnet',
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+      ],
+    })
+
+    const cluster = new ecs.Cluster(scope, 'spinServiceCluster', {
+      vpc,
+      enableFargateCapacityProviders: true,
+    })
 
     const logGroup = new LogGroup(this, 'DataAggLogGroup', {
       logGroupName: '/ecs/spinServiceContainer',
@@ -211,25 +240,28 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    const spinScraperProps: FargateScheduleProps = {
-      taskDefId: 'spinServiceTaskId',
-      vpcId: 'spinService',
-      clusterId: 'spinServiceCluster',
-      container: {
-        id: 'spinServiceContainer',
-        assetPath: './image',
+    new FargateTask(
+      this,
+      'fargateTaskId',
+      {
+        taskDefId: 'spinServiceTaskId',
+        container: {
+          id: 'spinServiceContainer',
+          assetPath: './image',
+        },
+        enableDlq: true,
       },
-      enableDlq: true,
-    }
-
-    new FargateTask(this, 'fargateTaskId', spinScraperProps, {
-      environment: {
-        API_URL: recordsApi.api.url,
-        DISCOGS_TOKEN: props.discogs_token,
-        PROXY_IP: props.proxy_ip,
-      },
-      logs: logGroup,
-    })
+      vpc,
+      cluster,
+      {
+        environment: {
+          API_URL: recordsApi.api.url,
+          DISCOGS_TOKEN: props.discogs_token,
+          PROXY_IP: props.proxy_ip,
+        },
+        logs: logGroup,
+      }
+    )
 
     const pipelogGroup = new LogGroup(this, 'PipeLogGroup', {
       logGroupName: '/pipes/dynamoToSqs',

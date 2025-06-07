@@ -2,8 +2,6 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs'
 
 export type FargateScheduleProps = {
   taskDefId: string
-  vpcId: string
-  clusterId: string
   container: {
     id: string
     assetPath: string

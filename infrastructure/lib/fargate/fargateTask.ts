@@ -17,54 +17,31 @@ export class FargateTask {
     scope: Construct,
     id: string,
     props: FargateScheduleProps,
+    vpc: ec2.Vpc,
+    cluster: ecs.Cluster,
     passthroughProps?: ContainerEnvVars
   ) {
-    const vpc = new ec2.Vpc(scope, props.vpcId, {
-      maxAzs: 2,
-      natGateways: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'PublicSubnet',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'PrivateSubnet',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
-    })
-
-    const cluster = new ecs.Cluster(scope, props.clusterId, {
-      vpc,
-      enableFargateCapacityProviders: true,
-    })
-
     const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
 
     const schedulerRole = new Role(scope, 'scheduleRole', {
       assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
+      inlinePolicies: {
+        FargateScrapePolicy: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              actions: ['ecs:RunTask'],
+              resources: [taskDefinition.taskDefinitionArn, cluster.clusterArn],
+            }),
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              actions: ['iam:PassRole'],
+              resources: ['*'],
+            }),
+          ],
+        }),
+      },
     })
-
-    const schedulerPolicy = new Policy(scope, 'schedulerPolicy', {
-      document: new PolicyDocument({
-        statements: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            actions: ['ecs:RunTask'],
-            resources: [taskDefinition.taskDefinitionArn, cluster.clusterArn],
-          }),
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            actions: ['iam:PassRole'],
-            resources: ['*'],
-          }),
-        ],
-      }),
-    })
-
-    schedulerRole.attachInlinePolicy(schedulerPolicy)
 
     taskDefinition.addContainer(props.container.id, {
       image: ecs.ContainerImage.fromAsset(props.container.assetPath),
@@ -72,7 +49,7 @@ export class FargateTask {
         ...passthroughProps?.environment,
       },
       logging: new ecs.AwsLogDriver({
-        streamPrefix: 'ecsSpinService',
+        streamPrefix: `ecsSpinService/${props.container.id}`,
         logGroup: passthroughProps?.logs,
       }),
     })
