@@ -5,6 +5,8 @@ else
 endif
 export
 
+STACKS = SpinServiceStack-prod SpinCompute-prod
+
 bootstrap:
 	cdk bootstrap
 
@@ -15,20 +17,22 @@ build:
 	npm run build
 
 deploy:
-	npm run cdk -- deploy $(ENV)-$(STACK_NAME) \
-	--output cdk_stack/$(ENV)-$(STACK_NAME)
+	npm run cdk -- deploy $(STACK_NAME)-$(ENV)
+
+deploy-all:
+	npm run cdk -- deploy ${STACKS}
+
+synth-all: 
+	npm run cdk -- synth ${STACKS}
 
 synth:
-	npm run cdk -- synth $(ENV)-$(STACK_NAME) \
-    --output cdk_stack/$(ENV)-$(STACK_NAME)
+	npm run cdk -- synth $(STACK_NAME)-$(ENV)
 
 diff:
-	npm run cdk -- diff $(ENV)-$(STACK_NAME) \
-	--output cdk_stack/$(ENV)-$(STACK_NAME)
+	npm run cdk -- diff $(STACK_NAME)-$(ENV)
 
 destroy:
-	npm run cdk -- destroy $(ENV)-$(STACK_NAME) \
-    --output cdk_stack/$(ENV)-$(STACK_NAME)
+	npm run cdk -- destroy $(STACK_NAME)-$(ENV)
 
 meta:
 	cdk metadata --name SpinServiceStack
