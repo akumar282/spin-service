@@ -29,6 +29,7 @@ if (validBuildParams()) {
     ses_private_key: SES_PRIVATE_KEY,
     ses_public_key: SES_PUBLIC_KEY,
     api: spinStack.spinApi,
+    vpc: spinStack.vpc,
     opensearch_user: USER,
     dashpass: DASHPASS,
     env: { account: ACCOUNT, region: REGION },

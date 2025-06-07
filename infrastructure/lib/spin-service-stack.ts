@@ -32,6 +32,7 @@ import {
 import { Api } from './apigateway/api'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
 
 /*
 TODO: This stackfile is getting too big. Need to organize into multiple stacks.
@@ -41,9 +42,29 @@ TODO: This stackfile is getting too big. Need to organize into multiple stacks.
  */
 export class SpinServiceStack extends Stack {
   public readonly spinApi: Api
+  public readonly vpc: ec2.Vpc
 
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
+
+    const vpc = new ec2.Vpc(this, 'spinService', {
+      maxAzs: 2,
+      natGateways: 1,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'PublicSubnet',
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'PrivateSubnet',
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+      ],
+    })
+
+    this.vpc = vpc
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
       tableName: 'recordsTableNew',

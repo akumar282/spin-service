@@ -16,23 +16,6 @@ export class ComputingNetworkingStack extends Stack {
   ) {
     super(scope, id, props)
 
-    const vpc = new ec2.Vpc(this, 'spinService', {
-      maxAzs: 2,
-      natGateways: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'PublicSubnet',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'PrivateSubnet',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
-    })
-
     const mailer = new SESConstruct(this, 'SpinMailer', {
       existingHostedZone: {
         hostedZoneId: props.zone_id,
@@ -43,8 +26,8 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     const cluster = new ecs.Cluster(scope, 'spinServiceCluster', {
-      vpc,
       enableFargateCapacityProviders: true,
+      vpc: props.vpc,
     })
 
     const logGroup = new LogGroup(this, 'DataAggLogGroup', {
@@ -63,7 +46,7 @@ export class ComputingNetworkingStack extends Stack {
         },
         enableDlq: true,
       },
-      vpc,
+      props.vpc,
       cluster,
       {
         environment: {
