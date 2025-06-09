@@ -14,6 +14,8 @@ import {
   SubnetType,
   MachineImage,
   SecurityGroup,
+  Peer,
+  Port,
 } from 'aws-cdk-lib/aws-ec2'
 
 export class ComputingNetworkingStack extends Stack {
@@ -76,7 +78,17 @@ export class ComputingNetworkingStack extends Stack {
       }
     )
 
-    instanceSecurityGroup.addIngressRule()
+    instanceSecurityGroup.addIngressRule(
+      Peer.ipv4(`${props.proxy_ip}/32`),
+      Port.tcp(22),
+      'SSH Ingress'
+    )
+
+    instanceSecurityGroup.addIngressRule(
+      Peer.ipv4('0.0.0.0/0'),
+      Port.tcp(8080),
+      'Gateway Ingress'
+    )
 
     const instance = new Instance(this, 'SpinTunnelProxy', {
       vpc: props.vpc,
@@ -84,6 +96,7 @@ export class ComputingNetworkingStack extends Stack {
       machineImage: MachineImage.latestAmazonLinux2023(),
       keyPair: KeyPair.fromKeyPairName(this, 'SpinKey', 'spinkey'),
       vpcSubnets: props.vpc.selectSubnets({ subnetType: SubnetType.PUBLIC }),
+      securityGroup: instanceSecurityGroup,
     })
   }
 }
