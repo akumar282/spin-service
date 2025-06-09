@@ -29,12 +29,6 @@ import {
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
 
-/**
-TODO: This stackfile is getting too big. Need to organize into multiple stacks.
- This will be better architecture wise as well. Things may be tightly coupled
- so I dont know how that will look. might have to see if state machines would
- be a good alternative since this is just a big cron job with public data access
- */
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
@@ -208,7 +202,7 @@ export class SpinServiceStack extends Stack {
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
-        // OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        OPEN_SEARCH_ENDPOINT: props.domainEndpoint,
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
         TABLE_NAME: recordsTable.tableName,
@@ -222,7 +216,7 @@ export class SpinServiceStack extends Stack {
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
-        // OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        OPEN_SEARCH_ENDPOINT: props.domainEndpoint,
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
       },
@@ -403,11 +397,9 @@ export class SpinServiceStack extends Stack {
       },
     ])
 
-    // this.spinApi = recordsApi
-
-    // new CfnOutput(this, 'OpenSearchEndpoint', {
-    //   value: `https://${dataIndexingDomain.domainEndpoint}/`,
-    // })
+    new CfnOutput(this, 'OpenSearchEndpoint', {
+      value: `https://${props.domainEndpoint}/`,
+    })
 
     new CfnOutput(this, 'PipeArn', {
       value: processingPipeline.attrArn,

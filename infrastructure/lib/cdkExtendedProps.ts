@@ -2,6 +2,7 @@ import { StackProps } from 'aws-cdk-lib'
 import { Api } from './apigateway/api'
 import { Vpc } from 'aws-cdk-lib/aws-ec2'
 export interface CdkExtendedProps extends StackProps {
+  domainEndpoint: string
   opensearch_user: string
   dashpass: string
   api: Api
