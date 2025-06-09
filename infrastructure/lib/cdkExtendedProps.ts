@@ -4,13 +4,14 @@ import { Vpc } from 'aws-cdk-lib/aws-ec2'
 export interface CdkExtendedProps extends StackProps {
   opensearch_user: string
   dashpass: string
+  api: Api
+  vpc: Vpc
 }
 
 export interface ComputingNetworkStackProps extends StackProps {
-  api: Api
-  vpc: Vpc
   opensearch_user: string
   dashpass: string
+  ssh_ip: string
   zone_name: string
   zone_id: string
   ses_public_key: string

@@ -1,12 +1,11 @@
 import {
-  CfnOutput,
-  Stack,
   aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
+  CfnOutput,
   Duration,
   RemovalPolicy,
-  SecretValue,
+  Stack,
 } from 'aws-cdk-lib'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import {
@@ -19,20 +18,16 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { LogGroup } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
-import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { queueRole } from './iam/queueRole'
 import { CfnPipeProps } from 'aws-cdk-lib/aws-pipes'
-import { EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2'
 import {
   DynamoEventSource,
   SqsEventSource,
 } from 'aws-cdk-lib/aws-lambda-event-sources'
-import { Api } from './apigateway/api'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
 
 /**
 TODO: This stackfile is getting too big. Need to organize into multiple stacks.
@@ -41,30 +36,8 @@ TODO: This stackfile is getting too big. Need to organize into multiple stacks.
  be a good alternative since this is just a big cron job with public data access
  */
 export class SpinServiceStack extends Stack {
-  public readonly spinApi: Api
-  public readonly vpc: ec2.Vpc
-
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
-
-    const vpc = new ec2.Vpc(this, 'spinService', {
-      maxAzs: 2,
-      natGateways: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'PublicSubnet',
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'PrivateSubnet',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-      ],
-    })
-
-    this.vpc = vpc
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
       tableName: 'recordsTableNew',
@@ -164,63 +137,10 @@ export class SpinServiceStack extends Stack {
       refreshTokenValidity: Duration.days(365),
     })
 
-    const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
-      logGroupName: '/aws/vendedlogs/ingestionPipeline',
-      removalPolicy: RemovalPolicy.DESTROY,
-      retention: RetentionDays.FIVE_DAYS,
-    })
-
     const s3SearchBucket = new Bucket(this, 'OpenSearchBucket', {
       bucketName: 'open-search-bucket-1738',
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
-    })
-
-    const dataIndexingDomain = new Domain(this, 'SpinDataDomain', {
-      version: EngineVersion.OPENSEARCH_2_17,
-      domainName: 'spin-data',
-      logging: {
-        appLogGroup: openSearchLogs,
-      },
-      removalPolicy: RemovalPolicy.DESTROY,
-      fineGrainedAccessControl: {
-        masterUserName: 'admin',
-        masterUserPassword: SecretValue.unsafePlainText(props.opensearch_user),
-      },
-      capacity: {
-        dataNodeInstanceType: 't3.small.search',
-        dataNodes: 1,
-        multiAzWithStandbyEnabled: false,
-      },
-      nodeToNodeEncryption: true,
-      encryptionAtRest: {
-        enabled: true,
-      },
-      ebs: {
-        volumeType: EbsDeviceVolumeType.GP3,
-        volumeSize: 15,
-      },
-      enforceHttps: true,
-      enableAutoSoftwareUpdate: true,
-    })
-
-    const recordsApi = new Api(this, {
-      id: 'spin-records-api',
-      props: {
-        restApiName: 'spinRecordsApi',
-        description: 'Master api for data ingestion, and user endpoints',
-        defaultCorsPreflightOptions: {
-          allowOrigins: apigateway.Cors.ALL_ORIGINS,
-          allowMethods: apigateway.Cors.ALL_METHODS,
-          allowHeaders: [
-            'Content-Type',
-            'X-Amz-Date',
-            'Authorization',
-            'X-Api-Key',
-          ],
-          allowCredentials: true,
-        },
-      },
     })
 
     const pipelogGroup = new LogGroup(this, 'PipeLogGroup', {
@@ -288,7 +208,7 @@ export class SpinServiceStack extends Stack {
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
-        OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        // OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
         TABLE_NAME: recordsTable.tableName,
@@ -302,7 +222,7 @@ export class SpinServiceStack extends Stack {
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
-        OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
+        // OPEN_SEARCH_ENDPOINT: dataIndexingDomain.domainEndpoint,
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
       },
@@ -394,7 +314,7 @@ export class SpinServiceStack extends Stack {
       publicHandler
     )
 
-    recordsApi.addResources([
+    props.api.addResources([
       {
         pathPart: 'raw',
         methods: [
@@ -483,11 +403,11 @@ export class SpinServiceStack extends Stack {
       },
     ])
 
-    this.spinApi = recordsApi
+    // this.spinApi = recordsApi
 
-    new CfnOutput(this, 'OpenSearchEndpoint', {
-      value: `https://${dataIndexingDomain.domainEndpoint}/`,
-    })
+    // new CfnOutput(this, 'OpenSearchEndpoint', {
+    //   value: `https://${dataIndexingDomain.domainEndpoint}/`,
+    // })
 
     new CfnOutput(this, 'PipeArn', {
       value: processingPipeline.attrArn,

@@ -16,23 +16,25 @@ const ZONE_NAME = getEnv('ZONE_NAME')
 const ZONE_ID = getEnv('ZONE_ID')
 const SES_PRIVATE_KEY = getEnv('SES_PRIVATE_KEY')
 const SES_PUBLIC_KEY = getEnv('SES_PUBLIC_KEY')
+const SSH_IP = getEnv('SSH_IP')
 
 if (validBuildParams()) {
-  const spinStack = new SpinServiceStack(app, `SpinServiceStack-${ENV}`, {
-    opensearch_user: USER,
-    dashpass: DASHPASS,
-    env: { account: ACCOUNT, region: REGION },
-  })
-  new ComputingNetworkingStack(app, `SpinCompute-${ENV}`, {
+  const computeStack = new ComputingNetworkingStack(app, `SpinCompute-${ENV}`, {
     discogs_token: DISCOGS_TOKEN,
     proxy_ip: PROXY_IP,
     zone_name: ZONE_NAME,
     zone_id: ZONE_ID,
     ses_private_key: SES_PRIVATE_KEY,
     ses_public_key: SES_PUBLIC_KEY,
-    api: spinStack.spinApi,
-    vpc: spinStack.vpc,
+    ssh_ip: SSH_IP,
     opensearch_user: USER,
+    dashpass: DASHPASS,
+    env: { account: ACCOUNT, region: REGION },
+  })
+  const spinStack = new SpinServiceStack(app, `SpinServiceStack-${ENV}`, {
+    opensearch_user: USER,
+    vpc: computeStack.vpc,
+    api: computeStack.api,
     dashpass: DASHPASS,
     env: { account: ACCOUNT, region: REGION },
   })
