@@ -18,6 +18,11 @@ const SES_PRIVATE_KEY = getEnv('SES_PRIVATE_KEY')
 const SES_PUBLIC_KEY = getEnv('SES_PUBLIC_KEY')
 const SSH_IP = getEnv('SSH_IP')
 
+/**
+ * computeStack === networking & compute + api definition
+ * spinStack === business logic lambdas & client used resources
+ */
+
 if (validBuildParams()) {
   const computeStack = new ComputingNetworkingStack(app, `SpinCompute-${ENV}`, {
     discogs_token: DISCOGS_TOKEN,
