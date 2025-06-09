@@ -5,7 +5,12 @@ import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { FargateTask } from './fargate/fargateTask'
 import { SESConstruct } from './ses/ses'
 import { ComputingNetworkStackProps } from './cdkExtendedProps'
-import { SubnetType, EbsDeviceVolumeType } from 'aws-cdk-lib/aws-ec2'
+import {
+  SubnetType,
+  EbsDeviceVolumeType,
+  SecurityGroup,
+  Port,
+} from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
@@ -109,6 +114,18 @@ export class ComputingNetworkingStack extends Stack {
         },
         logs: logGroup,
       }
+    )
+
+    const openSearchSecurityGroup = new SecurityGroup(this, 'OSGroup', {
+      vpc,
+      allowAllOutbound: true,
+      securityGroupName: 'OSAccessGroup',
+    })
+
+    openSearchSecurityGroup.addIngressRule(
+      instance.SecurityGroup,
+      Port.tcp(443),
+      'Proxy Access'
     )
 
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
