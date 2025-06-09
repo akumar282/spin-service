@@ -34,7 +34,7 @@ import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 
-/*
+/**
 TODO: This stackfile is getting too big. Need to organize into multiple stacks.
  This will be better architecture wise as well. Things may be tightly coupled
  so I dont know how that will look. might have to see if state machines would

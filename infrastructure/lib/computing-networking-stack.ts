@@ -5,6 +5,16 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs'
 import { FargateTask } from './fargate/fargateTask'
 import { SESConstruct } from './ses/ses'
 import { ComputingNetworkStackProps } from './cdkExtendedProps'
+import {
+  Instance,
+  InstanceSize,
+  InstanceType,
+  InstanceClass,
+  KeyPair,
+  SubnetType,
+  MachineImage,
+  SecurityGroup,
+} from 'aws-cdk-lib/aws-ec2'
 
 export class ComputingNetworkingStack extends Stack {
   public constructor(
@@ -55,5 +65,25 @@ export class ComputingNetworkingStack extends Stack {
         logs: logGroup,
       }
     )
+
+    const instanceSecurityGroup = new SecurityGroup(
+      this,
+      'SpinComputeSecurityGroup',
+      {
+        vpc: props.vpc,
+        allowAllOutbound: true,
+        securityGroupName: 'TunnelAndProxyGroup',
+      }
+    )
+
+    instanceSecurityGroup.addIngressRule()
+
+    const instance = new Instance(this, 'SpinTunnelProxy', {
+      vpc: props.vpc,
+      instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.NANO),
+      machineImage: MachineImage.latestAmazonLinux2023(),
+      keyPair: KeyPair.fromKeyPairName(this, 'SpinKey', 'spinkey'),
+      vpcSubnets: props.vpc.selectSubnets({ subnetType: SubnetType.PUBLIC }),
+    })
   }
 }
