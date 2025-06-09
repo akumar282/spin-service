@@ -147,9 +147,7 @@ export class SpinServiceStack extends Stack {
     })
     const processingRole = queueRole(this)
 
-    const processingPipeline = new pipes.CfnPipe(this, 'processing-pipe', <
-      CfnPipeProps
-    >{
+    new pipes.CfnPipe(this, 'processing-pipe', <CfnPipeProps>{
       roleArn: processingRole.roleArn,
       source: recordsTable.tableStreamArn,
       sourceParameters: {
@@ -261,16 +259,15 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    s3SearchBucket.grantReadWrite(streamLambda)
     recordsTable.grantReadWriteData(streamLambda)
     recordsTable.grantStreamRead(streamLambda)
     usersTable.grantReadWriteData(streamLambda)
-    usersTable.grantReadWriteData(userLambda)
     usersTable.grantStreamRead(streamLambda)
-
+    usersTable.grantReadWriteData(userLambda)
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
     usersTable.grantReadWriteData(authLambda)
+
     authLambda.addToRolePolicy(
       new PolicyStatement({
         sid: 'AdminApproveUser',
@@ -399,10 +396,6 @@ export class SpinServiceStack extends Stack {
 
     new CfnOutput(this, 'OpenSearchEndpoint', {
       value: `https://${props.domainEndpoint}/`,
-    })
-
-    new CfnOutput(this, 'PipeArn', {
-      value: processingPipeline.attrArn,
     })
   }
 }

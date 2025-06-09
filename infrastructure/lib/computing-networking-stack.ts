@@ -10,12 +10,18 @@ import {
   EbsDeviceVolumeType,
   SecurityGroup,
   Port,
+  Peer,
+  InstanceType,
+  InstanceClass,
+  InstanceSize,
+  MachineImage,
+  KeyPair,
+  Instance,
 } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
-import { Compute } from './ec2/ec2'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -57,9 +63,36 @@ export class ComputingNetworkingStack extends Stack {
       publicKey: props.ses_public_key,
     })
 
-    const instance = new Compute(this, 'SpinCompute', {
+    const instanceSecurityGroup = new SecurityGroup(
+      scope,
+      'SpinComputeSecurityGroup',
+      {
+        vpc,
+        allowAllOutbound: true,
+        securityGroupName: 'TunnelAndProxyGroup',
+      }
+    )
+
+    instanceSecurityGroup.addIngressRule(
+      Peer.ipv4(`${props.ssh_ip}/32`),
+      Port.tcp(22),
+      'SSH Ingress'
+    )
+
+    instanceSecurityGroup.addIngressRule(
+      Peer.ipv4('0.0.0.0/0'),
+      Port.tcp(8080),
+      'Gateway Ingress'
+    )
+
+    new Instance(scope, id, {
       vpc,
-      sshIP: props.ssh_ip,
+      instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.NANO),
+      machineImage: MachineImage.latestAmazonLinux2023(),
+      keyPair: KeyPair.fromKeyPairName(scope, 'SpinKey', 'spinkey'),
+      vpcSubnets: vpc.selectSubnets({ subnetType: SubnetType.PUBLIC }),
+      securityGroup: instanceSecurityGroup,
+      allowAllOutbound: true,
     })
 
     const recordsApi = new Api(this, {
@@ -95,9 +128,9 @@ export class ComputingNetworkingStack extends Stack {
 
     new FargateTask(
       this,
-      'fargateTaskId',
+      'discogsTask',
       {
-        taskDefId: 'spinServiceTaskId',
+        taskDefId: 'spinServiceTaskDiscogs',
         container: {
           id: 'spinServiceContainer',
           assetPath: './image',
@@ -123,7 +156,7 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     openSearchSecurityGroup.addIngressRule(
-      instance.SecurityGroup,
+      instanceSecurityGroup,
       Port.tcp(443),
       'Proxy Access'
     )
