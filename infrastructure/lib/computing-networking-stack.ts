@@ -27,6 +27,7 @@ export class ComputingNetworkingStack extends Stack {
   public api: Api
   public readonly vpc: ec2.Vpc
   public readonly domainEndpoint: string
+  public readonly instanceIp: string
 
   public constructor(
     scope: Construct,
