@@ -86,7 +86,7 @@ export class ComputingNetworkingStack extends Stack {
       'Gateway Ingress'
     )
 
-    new Instance(scope, id, {
+    const instance = new Instance(scope, id, {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.NANO),
       machineImage: MachineImage.latestAmazonLinux2023(),
@@ -95,6 +95,8 @@ export class ComputingNetworkingStack extends Stack {
       securityGroup: instanceSecurityGroup,
       allowAllOutbound: true,
     })
+
+    this.instanceIp = instance.instancePublicIp
 
     const recordsApi = new Api(this, {
       id: 'spin-records-api',
