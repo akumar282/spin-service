@@ -15,7 +15,6 @@ import {
   StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { IntegrationType } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'

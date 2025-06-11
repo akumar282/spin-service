@@ -1,10 +1,14 @@
 import express, { Request, Response } from 'express'
 
 const app = express()
-const port = 3000
+const port = 8080
 
-app.listen(port, () => {
-  console.log('Jabhi')
+
+
+app.use(/(.*)/, (req: Request, res: Response) => {
+  console.log("catch all")
+  console.log(req.path)
+  res.send(`Hello ${req.path}`)
 })
 
 app.get('/', (req: Request, res: Response) => {
@@ -18,4 +22,8 @@ app.get('/', (req: Request, res: Response) => {
     '\n' +
     '</body>\n' +
     '</html>')
+})
+
+app.listen(port, () => {
+  console.log(`Server started on ${port}`)
 })
