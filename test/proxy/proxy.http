@@ -1,4 +1,4 @@
 ### GET request to example server
-GET localhost:8080/jojn
+GET localhost:8080/Hello/world?query=poop
 
 ###
