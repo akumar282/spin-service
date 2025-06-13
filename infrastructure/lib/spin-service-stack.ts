@@ -2,7 +2,6 @@ import {
   aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
-  CfnOutput,
   Duration,
   RemovalPolicy,
   Stack,
@@ -200,7 +199,6 @@ export class SpinServiceStack extends Stack {
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
-        OPEN_SEARCH_ENDPOINT: props.domainEndpoint,
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
         TABLE_NAME: recordsTable.tableName,
@@ -214,7 +212,6 @@ export class SpinServiceStack extends Stack {
       handler: 'index.handler',
       timeout: Duration.seconds(20),
       environment: {
-        OPEN_SEARCH_ENDPOINT: props.domainEndpoint,
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
       },
@@ -406,9 +403,5 @@ export class SpinServiceStack extends Stack {
         ],
       },
     ])
-
-    new CfnOutput(this, 'OpenSearchEndpoint', {
-      value: `https://${props.domainEndpoint}/`,
-    })
   }
 }

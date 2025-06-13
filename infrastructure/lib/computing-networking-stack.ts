@@ -22,6 +22,9 @@ import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import { Asset } from 'aws-cdk-lib/aws-s3-assets'
+import * as path from 'node:path'
+import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -65,7 +68,7 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     const instanceSecurityGroup = new SecurityGroup(
-      scope,
+      this,
       'SpinComputeSecurityGroup',
       {
         vpc,
@@ -86,11 +89,11 @@ export class ComputingNetworkingStack extends Stack {
       'Gateway Ingress'
     )
 
-    const instance = new Instance(scope, id, {
+    const instance = new Instance(this, 'SpinMachine', {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.NANO),
       machineImage: MachineImage.latestAmazonLinux2023(),
-      keyPair: KeyPair.fromKeyPairName(scope, 'SpinKey', 'spinkey'),
+      keyPair: KeyPair.fromKeyPairName(this, 'SpinKey', 'spinkey'),
       vpcSubnets: vpc.selectSubnets({ subnetType: SubnetType.PUBLIC }),
       securityGroup: instanceSecurityGroup,
       allowAllOutbound: true,
@@ -200,6 +203,15 @@ export class ComputingNetworkingStack extends Stack {
       vpcSubnets: [
         vpc.selectSubnets({ subnetType: SubnetType.PRIVATE_WITH_EGRESS }),
       ],
+    })
+
+    new StringParameter(this, 'OpenSearchEndpoint', {
+      parameterName: '/os/endpoint',
+      stringValue: dataIndexingDomain.domainEndpoint,
+    })
+
+    const asset = new Asset(this, 'Ec2SpinProxyAsset', {
+      path: path.join(__dirname, '../../ec2-proxy'),
     })
 
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
