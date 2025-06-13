@@ -1,4 +1,19 @@
 ### GET request to example server
-GET localhost:8080/Hello/world?query=poop
+POST localhost:8080/records/_update/t3_erf4dp
+Authorization: 'Basic user:pass
+Content-Type: application/json
+
+{
+  "id": "t3_erf4dp",
+  "artist": "PinkPantheress"
+}
 
 ###
+
+POST localhost:8080/records/_update/t3_erf4dp
+Content-Type: application/json
+
+{
+  "id": "t3_erf4dp",
+  "artist": "PinkPantheress"
+}
