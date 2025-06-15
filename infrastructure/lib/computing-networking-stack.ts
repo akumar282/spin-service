@@ -229,5 +229,7 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
+
+    asset.grantRead(instance)
   }
 }
