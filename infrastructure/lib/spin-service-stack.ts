@@ -394,11 +394,21 @@ export class SpinServiceStack extends Stack {
         ],
       },
       {
-        pathPart: '{proxy+}',
+        pathPart: 'os',
         methods: [
           {
             method: 'ANY',
-            integration: proxyDataIntegration,
+          },
+        ],
+        resources: [
+          {
+            pathPart: '{proxy+}',
+            methods: [
+              {
+                method: 'ANY',
+                integration: proxyDataIntegration,
+              },
+            ],
           },
         ],
       },
