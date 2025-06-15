@@ -17,6 +17,7 @@ import {
   MachineImage,
   KeyPair,
   Instance,
+  UserData,
 } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
@@ -57,6 +58,10 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     this.vpc = vpc
+
+    const asset = new Asset(this, 'Ec2SpinProxyAsset', {
+      path: path.join(__dirname, '../../ec2-proxy'),
+    })
 
     new SESConstruct(this, 'SpinMailer', {
       existingHostedZone: {
@@ -100,6 +105,19 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     this.instanceIp = instance.instancePublicIp
+
+    const userData = UserData.forLinux()
+    userData.addCommands(
+      'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash',
+      'source ~/.bashrc',
+      'nvm install --lts',
+      'node -e "console.log(\'Running Node.js \' + process.version)"',
+      `aws s3 cp ${asset.s3ObjectUrl} /tmp/ec2-proxy.zip`,
+      'unzip /tmp/ec2-proxy.zip -d /home/ec2-user/ec2-proxy',
+      'cd /home/ec2-user/ec2-proxy',
+      'npm install',
+      'make buildDeploy'
+    )
 
     const recordsApi = new Api(this, {
       id: 'spin-records-api',
@@ -207,11 +225,7 @@ export class ComputingNetworkingStack extends Stack {
 
     new StringParameter(this, 'OpenSearchEndpoint', {
       parameterName: '/os/endpoint',
-      stringValue: dataIndexingDomain.domainEndpoint,
-    })
-
-    const asset = new Asset(this, 'Ec2SpinProxyAsset', {
-      path: path.join(__dirname, '../../ec2-proxy'),
+      stringValue: `${recordsApi.url}/os/`,
     })
 
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
