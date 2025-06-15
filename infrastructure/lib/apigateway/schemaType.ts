@@ -8,7 +8,7 @@ import {
 export type ResourceDefinition = {
   pathPart: string
   options?: ResourceOptions
-  methods: {
+  methods?: {
     method: string
     integration: Integration
     options?: MethodOptions
