@@ -1,3 +1,5 @@
+import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
+
 export function getEnv(name: string): string {
   const val = process.env[name]
   if (!val) {
@@ -51,4 +53,23 @@ export async function requestWithBody(
   }
   const requestURI = url.concat(postRequest.path)
   return await fetch(requestURI, postRequest)
+}
+
+export async function getSsmParam(client: SSMClient, param: string) {
+  try {
+    const response = await client.send(
+      new GetParameterCommand({
+        Name: param,
+        WithDecryption: true,
+      })
+    )
+    if (response.Parameter) {
+      return response.Parameter
+    } else {
+      return null
+    }
+  } catch (e) {
+    console.error('Get SSM Param failed with error: ', e)
+    return null
+  }
 }

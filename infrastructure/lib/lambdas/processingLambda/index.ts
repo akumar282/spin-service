@@ -3,7 +3,7 @@ import { apiResponse } from '../../apigateway/responses'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
-import { getEnv, requestWithBody } from '../../shared/utils'
+import { getEnv, getSsmParam, requestWithBody } from '../../shared/utils'
 import {
   SQSBody,
   OpenSearchUserResult,
@@ -19,7 +19,9 @@ import {
 } from './functions'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
+import { SSMClient } from '@aws-sdk/client-ssm'
 
+const ssmClient = new SSMClient()
 const ses = new SESClient({
   region: 'us-west-2',
 })
@@ -36,7 +38,12 @@ TODO: Update handler with deadlock logic, adding dropped users, and adding actua
 */
 export async function handler(event: SQSEvent, context: Context) {
   const ledgerTableName = getEnv('LEDGER_TABLE')
-  const endpoint = `https://${getEnv('OPEN_SEARCH_ENDPOINT')}/`
+  const ssmParam = await getSsmParam(ssmClient, '/os/endpoint')
+  const endpoint = ssmParam ? ssmParam.Value : null
+
+  if (!endpoint) {
+    return apiResponse('Endpoint is not defined', 500)
+  }
 
   const eventRecords: SQSBody[] = event.Records.map((record) => {
     const data = JSON.parse(record.body) as SQSBody
