@@ -17,7 +17,6 @@ import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
-import { marshall } from '@aws-sdk/util-dynamodb'
 import 'aws-sdk-client-mock-jest'
 
 describe('Assorted test for functions', () => {
@@ -118,7 +117,7 @@ describe('Assorted test for functions', () => {
     })
   })
 
-  test('Send Email Test', async () => {
+  test('Sqs Delete Test', async () => {
     process.env.SQS_URL = 'https://sqsurl.com'
 
     sqsClient.on(DeleteMessageCommand).resolves({
@@ -135,22 +134,24 @@ describe('Assorted test for functions', () => {
     })
   })
 
-  test('Send Email Test', async () => {
-    process.env.TABLE_NAME = 'RECORDS_TABLE'
-
-    const marshallItem = marshall(users)
+  test('Ledger Table test', async () => {
+    process.env.LEDGER_TABLE = 'ledgerTable'
 
     const expected = {
       Attributes: {
-        postId: { S: 'testId' },
-        status: { S: 'COMPLETED' },
-        processed: { BOOL: true },
-        to: { L: marshallItem },
-        ttl: { N: '' },
+        postId: 'testId',
+        status: 'COMPLETED',
+        processed: true,
+        to: users,
+        ttl: '',
       },
     }
 
-    dynamoDocumentMock.on(UpdateCommand).resolves(expected)
+    dynamoDocumentMock
+      .on(UpdateCommand, {
+        TableName: 'ledgerTable',
+      })
+      .resolves(expected)
 
     const result = await updateLedgerItem(
       DynamoDBDocumentClient.from(
@@ -165,16 +166,17 @@ describe('Assorted test for functions', () => {
 
     expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateCommand, {
-      TableName: 'RECORDS_TABLE',
-      Key: { id: { S: 'testId' } },
+      TableName: 'ledgerTable',
+      Key: { id: 'testId' },
       ExpressionAttributeNames: {
         '#st': 'status',
         '#pr': 'processed',
         '#to': 'to',
       },
       ExpressionAttributeValues: expect.objectContaining({
-        ':st': { S: 'COMPLETED' },
-        ':pr': { BOOL: true },
+        ':st': 'COMPLETED',
+        ':pr': true,
+        ':to': users,
       }),
       UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
       ReturnValues: 'ALL_NEW',

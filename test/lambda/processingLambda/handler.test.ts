@@ -8,11 +8,12 @@ import {
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import * as Utils from '../../../infrastructure/lib/shared/utils'
-import { sqsEvent, users, userTest, wrappedReturn } from './testConsts'
+import { sqsEvent, userTest, wrappedReturn } from './testConsts'
 import { Records, SQSBody } from '../../../infrastructure/lib/apigateway/types'
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
+import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/processingLambda'
 import { Context } from 'aws-lambda'
+import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import process from 'node:process'
 import 'aws-sdk-client-mock-jest'
 
@@ -21,6 +22,7 @@ describe('Test for procesing handler', () => {
   const dynamoDocumentMock = mockClient(DynamoDBDocumentClient)
   const dynamoClient = mockClient(DynamoDBClient)
   const sqsClient = mockClient(SQSClient)
+  const ssmMock = mockClient(SSMClient)
 
   beforeEach(() => {
     sesMock.reset()
@@ -33,8 +35,6 @@ describe('Test for procesing handler', () => {
     process.env.LEDGER_TABLE = 'ledgerTable'
     process.env.USER = 'admin'
     process.env.DASHPASS = 'testpass'
-    process.env.OPEN_SEARCH_ENDPOINT =
-      'search-spin-data-ncvue37awszjvvba2vsoz5rhym.us-west-2.es.amazonaws.com'
     process.env.SQS_URL = 'testurl'
     jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(wrappedReturn)
     dynamoDocumentMock
@@ -63,6 +63,14 @@ describe('Test for procesing handler', () => {
         },
       })
 
+    ssmMock.on(GetParameterCommand).resolves({
+      Parameter: {
+        Name: '/os/endpoint',
+        Value:
+          'https://r0v2604715.execute-api.us-west-2.amazonaws.com/prod/os/',
+      },
+    })
+
     sesMock.on(SendEmailCommand).resolves({
       MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
     })
@@ -78,6 +86,7 @@ describe('Test for procesing handler', () => {
     }
 
     const result = await handler(sqsEvent, <Context>mockContext)
+    expect(ssmMock).toHaveReceivedCommand(GetParameterCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommand(PutCommand)
     expect(sesMock).toHaveReceivedCommand(SendEmailCommand)
     expect(sqsClient).toHaveReceivedCommand(DeleteMessageCommand)
