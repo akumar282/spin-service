@@ -1,52 +1,37 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  Context,
-} from 'aws-lambda'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import {
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-} from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
 import { getEnv } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
+import { getItem } from '../rawDataIngestion/functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
 
 export async function handler(
-  event: APIGatewayProxyEvent,
-  context: Context
+  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   const resource = event.path
   if (resource !== 'public' && resource !== 'public/{id}') {
-    const info = {
-      context,
-      event,
-      message: 'Invalid api path',
-    }
-    return apiResponse(info, 400)
+    return apiResponse('Invalid api path', 400)
   } else {
     switch (event.path) {
       case 'public': {
+        // Most likely unused
         if (event.httpMethod === 'POST') {
           if (event.body) {
             try {
               const body: Records = JSON.parse(event.body)
               const command = new PutCommand({
                 TableName: getEnv('TABLE_NAME'),
-                Item: {
-                  body,
-                },
+                Item: body,
               })
               const response = await docClient.send(command)
               return apiResponse(response, 200)
             } catch (e) {
               return apiResponse(
                 {
-                  error: e,
                   message: 'Internal Server Error',
                 },
                 300
@@ -64,30 +49,16 @@ export async function handler(
         if (id !== undefined) {
           switch (event.httpMethod) {
             case 'GET': {
-              const command = new GetCommand({
-                TableName: getEnv('TABLE_NAME'),
-                Key: {
-                  id,
-                },
-              })
-              const response = await docClient.send(command)
-              if (response.Item) {
-                return apiResponse(
-                  {
-                    meta: response.$metadata,
-                    data: response.Item,
-                  },
-                  200
-                )
-              } else {
-                return apiResponse(
-                  {
-                    meta: response.$metadata,
-                    data: `No Item found with id: ${id}`,
-                  },
-                  200
-                )
+              const item = await getItem(id, docClient)
+              if (item === null) {
+                return apiResponse(`No Item found with id: ${id}`, 200)
               }
+              return apiResponse(
+                {
+                  data: item,
+                },
+                200
+              )
             }
             default: {
               return apiResponse('invalid method', 405)

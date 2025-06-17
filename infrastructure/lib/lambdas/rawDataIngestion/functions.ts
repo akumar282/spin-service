@@ -1,6 +1,5 @@
 import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getEnv } from '../../shared/utils'
-import { apiResponse } from '../../apigateway/responses'
 
 export async function getItem(id: string, client: DynamoDBDocumentClient) {
   try {
