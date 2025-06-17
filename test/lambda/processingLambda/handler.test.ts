@@ -29,6 +29,7 @@ describe('Test for procesing handler', () => {
     dynamoDocumentMock.reset()
     dynamoClient.reset()
     sqsClient.reset()
+    ssmMock.reset()
   })
 
   test('Handler mock test', async () => {

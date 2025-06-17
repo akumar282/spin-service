@@ -25,7 +25,7 @@ export async function handler(
       return apiResponse('Endpoint is not defined', 500)
     }
   } catch (e) {
-    return apiResponse({ e, context }, 200)
+    return apiResponse({ e, context }, 500)
   }
   return apiResponse('Export Ran Successfully', 200)
 }
