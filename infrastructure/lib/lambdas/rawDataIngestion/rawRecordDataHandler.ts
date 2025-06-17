@@ -3,21 +3,19 @@ import {
   APIGatewayProxyResult,
   Context,
 } from 'aws-lambda'
-import {
-  DeleteItemCommand,
-  DynamoDBClient,
-  UpdateItemCommand,
-} from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
-  GetCommand,
+  UpdateCommand,
   PutCommand,
   QueryCommand,
   UpdateCommandInput,
+  DeleteCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
 import { getEnv } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
+import { getItem } from './functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -96,12 +94,15 @@ export async function handler(
               }
             }
             case 'DELETE': {
-              const command = new DeleteItemCommand({
+              const item = await getItem(id, docClient)
+              if (item === null) {
+                return apiResponse(`No Item found with id: ${id}`, 200)
+              }
+              const command = new DeleteCommand({
                 TableName: getEnv('TABLE_NAME'),
                 Key: {
-                  id: {
-                    S: id,
-                  },
+                  id: item.postId,
+                  created_time: item.created_time,
                 },
               })
               const response = await docClient.send(command)
@@ -126,6 +127,10 @@ export async function handler(
             case 'PATCH': {
               if (event.body) {
                 const body: Partial<Records> = JSON.parse(event.body)
+                const item = await getItem(id, docClient)
+                if (item === null) {
+                  return apiResponse(`No Item found with id: ${id}`, 200)
+                }
                 const input: UpdateCommandInput = {
                   ExpressionAttributeNames: {
                     '#ti': 'title',
@@ -134,30 +139,21 @@ export async function handler(
                     '#me': 'media',
                   },
                   ExpressionAttributeValues: {
-                    ':t': {
-                      S: body.title,
-                    },
-                    ':ar': {
-                      S: body.artist,
-                    },
-                    ':y': {
-                      S: body.year,
-                    },
-                    ':m': {
-                      S: body.media,
-                    },
+                    ':t': body.title,
+                    ':ar': body.artist,
+                    ':y': body.year,
+                    ':m': body.media,
                   },
                   Key: {
-                    id: {
-                      S: body.id,
-                    },
+                    postId: id,
+                    created_time: item.created_time,
                   },
                   ReturnValues: 'ALL_NEW',
                   TableName: getEnv('TABLE_NAME'),
                   UpdateExpression:
                     'SET #ti = :t, #ar = :ar, #ye = :y, #me = :m',
                 }
-                const command = new UpdateItemCommand(input)
+                const command = new UpdateCommand(input)
                 const response = await client.send(command)
                 return apiResponse(response, 200)
               } else {

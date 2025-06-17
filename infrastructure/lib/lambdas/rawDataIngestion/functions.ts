@@ -2,7 +2,7 @@ import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getEnv } from '../../shared/utils'
 import { apiResponse } from '../../apigateway/responses'
 
-async function getItem(id: string, client: DynamoDBDocumentClient) {
+export async function getItem(id: string, client: DynamoDBDocumentClient) {
   try {
     const command = new QueryCommand({
       TableName: getEnv('TABLE_NAME'),
@@ -15,15 +15,10 @@ async function getItem(id: string, client: DynamoDBDocumentClient) {
     if (response.Items) {
       return response.Items[0]
     } else {
-      return apiResponse(
-        {
-          meta: response.$metadata,
-          data: `No Item found with id: ${id}`,
-        },
-        200
-      )
+      return null
     }
   } catch (e) {
-    return apiResponse('Error when getting item', 500)
+    console.info('Error querying dynamo')
+    return null
   }
 }
