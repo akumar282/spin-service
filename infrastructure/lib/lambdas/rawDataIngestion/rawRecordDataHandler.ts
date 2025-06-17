@@ -12,6 +12,7 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  QueryCommand,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
@@ -68,18 +69,19 @@ export async function handler(
         if (id !== undefined) {
           switch (event.httpMethod) {
             case 'GET': {
-              const command = new GetCommand({
+              const command = new QueryCommand({
                 TableName: getEnv('TABLE_NAME'),
-                Key: {
-                  id,
+                KeyConditionExpression: 'postId = :postId',
+                ExpressionAttributeValues: {
+                  ':postId': id,
                 },
               })
               const response = await docClient.send(command)
-              if (response.Item) {
+              if (response.Items) {
                 return apiResponse(
                   {
                     meta: response.$metadata,
-                    data: response.Item,
+                    data: response.Items[0],
                   },
                   200
                 )
