@@ -2,9 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
-import { getEnv } from '../../shared/utils'
+import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
-import { getItem } from '../rawDataIngestion/functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)

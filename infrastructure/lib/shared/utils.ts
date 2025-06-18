@@ -1,4 +1,5 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
+import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
 
 export function getEnv(name: string): string {
   const val = process.env[name]
@@ -70,6 +71,27 @@ export async function getSsmParam(client: SSMClient, param: string) {
     }
   } catch (e) {
     console.error('Get SSM Param failed with error: ', e)
+    return null
+  }
+}
+
+export async function getItem(id: string, client: DynamoDBDocumentClient) {
+  try {
+    const command = new QueryCommand({
+      TableName: getEnv('TABLE_NAME'),
+      KeyConditionExpression: 'postId = :postId',
+      ExpressionAttributeValues: {
+        ':postId': id,
+      },
+    })
+    const response = await client.send(command)
+    if (response.Items) {
+      return response.Items[0]
+    } else {
+      return null
+    }
+  } catch (e) {
+    console.info('Error querying dynamo')
     return null
   }
 }

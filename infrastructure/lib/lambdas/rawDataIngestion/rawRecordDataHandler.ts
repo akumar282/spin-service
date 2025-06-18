@@ -13,9 +13,8 @@ import {
   DeleteCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
-import { getEnv } from '../../shared/utils'
+import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
-import { getItem } from './functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
