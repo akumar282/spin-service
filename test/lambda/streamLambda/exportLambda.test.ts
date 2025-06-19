@@ -1,10 +1,10 @@
 import { handler } from '../../../infrastructure/lib/lambdas/streamLambda'
 import * as process from 'node:process'
 import { Context } from 'aws-lambda'
-import { mockEvent, wrappedReturn } from './testConsts'
 import { mockClient } from 'aws-sdk-client-mock'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import * as Utils from '../../../infrastructure/lib/shared/utils'
+import { mockEvent, wrappedStreamReturn } from '../../testData/constants'
 
 describe('environmental variables', () => {
   const ssmMock = mockClient(SSMClient)
@@ -17,7 +17,7 @@ describe('environmental variables', () => {
     process.env.DASHPASS = 'xxxxxxxx'
     process.env.USER = 'xxxxx'
 
-    jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(wrappedReturn)
+    jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(wrappedStreamReturn)
 
     ssmMock.on(GetParameterCommand).resolves({
       Parameter: {

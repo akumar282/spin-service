@@ -10,13 +10,13 @@ import {
   requestWithBody,
 } from '../../../infrastructure/lib/shared/utils'
 import process from 'node:process'
-import { record1, users } from './testConsts'
 import { User } from '../../../infrastructure/lib/apigateway/types'
 import { mockClient } from 'aws-sdk-client-mock'
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import { record1, users } from '../../testData/constants'
 import 'aws-sdk-client-mock-jest'
 
 describe('Assorted test for functions', () => {
