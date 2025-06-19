@@ -48,7 +48,9 @@ export async function handler(
         if (id !== undefined) {
           switch (event.httpMethod) {
             case 'GET': {
-              const item = await getItem(id, docClient)
+              const item = await getItem(docClient, 'postId = :postId', {
+                ':postId': id,
+              })
               if (item === null) {
                 return apiResponse(`No Item found with id: ${id}`, 200)
               }

@@ -1,10 +1,16 @@
-import { DynamoDBStreamEvent, SQSEvent } from 'aws-lambda'
+import {
+  APIGatewayProxyEvent,
+  Context,
+  DynamoDBStreamEvent,
+  SQSEvent,
+} from 'aws-lambda'
 import { marshall } from '@aws-sdk/util-dynamodb'
 import {
   NotifyTypes,
   OpenSearchUserResult,
   User,
 } from '../../infrastructure/lib/apigateway/types'
+
 export const item = {
   created_time: '2025-04-08T01:29:31.271Z',
   postId: 'TestID23',
@@ -302,4 +308,10 @@ export const sqsEvent: SQSEvent = {
       awsRegion: 'us-west-2',
     },
   ],
+}
+
+export type Cases = {
+  mockEvent: Partial<APIGatewayProxyEvent>
+  mockContext?: Partial<Context>
+  expected: number
 }

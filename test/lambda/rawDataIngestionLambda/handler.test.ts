@@ -13,14 +13,8 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/rawDataIngestion'
-import { item, postTestConst } from '../../testData/constants'
+import { Cases, item, postTestConst } from '../../testData/constants'
 import 'aws-sdk-client-mock-jest'
-
-type Cases = {
-  mockEvent: Partial<APIGatewayProxyEvent>
-  mockContext: Partial<Context>
-  expected: number
-}
 
 const testCases: Cases[] = [
   {
@@ -76,7 +70,12 @@ describe('Raw data handler test cases', () => {
             httpStatusCode: 200,
           },
         })
-        .on(DeleteCommand)
+        .on(DeleteCommand, {
+          Key: {
+            postId: item.postId,
+            created_time: item.created_time,
+          },
+        })
         .resolves({
           $metadata: {
             httpStatusCode: 200,

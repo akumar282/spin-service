@@ -75,14 +75,16 @@ export async function getSsmParam(client: SSMClient, param: string) {
   }
 }
 
-export async function getItem(id: string, client: DynamoDBDocumentClient) {
+export async function getItem(
+  client: DynamoDBDocumentClient,
+  conditionExpression: string,
+  expressionAttrs: Record<string, any>
+) {
   try {
     const command = new QueryCommand({
       TableName: getEnv('TABLE_NAME'),
-      KeyConditionExpression: 'postId = :postId',
-      ExpressionAttributeValues: {
-        ':postId': id,
-      },
+      KeyConditionExpression: conditionExpression,
+      ExpressionAttributeValues: expressionAttrs,
     })
     const response = await client.send(command)
     if (response.Items) {
