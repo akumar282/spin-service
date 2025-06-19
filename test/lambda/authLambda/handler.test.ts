@@ -79,7 +79,6 @@ describe('Auth Lambda Test', () => {
         username: 'Jabhi@Jabhi.com',
         password: '111111',
       },
-      clientId: 'MOBILE_CLIENT_ID',
     })
 
     const mockEvent: Partial<APIGatewayProxyEvent> = {

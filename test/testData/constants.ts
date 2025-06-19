@@ -315,3 +315,8 @@ export type Cases = {
   mockContext?: Partial<Context>
   expected: number
 }
+
+export const refreshBody = {
+  platform: 'mobile',
+  user_name: 'Jabhi@Jabhi.com',
+}

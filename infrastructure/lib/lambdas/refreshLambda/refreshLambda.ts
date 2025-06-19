@@ -37,7 +37,7 @@ export async function handler(
           AuthFlow: 'REFRESH_TOKEN_AUTH',
           ClientId: clientId,
           AuthParameters: {
-            USERNAME: body.Username,
+            USERNAME: body.user_name,
             REFRESH_TOKEN: cookie.refreshToken,
           },
         })
