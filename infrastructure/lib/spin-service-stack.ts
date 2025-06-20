@@ -193,7 +193,7 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    const streamLambda = new lambda.Function(this, 'streamLambda', {
+    const streamLambda = new lambda.Function(this, 'StreamLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/streamLambda'),
       handler: 'index.handler',
@@ -206,7 +206,7 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    const processinglambda = new lambda.Function(this, 'processingLambda', {
+    const processinglambda = new lambda.Function(this, 'ProcessingLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/processingLambda'),
       handler: 'index.handler',
@@ -217,7 +217,7 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    const authLambda = new lambda.Function(this, 'authLambda', {
+    const authLambda = new lambda.Function(this, 'AuthLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/authLambda'),
       handler: 'index.handler',
@@ -233,7 +233,7 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    const refreshLambda = new lambda.Function(this, 'refreshLambda', {
+    const refreshLambda = new lambda.Function(this, 'RefreshLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/refreshLambda'),
       handler: 'index.handler',

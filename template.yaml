@@ -10,5 +10,34 @@ Resources:
   RawRecordDataHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Environment:
-        TABLE_NAME
+      CodeUri: 'dist/rawDataIngestion'
+
+  PublicRecordDataHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: 'dist/publicRecordDataHandler'
+
+  StreamLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: 'dist/streamLambda'
+
+  AuthLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: 'dist/authLambda'
+
+  RefreshLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: 'dist/refreshLambda'
+
+  UserLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: 'dist/userLambda'
+
+  ProcessingLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: 'dist/processingLambda'
