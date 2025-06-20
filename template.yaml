@@ -1,1 +1,6 @@
 Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Handler: index.handler

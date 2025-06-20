@@ -172,7 +172,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/rawDataIngestion'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
@@ -183,7 +183,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const publicHandler = new lambda.Function(this, 'PublicRecordDataHandler', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/publicRecordDataHandler'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
@@ -194,7 +194,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const streamLambda = new lambda.Function(this, 'streamLambda', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/streamLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
@@ -207,7 +207,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const processinglambda = new lambda.Function(this, 'processingLambda', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/processingLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
@@ -218,7 +218,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const authLambda = new lambda.Function(this, 'authLambda', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/authLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(10),
@@ -234,7 +234,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const refreshLambda = new lambda.Function(this, 'refreshLambda', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/refreshLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(10),
@@ -247,7 +247,7 @@ export class SpinServiceStack extends Stack {
     })
 
     const userLambda = new lambda.Function(this, 'UserLambda', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/userLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(10),
