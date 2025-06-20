@@ -4,3 +4,11 @@ Globals:
   Function:
     Runtime: nodejs22.x
     Handler: index.handler
+    Timeout: 20
+
+Resources:
+  RawRecordDataHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        TABLE_NAME
