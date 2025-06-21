@@ -8,7 +8,6 @@ import {
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import * as Utils from '../../../infrastructure/lib/shared/utils'
-import { sqsEvent, userTest, wrappedReturn } from './testConsts'
 import { Records, SQSBody } from '../../../infrastructure/lib/apigateway/types'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/processingLambda'
@@ -16,6 +15,7 @@ import { Context } from 'aws-lambda'
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import process from 'node:process'
 import 'aws-sdk-client-mock-jest'
+import { sqsEvent, userTest, wrappedReturn } from '../../testData/constants'
 
 describe('Test for procesing handler', () => {
   const sesMock = mockClient(SESClient)

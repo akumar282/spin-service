@@ -1,0 +1,21 @@
+{
+  "Records": [
+    {
+      "messageId": "66cdb011-2c91-485f-b81a-ee85419dc3ee",
+      "receiptHandle": "dummy-receipt-handle",
+      "body": "{\"eventID\":\"69f59a37847b8546d90c4d4ce4622534\",\"eventName\":\"INSERT\",\"eventVersion\":\"1.1\",\"eventSource\":\"aws:dynamodb\",\"awsRegion\":\"us-west-2\",\"dynamodb\":{\"ApproximateCreationDateTime\":1747892204,\"NewImage\":{\"id\":{\"S\":\"t3_1jtink0\"},\"year\":{\"S\":\"2024\"},\"media\":{\"S\":\"vinyl\"},\"created_time\":{\"S\":\"2025-04-07T11:09:20.321Z\"},\"postId\":{\"S\":\"t3_1jtink0\"},\"resource_url\":{\"S\":\"https://api.discogs.com/releases/28578895\"},\"content\":{\"S\":\"https://poorcreature.ffm.to/allsmiles?fbclid=PAY2xjawJgkZxleHRuA2FlbQIxMQABp6Z679xSMoCEVGRu77JOdrX3fYvpQJmH6b-_WxxAcjQKNVegDKRB0BO12WZ0_aem_hpphHLIa-rg6YgeOYfwOJg\"},\"artist\":{\"S\":\"PinkPantheress\"},\"pagination\":{\"NULL\":true},\"label\":{\"L\":[{\"S\":\"Uncut\"},{\"S\":\"Kelsey Media\"},{\"S\":\"UK Music\"},{\"S\":\"Sound Performance\"}]},\"genre\":{\"L\":[{\"S\":\"Electronic\"},{\"S\":\"Rock\"},{\"S\":\"Folk, World, & Country\"}]},\"searchString\":{\"S\":\"Poor Creature - All Smiles Tonight\"},\"link\":{\"S\":\"https://www.reddit.com/r/VinylReleases/comments/1jtink0/poor_creature_all_smiles_tonight_lankum_members/\"},\"postTitle\":{\"S\":\"Poor Creature - All Smiles Tonight ( Lankum members)\"},\"thumbnail\":{\"S\":\"https://b.thumbs.redditmedia.com/itn7DBqmY8wXFMX4NLNNK8O589dpNXGVpNIj7MT8Idw.jpg\"},\"color\":{\"S\":\"Black\"},\"title\":{\"S\":\"Various - The Planet That You're On (A Journey Into New Irish Music Curated By Lankum)\"}},\"SequenceNumber\":\"318881800001864057203738552\",\"SizeBytes\":137,\"StreamViewType\":\"NEW_IMAGE\"},\"eventSourceARN\":\"arn:aws:dynamodb:us-west-2:739292628626:table/recordsTableNew/stream/2025-04-03T08:05:31.347\"}",
+      "attributes": {
+        "ApproximateReceiveCount": "",
+        "SentTimestamp": "",
+        "SenderId": "",
+        "ApproximateFirstReceiveTimestamp": ""
+      },
+      "messageAttributes": {},
+      "md5OfMessageAttributes": null,
+      "md5OfBody": "e1f021a7390e5560c94bc48508e1a374",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-west-2:739292628626:SpinServiceStack-processingqueueA47DA09A-SI4aP2T8qyDh",
+      "awsRegion": "us-west-2"
+    }
+  ]
+}

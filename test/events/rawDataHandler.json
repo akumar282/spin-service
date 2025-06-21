@@ -1,0 +1,8 @@
+{
+  "body": "JSON.stringify(item)",
+  "path": "/raw/{id}",
+  "httpMethod": "GET",
+  "pathParameters": {
+    "id": "item.postId"
+  }
+}

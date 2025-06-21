@@ -14,7 +14,6 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/rawDataIngestion'
 import { Cases, item, postTestConst } from '../../testData/constants'
-import 'aws-sdk-client-mock-jest'
 
 const testCases: Cases[] = [
   {
