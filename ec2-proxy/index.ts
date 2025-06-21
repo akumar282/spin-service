@@ -3,8 +3,8 @@ import { getEnv, requestWithBody } from './functions'
 
 const app = express()
 const port = 8080
-const endpoint = getEnv('ENDPOINT')
-// const endpoint = 'http://localhost:5432'
+// const endpoint = getEnv('ENDPOINT')
+const endpoint = 'http://localhost:5432'
 
 
 app.use(/(.*)/, async (req: Request, res: Response) => {
