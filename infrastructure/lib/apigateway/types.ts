@@ -103,13 +103,11 @@ export type OpenSearchUserResult = {
       relation: string
     }
     max_score: number
-    hits: [
-      {
-        _index: string
-        _id: string
-        _score: number
-        _source: User
-      }
-    ]
+    hits: {
+      _index: string
+      _id: string
+      _score: number
+      _source: User
+    }[]
   }
 }
