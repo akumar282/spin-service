@@ -29,7 +29,8 @@ type PostInfo = {
   title: string,
   artist: string | null,
   label: string[],
-  resource_url: URL
+  resource_url: URL,
+  expires: number
 }
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
@@ -90,7 +91,8 @@ function mapToAttributes(rawData: HTMLElement[]) {
       searchString: transformString(post.getAttribute('post-title')),
       color: getColor(post.getAttribute('post-title')),
       artist: getArtist(post.getAttribute('post-title')),
-      thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null
+      thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null,
+      expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000)
     })
   })
 }
