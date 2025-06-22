@@ -37,6 +37,9 @@ destroy:
 meta:
 	cdk metadata --name SpinServiceStack
 
+bootstrap:
+	cdk bootstrap
+
 buildDiff: build diff
 
 buildDeploy: build deploy

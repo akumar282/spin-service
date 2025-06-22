@@ -67,7 +67,7 @@ async function getRawPosts(url: string) {
     for(let post of posts){
       for(let elements of post.querySelectorAll('shreddit-post[class="' +
         'block relative cursor-pointer group bg-neutral-background focus-within:bg-neutral-background-hover ' +
-        'hover:bg-neutral-background-hover xs:rounded-[16px] px-md py-2xs my-2xs nd:visible"]'))
+        'hover:bg-neutral-background-hover xs:rounded-4 px-md py-2xs my-2xs nd:visible"]'))
       {
         rawPostsQueue.push(elements)
         let token = elements.getAttribute('more-posts-cursor')
@@ -160,7 +160,7 @@ async function main() {
     await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
       try {
-        await requestWithBody('/raw', endpointUrl, item, requestHttpMethod.POST)
+        await requestWithBody('raw', endpointUrl, item, requestHttpMethod.POST)
       } catch (e) {
         console.error(`[API_INGESTION_CALL] Post call failed for ${item.postId}`)
       }

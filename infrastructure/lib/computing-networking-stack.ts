@@ -97,7 +97,9 @@ export class ComputingNetworkingStack extends Stack {
     const instance = new Instance(this, 'SpinMachine', {
       vpc,
       instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.NANO),
-      machineImage: MachineImage.latestAmazonLinux2023(),
+      machineImage: MachineImage.latestAmazonLinux2023({
+        cpuType: ec2.AmazonLinuxCpuType.ARM_64,
+      }),
       keyPair: KeyPair.fromKeyPairName(this, 'SpinKey', 'spinkey'),
       vpcSubnets: vpc.selectSubnets({ subnetType: SubnetType.PUBLIC }),
       securityGroup: instanceSecurityGroup,
@@ -187,7 +189,7 @@ export class ComputingNetworkingStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       fineGrainedAccessControl: {
         masterUserName: 'admin',
-        masterUserPassword: SecretValue.unsafePlainText(props.opensearch_user),
+        masterUserPassword: SecretValue.unsafePlainText(props.dashpass),
       },
       capacity: {
         dataNodeInstanceType: 't3.small.search',
@@ -206,7 +208,13 @@ export class ComputingNetworkingStack extends Stack {
       enableAutoSoftwareUpdate: true,
       vpc,
       vpcSubnets: [
-        vpc.selectSubnets({ subnetType: SubnetType.PRIVATE_WITH_EGRESS }),
+        {
+          subnets: [
+            vpc.selectSubnets({
+              subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+            }).subnets[0],
+          ],
+        },
       ],
     })
 
@@ -217,8 +225,7 @@ export class ComputingNetworkingStack extends Stack {
 
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
 
-    const userData = UserData.forLinux()
-    userData.addCommands(
+    instance.userData.addCommands(
       'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash',
       'source ~/.bashrc',
       'nvm install --lts',
