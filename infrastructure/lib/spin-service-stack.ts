@@ -265,6 +265,13 @@ export class SpinServiceStack extends Stack {
     recordsTable.grantReadWriteData(publicHandler)
     usersTable.grantReadWriteData(authLambda)
 
+    const ssmPolicy = new PolicyStatement({
+      sid: 'SSMGetParam',
+      effect: Effect.ALLOW,
+      actions: ['ssm:GetParameter'],
+      resources: ['*'],
+    })
+
     authLambda.addToRolePolicy(
       new PolicyStatement({
         sid: 'AdminApproveUser',
@@ -273,6 +280,9 @@ export class SpinServiceStack extends Stack {
         resources: ['*'],
       })
     )
+
+    streamLambda.addToRolePolicy(ssmPolicy)
+    processinglambda.addToRolePolicy(ssmPolicy)
 
     streamLambda.addEventSource(
       new DynamoEventSource(recordsTable, {
