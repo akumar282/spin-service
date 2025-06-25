@@ -19,8 +19,8 @@ const SES_PUBLIC_KEY = getEnv('SES_PUBLIC_KEY')
 const SSH_IP = getEnv('SSH_IP')
 
 /**
- * computeStack === networking & compute + api definition
- * spinStack === business logic lambdas & client used resources
+ * computeStack === networking & compute + api declaration
+ * spinStack === business logic lambdas & client used resources + api definition
  */
 
 if (validBuildParams()) {
