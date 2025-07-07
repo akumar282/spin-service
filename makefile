@@ -42,6 +42,6 @@ bootstrap:
 
 buildDiff: build diff
 
-buildDeploy: build deploy
+buildDeploy: build deploy-all
 
 buildSynth: build synth

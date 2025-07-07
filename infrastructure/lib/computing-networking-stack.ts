@@ -17,7 +17,6 @@ import {
   MachineImage,
   KeyPair,
   Instance,
-  UserData,
 } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
@@ -41,6 +40,8 @@ export class ComputingNetworkingStack extends Stack {
     super(scope, id, props)
 
     const vpc = new ec2.Vpc(this, 'spinService', {
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
       maxAzs: 2,
       natGateways: 1,
       subnetConfiguration: [
@@ -205,6 +206,7 @@ export class ComputingNetworkingStack extends Stack {
         volumeSize: 15,
       },
       enforceHttps: true,
+      securityGroups: [openSearchSecurityGroup],
       enableAutoSoftwareUpdate: true,
       vpc,
       vpcSubnets: [
@@ -220,7 +222,7 @@ export class ComputingNetworkingStack extends Stack {
 
     new StringParameter(this, 'OpenSearchEndpoint', {
       parameterName: '/os/endpoint',
-      stringValue: `${recordsApi.url}/os/`,
+      stringValue: `${recordsApi.url}os/`,
     })
 
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
