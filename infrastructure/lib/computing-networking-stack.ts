@@ -244,15 +244,15 @@ export class ComputingNetworkingStack extends Stack {
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
 
     instance.userData.addCommands(
-      'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash',
-      'source ~/.bashrc',
-      'nvm install --lts',
+      'sudo yum update -y',
+      'sudo yum install -y nodejs',
+      'sudo apt-get install make',
       'node -e "console.log(\'Running Node.js \' + process.version)"',
       `aws s3 cp ${asset.s3ObjectUrl} /tmp/ec2-proxy.zip`,
       'unzip /tmp/ec2-proxy.zip -d /home/ec2-user/ec2-proxy',
       'cd /home/ec2-user/ec2-proxy',
-      'npm install',
-      `export ENDPOINT=https://${dataIndexingDomain.domainEndpoint} make buildDeploy`
+      'sudo npm install',
+      `sudo export ENDPOINT=https://${dataIndexingDomain.domainEndpoint} make buildDeploy`
     )
 
     asset.grantRead(instance)
