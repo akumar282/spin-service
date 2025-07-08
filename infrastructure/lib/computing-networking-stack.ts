@@ -5,26 +5,32 @@ import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { FargateTask } from './fargate/fargateTask'
 import { SESConstruct } from './ses/ses'
 import { ComputingNetworkStackProps } from './cdkExtendedProps'
+import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import {
-  SubnetType,
   EbsDeviceVolumeType,
-  SecurityGroup,
-  Port,
-  Peer,
-  InstanceType,
+  Instance,
   InstanceClass,
   InstanceSize,
-  MachineImage,
+  InstanceType,
   KeyPair,
-  Instance,
+  MachineImage,
+  Peer,
+  Port,
+  SecurityGroup,
+  SubnetType,
 } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { Asset } from 'aws-cdk-lib/aws-s3-assets'
 import * as path from 'node:path'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
+import {
+  AnyPrincipal,
+  Effect,
+  PolicyStatement,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -219,6 +225,16 @@ export class ComputingNetworkingStack extends Stack {
         },
       ],
     })
+
+    const accessPolicy = new PolicyStatement({
+      sid: 'AllowAccessTunnel',
+      effect: Effect.ALLOW,
+      principals: [new AnyPrincipal()],
+      actions: ['es:ESHttp*'],
+      resources: [`${dataIndexingDomain.domainArn}/*`],
+    })
+
+    dataIndexingDomain.addAccessPolicies(accessPolicy)
 
     new StringParameter(this, 'OpenSearchEndpoint', {
       parameterName: '/os/endpoint',
