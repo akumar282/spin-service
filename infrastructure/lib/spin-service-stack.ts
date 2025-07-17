@@ -14,6 +14,7 @@ import {
   StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
+import { PassthroughBehavior } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
@@ -313,7 +314,19 @@ export class SpinServiceStack extends Stack {
     )
 
     const proxyDataIntegration = new apigateway.HttpIntegration(
-      `http://${props.instanceIp}:8080`
+      `http://${props.instanceIp}:8080/{proxy}`,
+      {
+        httpMethod: 'ANY',
+        proxy: true,
+        options: {
+          requestParameters: {
+            'integration.request.path.proxy': 'method.request.path.proxy',
+            'integration.request.header.Authorization':
+              'method.request.header.Authorization',
+          },
+          passthroughBehavior: PassthroughBehavior.WHEN_NO_MATCH,
+        },
+      }
     )
 
     props.api.addResources([
@@ -412,6 +425,12 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'ANY',
                 integration: proxyDataIntegration,
+                options: {
+                  requestParameters: {
+                    'method.request.path.proxy': true,
+                    'method.request.header.Authorization': false,
+                  },
+                },
               },
             ],
           },

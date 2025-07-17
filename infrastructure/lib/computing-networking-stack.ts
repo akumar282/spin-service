@@ -25,12 +25,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Asset } from 'aws-cdk-lib/aws-s3-assets'
 import * as path from 'node:path'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
-import {
-  AnyPrincipal,
-  Effect,
-  PolicyStatement,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
+import { AnyPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
