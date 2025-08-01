@@ -25,7 +25,14 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { Asset } from 'aws-cdk-lib/aws-s3-assets'
 import * as path from 'node:path'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
-import { AnyPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import {
+  AnyPrincipal,
+  Effect,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -110,6 +117,15 @@ export class ComputingNetworkingStack extends Stack {
 
     this.instanceIp = instance.instancePublicIp
 
+    const logRole = new Role(this, 'ApiGwLogsRole', {
+      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AmazonAPIGatewayPushToCloudWatchLogs'
+        ),
+      ],
+    })
+
     const recordsApi = new Api(this, {
       id: 'spin-records-api',
       props: {
@@ -128,6 +144,8 @@ export class ComputingNetworkingStack extends Stack {
         },
       },
     })
+
+    recordsApi.addLogging(logRole.roleArn)
 
     this.api = recordsApi
 
@@ -246,6 +264,8 @@ export class ComputingNetworkingStack extends Stack {
       `aws s3 cp ${asset.s3ObjectUrl} /tmp/ec2-proxy.zip`,
       'unzip /tmp/ec2-proxy.zip -d /home/ec2-user/ec2-proxy',
       'cd /home/ec2-user/ec2-proxy',
+      'sudo yum install -y make',
+      'sudo npm install -g esbuild',
       'sudo npm install',
       `sudo export ENDPOINT=https://${dataIndexingDomain.domainEndpoint} make buildDeploy`
     )

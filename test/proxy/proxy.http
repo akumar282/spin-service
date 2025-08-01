@@ -1,6 +1,6 @@
 ### GET request to example server
-POST localhost:8080/records/_update/t3_erf4dp
-Authorization: 'Basic user:pass
+POST localhost:8080/records/_doc/t3_erf4dp
+Authorization: Basic user:pass
 Content-Type: application/json
 
 {

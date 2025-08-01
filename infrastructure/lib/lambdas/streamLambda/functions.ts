@@ -47,7 +47,7 @@ const postItems = async (
       ? `${index}/_update/${item[idAttribute]}`
       : `${index}/_doc/${item[idAttribute]}`
     console.info('Sending: ', item)
-    await requestWithBody(
+    const result = await requestWithBody(
       queryString,
       endpoint,
       update ? docItem : item,
@@ -56,5 +56,7 @@ const postItems = async (
         'base64'
       )}`
     )
+    const result2 = await result.json()
+    console.log(result2)
   }
 }

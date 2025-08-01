@@ -54,4 +54,10 @@ export class Api {
   public addResources(resources: ResourceDefinition[]) {
     this.generateResources(resources)
   }
+
+  public addLogging(roleArn: string) {
+    new apigateway.CfnAccount(this.api, 'ApiGatewayAccount', {
+      cloudWatchRoleArn: roleArn,
+    })
+  }
 }

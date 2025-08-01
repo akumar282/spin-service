@@ -1,33 +1,37 @@
 import express, { Request, Response } from 'express'
-import { getEnv, requestWithBody } from './functions'
+import { createProxyMiddleware } from 'http-proxy-middleware'
+import { getEnv } from './functions'
 
 const app = express()
 const port = 8080
 const endpoint = getEnv('ENDPOINT')
 // const endpoint = 'http://localhost:5432'
 
+app.use(express.json({ limit: '100mb' }))
 
-app.use(/(.*)/, async (req: Request, res: Response) => {
-  if (!req.headers.authorization) {
-    res.status(401).send({ message: 'Proxy: Unauthorized' })
-  } else {
-    try {
-      const result = await requestWithBody(
-        req.originalUrl,
-        endpoint,
-        req.body,
-        req.method,
-        req.headers.authorization
-      )
-      const data = await result.json()
-      res.status(result.status).send(data)
-    } catch (e) {
-      res.status(400).send(e)
-    }
-  }
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`)
+  console.log('Headers:', req.headers)
+  next()
 })
 
+app.use(
+  '/',
+  createProxyMiddleware<Request, Response>({
+    target: endpoint,
+    changeOrigin: false,
+    selfHandleResponse: false,
+    on: {
+      proxyReq: (proxyReq, req) => {
+        if (req.headers.authorization) {
+          proxyReq.setHeader('Authorization', req.headers.authorization)
+        }
+      },
+    },
+  }),
+)
 
 app.listen(port, () => {
-  console.log(`Server started on ${port}`)
+  console.log(`Server V4 started on ${port}`)
 })
