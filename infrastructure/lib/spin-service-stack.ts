@@ -14,7 +14,7 @@ import {
   StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { PassthroughBehavior } from 'aws-cdk-lib/aws-apigateway'
+import { IntegrationType } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
@@ -313,21 +313,21 @@ export class SpinServiceStack extends Stack {
       publicHandler
     )
 
-    const proxyDataIntegration = new apigateway.HttpIntegration(
-      `http://${props.instanceIp}:8080/{proxy}`,
-      {
-        httpMethod: 'ANY',
-        proxy: true,
-        options: {
-          requestParameters: {
-            'integration.request.path.proxy': 'method.request.path.proxy',
-            'integration.request.header.Authorization':
-              'method.request.header.Authorization',
-          },
-          passthroughBehavior: PassthroughBehavior.WHEN_NO_MATCH,
+    const vpcLinkIntegration = new apigateway.Integration({
+      type: IntegrationType.HTTP_PROXY,
+      uri: 'https://search.internal/{proxy}',
+      integrationHttpMethod: 'ANY',
+      options: {
+        connectionType: apigateway.ConnectionType.VPC_LINK,
+        vpcLink: props.vpcLink,
+        requestParameters: {
+          'integration.request.path.proxy': 'method.request.path.proxy',
+          'integration.request.header.Authorization':
+            'method.request.header.Authorization',
         },
-      }
-    )
+        passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+      },
+    })
 
     props.api.addResources([
       {
@@ -424,11 +424,11 @@ export class SpinServiceStack extends Stack {
             methods: [
               {
                 method: 'ANY',
-                integration: proxyDataIntegration,
+                integration: vpcLinkIntegration,
                 options: {
                   requestParameters: {
                     'method.request.path.proxy': true,
-                    'method.request.header.Authorization': false,
+                    'method.request.header.Authorization': true,
                   },
                 },
               },

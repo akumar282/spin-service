@@ -5,11 +5,18 @@ import {
 } from './schemaType'
 import { Construct } from 'constructs'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { IResource, Resource, RestApi } from 'aws-cdk-lib/aws-apigateway'
+import { aws_elasticloadbalancingv2 as elbV2 } from 'aws-cdk-lib'
+import {
+  IResource,
+  Resource,
+  RestApi,
+  VpcLink,
+} from 'aws-cdk-lib/aws-apigateway'
 
 export class Api {
   public api: RestApi
   public url: string
+  public vpcLink: VpcLink
   readonly resources: Resource[]
 
   constructor(
@@ -59,5 +66,14 @@ export class Api {
     new apigateway.CfnAccount(this.api, 'ApiGatewayAccount', {
       cloudWatchRoleArn: roleArn,
     })
+  }
+
+  public addVpcLink(targets: elbV2.NetworkLoadBalancer[], linkName: string) {
+    const vpcLink = new apigateway.VpcLink(this.api, `VpcLink-${linkName}`, {
+      vpcLinkName: linkName,
+      targets,
+    })
+
+    this.vpcLink = vpcLink
   }
 }

@@ -41,6 +41,8 @@ if (validBuildParams()) {
     instanceIp: computeStack.instanceIp,
     domainEndpoint: computeStack.domainEndpoint,
     vpc: computeStack.vpc,
+    vpcLink: computeStack.vpcLink,
+    nlb: computeStack.nlb,
     api: computeStack.api,
     dashpass: DASHPASS,
     env: { account: ACCOUNT, region: REGION },

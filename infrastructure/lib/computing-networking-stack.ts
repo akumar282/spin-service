@@ -1,4 +1,14 @@
-import { RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
+import {
+  aws_elasticloadbalancingv2 as elbV2,
+  aws_elasticloadbalancingv2_targets as elbTargets,
+  aws_route53 as route53,
+  aws_certificatemanager as acm,
+  aws_route53_targets as route53Targets,
+  Duration,
+  RemovalPolicy,
+  SecretValue,
+  Stack,
+} from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
@@ -39,6 +49,8 @@ export class ComputingNetworkingStack extends Stack {
   public readonly vpc: ec2.Vpc
   public readonly domainEndpoint: string
   public readonly instanceIp: string
+  public readonly nlb
+  public readonly vpcLink
 
   public constructor(
     scope: Construct,
@@ -67,6 +79,57 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     this.vpc = vpc
+
+    const networkLoadBal = new elbV2.NetworkLoadBalancer(
+      this,
+      'OpensearchBalance',
+      {
+        vpc,
+        vpcSubnets: {
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        },
+        internetFacing: false,
+      }
+    )
+
+    const privateZone = new route53.PrivateHostedZone(this, 'PrivateZone', {
+      zoneName: 'PrivateZonePass',
+      vpc,
+    })
+
+    const cert = new acm.Certificate(this, 'nlbCert', {
+      domainName: 'search.internal',
+      validation: acm.CertificateValidation.fromDns(privateZone),
+    })
+
+    const listener = networkLoadBal.addListener('TLS', {
+      port: 443,
+      protocol: elbV2.Protocol.TLS,
+      certificates: [cert],
+    })
+
+    listener.addTargets('OpensearchTargets', {
+      port: 443,
+      targets: [new elbTargets.IpTarget('10.0.2.203')],
+      healthCheck: {
+        port: '443',
+        healthyThresholdCount: 3,
+        unhealthyThresholdCount: 3,
+        interval: Duration.seconds(30),
+        timeout: Duration.seconds(30),
+        protocol: elbV2.Protocol.TCP,
+      },
+    })
+
+    this.nlb = networkLoadBal
+
+    new route53.ARecord(this, 'AliasRecord', {
+      zone: privateZone,
+      recordName: 'search',
+      target: route53.RecordTarget.fromAlias(
+        new route53Targets.LoadBalancerTarget(networkLoadBal)
+      ),
+    })
 
     const asset = new Asset(this, 'Ec2SpinProxyAsset', {
       path: path.join(__dirname, '../../ec2-proxy'),
@@ -146,8 +209,10 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     recordsApi.addLogging(logRole.roleArn)
+    recordsApi.addVpcLink([networkLoadBal], 'OSLink')
 
     this.api = recordsApi
+    this.vpcLink = recordsApi.vpcLink
 
     const cluster = new ecs.Cluster(this, 'spinServiceCluster', {
       enableFargateCapacityProviders: true,
@@ -192,6 +257,12 @@ export class ComputingNetworkingStack extends Stack {
       instanceSecurityGroup,
       Port.tcp(443),
       'Proxy Access'
+    )
+
+    openSearchSecurityGroup.addIngressRule(
+      Peer.ipv4('10.0.0.0/16'),
+      Port.tcp(443),
+      'NLB Access'
     )
 
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
