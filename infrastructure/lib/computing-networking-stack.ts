@@ -92,44 +92,27 @@ export class ComputingNetworkingStack extends Stack {
       }
     )
 
-    const privateZone = new route53.PrivateHostedZone(this, 'PrivateZone', {
-      zoneName: 'PrivateZonePass',
-      vpc,
-    })
-
-    const cert = new acm.Certificate(this, 'nlbCert', {
-      domainName: 'search.internal',
-      validation: acm.CertificateValidation.fromDns(privateZone),
-    })
-
-    const listener = networkLoadBal.addListener('TLS', {
-      port: 443,
-      protocol: elbV2.Protocol.TLS,
-      certificates: [cert],
+    const listener = networkLoadBal.addListener('TCP80', {
+      port: 80,
+      protocol: elbV2.Protocol.TCP,
     })
 
     listener.addTargets('OpensearchTargets', {
-      port: 443,
+      port: 80,
+      protocol: elbV2.Protocol.TCP,
       targets: [new elbTargets.IpTarget('10.0.2.203')],
       healthCheck: {
-        port: '443',
-        healthyThresholdCount: 3,
-        unhealthyThresholdCount: 3,
+        port: '80',
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 2,
         interval: Duration.seconds(30),
         timeout: Duration.seconds(30),
-        protocol: elbV2.Protocol.TCP,
+        protocol: elbV2.Protocol.HTTP,
+        path: '/_cluster/health',
       },
     })
 
     this.nlb = networkLoadBal
-
-    new route53.ARecord(this, 'AliasRecord', {
-      zone: privateZone,
-      recordName: 'search',
-      target: route53.RecordTarget.fromAlias(
-        new route53Targets.LoadBalancerTarget(networkLoadBal)
-      ),
-    })
 
     const asset = new Asset(this, 'Ec2SpinProxyAsset', {
       path: path.join(__dirname, '../../ec2-proxy'),
@@ -265,6 +248,12 @@ export class ComputingNetworkingStack extends Stack {
       'NLB Access'
     )
 
+    openSearchSecurityGroup.addIngressRule(
+      Peer.ipv4('10.0.0.0/16'),
+      Port.tcp(80),
+      'NLBAccessHTTP'
+    )
+
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
       logGroupName: '/aws/vendedlogs/ingestionPipeline',
       removalPolicy: RemovalPolicy.DESTROY,
@@ -295,7 +284,7 @@ export class ComputingNetworkingStack extends Stack {
         volumeType: EbsDeviceVolumeType.GP3,
         volumeSize: 15,
       },
-      enforceHttps: true,
+      enforceHttps: false,
       securityGroups: [openSearchSecurityGroup],
       enableAutoSoftwareUpdate: true,
       vpc,

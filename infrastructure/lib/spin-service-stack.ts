@@ -315,7 +315,7 @@ export class SpinServiceStack extends Stack {
 
     const vpcLinkIntegration = new apigateway.Integration({
       type: IntegrationType.HTTP_PROXY,
-      uri: 'https://search.internal/{proxy}',
+      uri: `http://${props.nlb.loadBalancerDnsName}/{proxy}`,
       integrationHttpMethod: 'ANY',
       options: {
         connectionType: apigateway.ConnectionType.VPC_LINK,
