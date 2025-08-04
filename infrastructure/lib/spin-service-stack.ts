@@ -1,6 +1,4 @@
 import {
-  aws_apigatewayv2 as apiv2,
-  aws_apigatewayv2_integrations as integrations,
   aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
@@ -29,7 +27,6 @@ import {
 } from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
-import { HttpApi } from './apigateway/httpApi'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
@@ -314,29 +311,6 @@ export class SpinServiceStack extends Stack {
     const publicDataIntegration = new apigateway.LambdaIntegration(
       publicHandler
     )
-
-    const privateHttpApi = new HttpApi(this, {
-      id: 'osLinkApi',
-      definition: {
-        createDefaultStage: true,
-      },
-      routes: {
-        definition: [
-          {
-            path: '/os/{proxy+}',
-            methods: [apiv2.HttpMethod.ANY],
-            integration: new integrations.HttpNlbIntegration(
-              'httpOS',
-              props.listener,
-              {
-                method: apiv2.HttpMethod.ANY,
-                secureServerName: props.domainEndpoint,
-              }
-            ),
-          },
-        ],
-      },
-    })
 
     props.api.addResources([
       {

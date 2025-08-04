@@ -1,4 +1,6 @@
 import {
+  aws_apigatewayv2 as apiv2,
+  aws_apigatewayv2_integrations as integrations,
   aws_elasticloadbalancingv2 as elbV2,
   aws_elasticloadbalancingv2_targets as elbTargets,
   CfnOutput,
@@ -41,7 +43,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
-import { NetworkListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
+import { HttpApi } from './apigateway/httpApi'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -49,7 +51,6 @@ export class ComputingNetworkingStack extends Stack {
   public readonly domainEndpoint: string
   public readonly instanceIp: string
   public readonly nlb
-  public listener: NetworkListener
 
   public constructor(
     scope: Construct,
@@ -100,18 +101,16 @@ export class ComputingNetworkingStack extends Stack {
       protocol: elbV2.Protocol.TCP,
       targets: [new elbTargets.IpTarget('10.0.2.203')],
       healthCheck: {
-        port: '80',
+        port: '443',
         healthyThresholdCount: 2,
         unhealthyThresholdCount: 2,
         interval: Duration.seconds(30),
         timeout: Duration.seconds(30),
         protocol: elbV2.Protocol.HTTP,
-        path: '/_cluster/health',
       },
     })
 
     this.nlb = networkLoadBal
-    this.listener = listener
 
     const asset = new Asset(this, 'Ec2SpinProxyAsset', {
       path: path.join(__dirname, '../../ec2-proxy'),
@@ -281,7 +280,7 @@ export class ComputingNetworkingStack extends Stack {
         volumeType: EbsDeviceVolumeType.GP3,
         volumeSize: 15,
       },
-      enforceHttps: false,
+      enforceHttps: true,
       securityGroups: [openSearchSecurityGroup],
       enableAutoSoftwareUpdate: true,
       vpc,
@@ -328,5 +327,32 @@ export class ComputingNetworkingStack extends Stack {
     )
 
     asset.grantRead(instance)
+
+    const privateHttpApi = new HttpApi(this, {
+      id: 'osLinkApi',
+      definition: {
+        createDefaultStage: true,
+      },
+      routes: {
+        definition: [
+          {
+            path: '/os/{proxy+}',
+            methods: [apiv2.HttpMethod.ANY],
+            integration: new integrations.HttpNlbIntegration(
+              'httpOS',
+              listener,
+              {
+                method: apiv2.HttpMethod.ANY,
+                secureServerName: dataIndexingDomain.domainEndpoint,
+              }
+            ),
+          },
+        ],
+      },
+    })
+
+    new CfnOutput(this, 'SearchApiUrl', {
+      value: `${privateHttpApi.url}os/`,
+    })
   }
 }

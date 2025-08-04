@@ -1,10 +1,7 @@
 import { StackProps } from 'aws-cdk-lib'
 import { Api } from './apigateway/api'
 import { Vpc } from 'aws-cdk-lib/aws-ec2'
-import {
-  NetworkListener,
-  NetworkLoadBalancer,
-} from 'aws-cdk-lib/aws-elasticloadbalancingv2'
+import { NetworkLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 export interface CdkExtendedProps extends StackProps {
   domainEndpoint: string
   instanceIp: string
@@ -13,7 +10,6 @@ export interface CdkExtendedProps extends StackProps {
   api: Api
   vpc: Vpc
   nlb: NetworkLoadBalancer
-  listener: NetworkListener
 }
 
 export interface ComputingNetworkStackProps extends StackProps {

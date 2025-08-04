@@ -44,7 +44,6 @@ if (validBuildParams()) {
     nlb: computeStack.nlb,
     api: computeStack.api,
     dashpass: DASHPASS,
-    listener: computeStack.listener,
     env: { account: ACCOUNT, region: REGION },
   })
 }
