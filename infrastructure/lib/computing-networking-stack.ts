@@ -1,9 +1,6 @@
 import {
   aws_elasticloadbalancingv2 as elbV2,
   aws_elasticloadbalancingv2_targets as elbTargets,
-  aws_route53 as route53,
-  aws_certificatemanager as acm,
-  aws_route53_targets as route53Targets,
   Duration,
   RemovalPolicy,
   SecretValue,
@@ -32,6 +29,7 @@ import {
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
+import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2'
 import { Asset } from 'aws-cdk-lib/aws-s3-assets'
 import * as path from 'node:path'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
@@ -331,5 +329,15 @@ export class ComputingNetworkingStack extends Stack {
     )
 
     asset.grantRead(instance)
+
+    const http = new apigatewayv2.HttpApi(this, 'http', {
+      apiName: 'internalOsLink',
+    })
+
+    http.addRoutes({
+      path: 'os',
+      methods: [apigatewayv2.HttpMethod.GET],
+      integration: {} as apigatewayv2.HttpRouteIntegration,
+    })
   }
 }

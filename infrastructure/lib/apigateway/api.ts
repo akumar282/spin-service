@@ -13,6 +13,10 @@ import {
   VpcLink,
 } from 'aws-cdk-lib/aws-apigateway'
 
+/*
+  This is a REST definition. apigateway V1 on REST does not support TLS config changes
+ */
+
 export class Api {
   public api: RestApi
   public url: string
