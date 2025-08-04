@@ -1,6 +1,7 @@
 import {
   aws_elasticloadbalancingv2 as elbV2,
   aws_elasticloadbalancingv2_targets as elbTargets,
+  CfnOutput,
   Duration,
   RemovalPolicy,
   SecretValue,
@@ -29,7 +30,6 @@ import {
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2'
 import { Asset } from 'aws-cdk-lib/aws-s3-assets'
 import * as path from 'node:path'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
@@ -41,6 +41,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
+import { NetworkListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -48,7 +49,7 @@ export class ComputingNetworkingStack extends Stack {
   public readonly domainEndpoint: string
   public readonly instanceIp: string
   public readonly nlb
-  public readonly vpcLink
+  public listener: NetworkListener
 
   public constructor(
     scope: Construct,
@@ -90,13 +91,12 @@ export class ComputingNetworkingStack extends Stack {
       }
     )
 
-    const listener = networkLoadBal.addListener('TCP80', {
-      port: 80,
-      protocol: elbV2.Protocol.TCP,
+    const listener = networkLoadBal.addListener('OsListener', {
+      port: 443,
     })
 
     listener.addTargets('OpensearchTargets', {
-      port: 80,
+      port: 443,
       protocol: elbV2.Protocol.TCP,
       targets: [new elbTargets.IpTarget('10.0.2.203')],
       healthCheck: {
@@ -111,6 +111,7 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     this.nlb = networkLoadBal
+    this.listener = listener
 
     const asset = new Asset(this, 'Ec2SpinProxyAsset', {
       path: path.join(__dirname, '../../ec2-proxy'),
@@ -190,10 +191,8 @@ export class ComputingNetworkingStack extends Stack {
     })
 
     recordsApi.addLogging(logRole.roleArn)
-    recordsApi.addVpcLink([networkLoadBal], 'OSLink')
 
     this.api = recordsApi
-    this.vpcLink = recordsApi.vpcLink
 
     const cluster = new ecs.Cluster(this, 'spinServiceCluster', {
       enableFargateCapacityProviders: true,
@@ -329,15 +328,5 @@ export class ComputingNetworkingStack extends Stack {
     )
 
     asset.grantRead(instance)
-
-    const http = new apigatewayv2.HttpApi(this, 'http', {
-      apiName: 'internalOsLink',
-    })
-
-    http.addRoutes({
-      path: 'os',
-      methods: [apigatewayv2.HttpMethod.GET],
-      integration: {} as apigatewayv2.HttpRouteIntegration,
-    })
   }
 }

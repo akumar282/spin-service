@@ -1,4 +1,6 @@
 import {
+  aws_apigatewayv2 as apiv2,
+  aws_apigatewayv2_integrations as integrations,
   aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
@@ -14,7 +16,6 @@ import {
   StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { IntegrationType } from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
@@ -28,6 +29,7 @@ import {
 } from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
+import { HttpApi } from './apigateway/httpApi'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
@@ -313,19 +315,26 @@ export class SpinServiceStack extends Stack {
       publicHandler
     )
 
-    const vpcLinkIntegration = new apigateway.Integration({
-      type: IntegrationType.HTTP_PROXY,
-      uri: `http://${props.nlb.loadBalancerDnsName}/{proxy}`,
-      integrationHttpMethod: 'ANY',
-      options: {
-        connectionType: apigateway.ConnectionType.VPC_LINK,
-        vpcLink: props.vpcLink,
-        requestParameters: {
-          'integration.request.path.proxy': 'method.request.path.proxy',
-          'integration.request.header.Authorization':
-            'method.request.header.Authorization',
-        },
-        passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+    const privateHttpApi = new HttpApi(this, {
+      id: 'osLinkApi',
+      definition: {
+        createDefaultStage: true,
+      },
+      routes: {
+        definition: [
+          {
+            path: '/os/{proxy+}',
+            methods: [apiv2.HttpMethod.ANY],
+            integration: new integrations.HttpNlbIntegration(
+              'httpOS',
+              props.listener,
+              {
+                method: apiv2.HttpMethod.ANY,
+                secureServerName: props.domainEndpoint,
+              }
+            ),
+          },
+        ],
       },
     })
 
@@ -411,26 +420,6 @@ export class SpinServiceStack extends Stack {
                     integration: userIntegration,
                   },
                 ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        pathPart: 'os',
-        resources: [
-          {
-            pathPart: '{proxy+}',
-            methods: [
-              {
-                method: 'ANY',
-                integration: vpcLinkIntegration,
-                options: {
-                  requestParameters: {
-                    'method.request.path.proxy': true,
-                    'method.request.header.Authorization': true,
-                  },
-                },
               },
             ],
           },
