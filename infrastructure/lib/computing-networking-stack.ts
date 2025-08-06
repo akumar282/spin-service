@@ -305,11 +305,6 @@ export class ComputingNetworkingStack extends Stack {
 
     dataIndexingDomain.addAccessPolicies(accessPolicy)
 
-    new StringParameter(this, 'OpenSearchEndpoint', {
-      parameterName: '/os/endpoint',
-      stringValue: `${recordsApi.url}os/`,
-    })
-
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
 
     instance.userData.addCommands(
@@ -349,6 +344,11 @@ export class ComputingNetworkingStack extends Stack {
           },
         ],
       },
+    })
+
+    new StringParameter(this, 'OpenSearchEndpoint', {
+      parameterName: '/os/endpoint',
+      stringValue: `${privateHttpApi.url}os/`,
     })
 
     new CfnOutput(this, 'SearchApiUrl', {
