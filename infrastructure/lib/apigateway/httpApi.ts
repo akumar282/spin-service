@@ -21,6 +21,7 @@ export class HttpApi {
 
   constructor(scope: Construct, props: HttpDefinition) {
     this.httpApi = new ApiHttp(scope, props.id, props.definition)
+    this.url = this.httpApi.url ? this.httpApi.url : 'No default stage'
 
     if (props.routes) {
       this.generateRoutes(props.routes)

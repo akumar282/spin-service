@@ -44,6 +44,11 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
 import { HttpApi } from './apigateway/httpApi'
+import { VpcLink } from 'aws-cdk-lib/aws-apigatewayv2'
+import {
+  ListenerCertificate,
+  Protocol,
+} from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -94,6 +99,7 @@ export class ComputingNetworkingStack extends Stack {
 
     const listener = networkLoadBal.addListener('OsListener', {
       port: 443,
+      protocol: Protocol.TLS,
     })
 
     listener.addTargets('OpensearchTargets', {
@@ -105,8 +111,8 @@ export class ComputingNetworkingStack extends Stack {
         healthyThresholdCount: 2,
         unhealthyThresholdCount: 2,
         interval: Duration.seconds(30),
-        timeout: Duration.seconds(30),
-        protocol: elbV2.Protocol.HTTP,
+        timeout: Duration.seconds(10),
+        protocol: elbV2.Protocol.TCP,
       },
     })
 
@@ -323,6 +329,16 @@ export class ComputingNetworkingStack extends Stack {
 
     asset.grantRead(instance)
 
+    const vpcLink = new VpcLink(this, 'OsVpcLink', {
+      vpc,
+      vpcLinkName: 'os-vpc-link',
+      subnets: {
+        subnets: vpc.selectSubnets({
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        }).subnets,
+      },
+    })
+
     const privateHttpApi = new HttpApi(this, {
       id: 'osLinkApi',
       definition: {
@@ -338,6 +354,7 @@ export class ComputingNetworkingStack extends Stack {
               listener,
               {
                 method: apiv2.HttpMethod.ANY,
+                vpcLink,
                 secureServerName: dataIndexingDomain.domainEndpoint,
               }
             ),

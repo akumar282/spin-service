@@ -17,3 +17,8 @@ Content-Type: application/json
   "id": "t3_erf4dp",
   "artist": "PinkPantheress"
 }
+
+###
+
+GET https://r0p415t6i6.execute-api.us-west-2.amazonaws.com/os/_cluster/health
+Authorization: Basic "YWRtaW46YWRtaW5BYjEh"
