@@ -184,7 +184,7 @@ export class ComputingNetworkingStack extends Stack {
 
     new StringParameter(this, 'OpenSearchEndpoint', {
       parameterName: '/os/endpoint',
-      stringValue: `${dataIndexingDomain.domainEndpoint}`,
+      stringValue: `https://${dataIndexingDomain.domainEndpoint}/`,
     })
   }
 }
