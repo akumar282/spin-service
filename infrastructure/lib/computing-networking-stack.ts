@@ -1,14 +1,4 @@
-import {
-  aws_apigatewayv2 as apiv2,
-  aws_apigatewayv2_integrations as integrations,
-  aws_elasticloadbalancingv2 as elbV2,
-  aws_elasticloadbalancingv2_targets as elbTargets,
-  CfnOutput,
-  Duration,
-  RemovalPolicy,
-  SecretValue,
-  Stack,
-} from 'aws-cdk-lib'
+import { RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
@@ -16,19 +6,7 @@ import { FargateTask } from './fargate/fargateTask'
 import { SESConstruct } from './ses/ses'
 import { ComputingNetworkStackProps } from './cdkExtendedProps'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
-import {
-  EbsDeviceVolumeType,
-  Instance,
-  InstanceClass,
-  InstanceSize,
-  InstanceType,
-  KeyPair,
-  MachineImage,
-  Peer,
-  Port,
-  SecurityGroup,
-  SubnetType,
-} from 'aws-cdk-lib/aws-ec2'
+import { EbsDeviceVolumeType, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
@@ -43,19 +21,11 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
-import { HttpApi } from './apigateway/httpApi'
-import { VpcLink } from 'aws-cdk-lib/aws-apigatewayv2'
-import {
-  ListenerCertificate,
-  Protocol,
-} from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
   public readonly vpc: ec2.Vpc
   public readonly domainEndpoint: string
-  public readonly instanceIp: string
-  public readonly nlb
 
   public constructor(
     scope: Construct,
@@ -85,43 +55,6 @@ export class ComputingNetworkingStack extends Stack {
 
     this.vpc = vpc
 
-    const networkLoadBal = new elbV2.NetworkLoadBalancer(
-      this,
-      'OpensearchBalance',
-      {
-        vpc,
-        vpcSubnets: {
-          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-        },
-        internetFacing: false,
-      }
-    )
-
-    const listener = networkLoadBal.addListener('OsListener', {
-      port: 443,
-      protocol: Protocol.TLS,
-    })
-
-    listener.addTargets('OpensearchTargets', {
-      port: 443,
-      protocol: elbV2.Protocol.TCP,
-      targets: [new elbTargets.IpTarget('10.0.2.203')],
-      healthCheck: {
-        port: '443',
-        healthyThresholdCount: 2,
-        unhealthyThresholdCount: 2,
-        interval: Duration.seconds(30),
-        timeout: Duration.seconds(10),
-        protocol: elbV2.Protocol.TCP,
-      },
-    })
-
-    this.nlb = networkLoadBal
-
-    const asset = new Asset(this, 'Ec2SpinProxyAsset', {
-      path: path.join(__dirname, '../../ec2-proxy'),
-    })
-
     new SESConstruct(this, 'SpinMailer', {
       existingHostedZone: {
         hostedZoneId: props.zone_id,
@@ -130,42 +63,6 @@ export class ComputingNetworkingStack extends Stack {
       privateKey: SecretValue.unsafePlainText(props.ses_private_key),
       publicKey: props.ses_public_key,
     })
-
-    const instanceSecurityGroup = new SecurityGroup(
-      this,
-      'SpinComputeSecurityGroup',
-      {
-        vpc,
-        allowAllOutbound: true,
-        securityGroupName: 'TunnelAndProxyGroup',
-      }
-    )
-
-    instanceSecurityGroup.addIngressRule(
-      Peer.ipv4(`${props.ssh_ip}/32`),
-      Port.tcp(22),
-      'SSH Ingress'
-    )
-
-    instanceSecurityGroup.addIngressRule(
-      Peer.ipv4('0.0.0.0/0'),
-      Port.tcp(8080),
-      'Gateway Ingress'
-    )
-
-    const instance = new Instance(this, 'SpinMachine', {
-      vpc,
-      instanceType: InstanceType.of(InstanceClass.T4G, InstanceSize.NANO),
-      machineImage: MachineImage.latestAmazonLinux2023({
-        cpuType: ec2.AmazonLinuxCpuType.ARM_64,
-      }),
-      keyPair: KeyPair.fromKeyPairName(this, 'SpinKey', 'spinkey'),
-      vpcSubnets: vpc.selectSubnets({ subnetType: SubnetType.PUBLIC }),
-      securityGroup: instanceSecurityGroup,
-      allowAllOutbound: true,
-    })
-
-    this.instanceIp = instance.instancePublicIp
 
     const logRole = new Role(this, 'ApiGwLogsRole', {
       assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
@@ -238,24 +135,6 @@ export class ComputingNetworkingStack extends Stack {
       securityGroupName: 'OSAccessGroup',
     })
 
-    openSearchSecurityGroup.addIngressRule(
-      instanceSecurityGroup,
-      Port.tcp(443),
-      'Proxy Access'
-    )
-
-    openSearchSecurityGroup.addIngressRule(
-      Peer.ipv4('10.0.0.0/16'),
-      Port.tcp(443),
-      'NLB Access'
-    )
-
-    openSearchSecurityGroup.addIngressRule(
-      Peer.ipv4('10.0.0.0/16'),
-      Port.tcp(80),
-      'NLBAccessHTTP'
-    )
-
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
       logGroupName: '/aws/vendedlogs/ingestionPipeline',
       removalPolicy: RemovalPolicy.DESTROY,
@@ -289,16 +168,6 @@ export class ComputingNetworkingStack extends Stack {
       enforceHttps: true,
       securityGroups: [openSearchSecurityGroup],
       enableAutoSoftwareUpdate: true,
-      vpc,
-      vpcSubnets: [
-        {
-          subnets: [
-            vpc.selectSubnets({
-              subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-            }).subnets[0],
-          ],
-        },
-      ],
     })
 
     const accessPolicy = new PolicyStatement({
@@ -313,63 +182,9 @@ export class ComputingNetworkingStack extends Stack {
 
     this.domainEndpoint = dataIndexingDomain.domainEndpoint
 
-    instance.userData.addCommands(
-      'sudo yum update -y',
-      'sudo yum install -y nodejs',
-      'sudo apt-get install make',
-      'node -e "console.log(\'Running Node.js \' + process.version)"',
-      `aws s3 cp ${asset.s3ObjectUrl} /tmp/ec2-proxy.zip`,
-      'unzip /tmp/ec2-proxy.zip -d /home/ec2-user/ec2-proxy',
-      'cd /home/ec2-user/ec2-proxy',
-      'sudo yum install -y make',
-      'sudo npm install -g esbuild',
-      'sudo npm install',
-      `sudo export ENDPOINT=https://${dataIndexingDomain.domainEndpoint} make buildDeploy`
-    )
-
-    asset.grantRead(instance)
-
-    const vpcLink = new VpcLink(this, 'OsVpcLink', {
-      vpc,
-      vpcLinkName: 'os-vpc-link',
-      subnets: {
-        subnets: vpc.selectSubnets({
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        }).subnets,
-      },
-    })
-
-    const privateHttpApi = new HttpApi(this, {
-      id: 'osLinkApi',
-      definition: {
-        createDefaultStage: true,
-      },
-      routes: {
-        definition: [
-          {
-            path: '/os/{proxy+}',
-            methods: [apiv2.HttpMethod.ANY],
-            integration: new integrations.HttpNlbIntegration(
-              'httpOS',
-              listener,
-              {
-                method: apiv2.HttpMethod.ANY,
-                vpcLink,
-                secureServerName: dataIndexingDomain.domainEndpoint,
-              }
-            ),
-          },
-        ],
-      },
-    })
-
     new StringParameter(this, 'OpenSearchEndpoint', {
       parameterName: '/os/endpoint',
-      stringValue: `${privateHttpApi.url}os/`,
-    })
-
-    new CfnOutput(this, 'SearchApiUrl', {
-      value: `${privateHttpApi.url}os/`,
+      stringValue: `${dataIndexingDomain.domainEndpoint}`,
     })
   }
 }

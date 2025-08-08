@@ -38,10 +38,8 @@ if (validBuildParams()) {
   })
   const spinStack = new SpinServiceStack(app, `SpinServiceStack-${ENV}`, {
     opensearch_user: USER,
-    instanceIp: computeStack.instanceIp,
     domainEndpoint: computeStack.domainEndpoint,
     vpc: computeStack.vpc,
-    nlb: computeStack.nlb,
     api: computeStack.api,
     dashpass: DASHPASS,
     env: { account: ACCOUNT, region: REGION },
