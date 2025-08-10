@@ -22,14 +22,9 @@ import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { SSMClient } from '@aws-sdk/client-ssm'
 
 const ssmClient = new SSMClient()
-const ses = new SESClient({
-  region: 'us-west-2',
-})
+const ses = new SESClient({})
 const sqsClient = new SQSClient({})
-const client = new DynamoDBClient({
-  retryMode: 'standard',
-  maxAttempts: 3,
-})
+const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
 
 /*
@@ -51,13 +46,17 @@ export async function handler(event: SQSEvent, context: Context) {
     return data
   })
 
+  console.log(eventRecords)
+
   const notifiedUsers = new Set<User>()
   const usersToProcess: User[] = []
+  console.log(usersToProcess)
 
   try {
     for (const eventRecord of eventRecords) {
+      console.log(eventRecord.dynamodb.NewImage)
       const item = unmarshall(eventRecord.dynamodb.NewImage) as Records
-
+      console.log(item)
       let userQueryBody
 
       const ledgerTableResponse = await docClient.send(
@@ -72,8 +71,10 @@ export async function handler(event: SQSEvent, context: Context) {
           },
         })
       )
+      console.log(ledgerTableResponse)
 
       const artistName = item.artist
+      console.log(artistName)
       if (artistName) {
         userQueryBody = createQuery(artistName, item.genre)
         const data = await requestWithBody(
@@ -86,12 +87,14 @@ export async function handler(event: SQSEvent, context: Context) {
           ).toString('base64')}`
         )
         const users: OpenSearchUserResult = await data.json()
+        console.log(users)
         users.hits.hits.forEach((x) => usersToProcess.push(x._source))
         const { email, phone, inapp } =
           determineNotificationMethods(usersToProcess)
-
+        console.log(email)
         try {
           const emailUsers = await sendEmail(ses, email, item)
+          console.log(emailUsers)
         } catch (e) {
           return apiResponse('Error emailing users', 500)
         }
@@ -104,7 +107,7 @@ export async function handler(event: SQSEvent, context: Context) {
             sqsClient
           )
         } catch (e) {
-          return apiResponse('Error deleting message', 500)
+          console.info('Message Not Deleted')
         }
 
         try {

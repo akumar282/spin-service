@@ -214,6 +214,8 @@ export class SpinServiceStack extends Stack {
       environment: {
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
+        DASHPASS: props.dashpass,
+        USER: props.opensearch_user,
       },
     })
 

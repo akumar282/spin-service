@@ -10,8 +10,6 @@ import { EbsDeviceVolumeType, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { Api } from './apigateway/api'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
-import { Asset } from 'aws-cdk-lib/aws-s3-assets'
-import * as path from 'node:path'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
   AnyPrincipal,

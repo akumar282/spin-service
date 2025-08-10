@@ -48,6 +48,7 @@ export async function sendEmail(
 ): Promise<SendEmailCommandOutput> {
   const input: SendEmailCommandInput = {
     Destination: {
+      ToAddresses: destination.map((user) => user.email),
       BccAddresses: destination.map((user) => user.email),
     },
     Message: {
