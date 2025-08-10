@@ -266,6 +266,8 @@ export class SpinServiceStack extends Stack {
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
     usersTable.grantReadWriteData(authLambda)
+    ledgerTable.grantReadWriteData(processinglambda)
+    recordsTable.grantStreamRead(processinglambda)
 
     const ssmPolicy = new PolicyStatement({
       sid: 'SSMGetParam',
@@ -273,6 +275,15 @@ export class SpinServiceStack extends Stack {
       actions: ['ssm:GetParameter'],
       resources: ['*'],
     })
+
+    processinglambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'SESOptions',
+        effect: Effect.ALLOW,
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      })
+    )
 
     authLambda.addToRolePolicy(
       new PolicyStatement({
