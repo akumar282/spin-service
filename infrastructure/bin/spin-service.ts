@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib'
 import { SpinServiceStack } from '../lib/spin-service-stack'
 import { ComputingNetworkingStack } from '../lib/computing-networking-stack'
 import { getEnv } from '../lib/shared/utils'
+import { SpinClientStack } from '../lib/spin-client-stack'
 
 const app = new cdk.App()
 
@@ -21,6 +22,7 @@ const SSH_IP = getEnv('SSH_IP')
 /**
  * computeStack === networking & compute + api declaration
  * spinStack === business logic lambdas & client used resources + api definition
+ * spinClientStack === web interface
  */
 
 if (validBuildParams()) {
@@ -42,6 +44,9 @@ if (validBuildParams()) {
     vpc: computeStack.vpc,
     api: computeStack.api,
     dashpass: DASHPASS,
+    env: { account: ACCOUNT, region: REGION },
+  })
+  const spinClient = new SpinClientStack(app, `SpinClientStack-${ENV}`, {
     env: { account: ACCOUNT, region: REGION },
   })
 }
