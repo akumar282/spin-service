@@ -30,6 +30,7 @@ type PostInfo = {
   artist: string | null,
   label: string[],
   resource_url: URL,
+  media: string,
   expires: number
 }
 
@@ -92,6 +93,7 @@ function mapToAttributes(rawData: HTMLElement[]) {
       color: getColor(post.getAttribute('post-title')),
       artist: getArtist(post.getAttribute('post-title')),
       thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null,
+      media: 'vinyl',
       expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000)
     })
   })
@@ -119,7 +121,11 @@ function getArtist(input: string | undefined): string {
   if (index === -1 ) {
     return clean
   }
-  return clean.substring(0, index).trim()
+  const substring =  clean.substring(0, index).trim()
+  const lowerCase = substring.toLowerCase()
+  return lowerCase.split(' ')
+    .map((x) => x.charAt(0).toUpperCase() + x.substring(1))
+    .join(' ')
 }
 
 async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
