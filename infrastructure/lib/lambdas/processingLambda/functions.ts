@@ -46,9 +46,10 @@ export async function sendEmail(
   destination: User[],
   item: Records
 ): Promise<SendEmailCommandOutput> {
+  const link = item.content ? item.content : item.link
   const input: SendEmailCommandInput = {
     Destination: {
-      ToAddresses: destination.map((user) => user.email),
+      ToAddresses: ['actuallychowmein@gmail.com'],
       BccAddresses: destination.map((user) => user.email),
     },
     Message: {
@@ -56,13 +57,13 @@ export async function sendEmail(
         Html: {
           Charset: 'UTF-8',
           Data: `The record, ${item.title} by ${item.artist} is now available. 
-                 Get it now:  <a class="ulink" href="${item.link}" target="_blank">
+                 Get it now:  <a class="ulink" href="${link}" target="_blank">
                  Record Store Link</a>.`,
         },
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: `You liked this record, we got back to that for the record: ${item.title} is in stock.`,
+        Data: `You liked this record: ${item.title} is in stock.`,
       },
     },
     Source: 'notifications@spinmyrecords.com',
