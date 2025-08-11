@@ -84,7 +84,13 @@ export async function handler(event: SQSEvent, context: Context) {
         try {
           const emailUsers = await sendEmail(ses, email, item)
         } catch (e) {
-          return apiResponse('Error emailing users', 500)
+          console.error(
+            'Error sending emails for record ',
+            item.postId,
+            'Failed with error ',
+            e
+          )
+          return 500
         }
 
         // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
@@ -96,10 +102,19 @@ export async function handler(event: SQSEvent, context: Context) {
             item.postId
           )
         } catch (e) {
-          return apiResponse('Error updating ledger', 500)
+          console.error(
+            'Error updating ledger for ',
+            item.postId,
+            'Failed with error ',
+            e
+          )
+          return 500
         }
       }
     }
-  } catch (e) {}
-  return apiResponse('Records processed successfully', 200)
+  } catch (e) {
+    console.error('Records processing failed with ', e)
+    return 500
+  }
+  return 200
 }
