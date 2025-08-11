@@ -82,11 +82,7 @@ describe('Test for procesing handler', () => {
       },
     })
 
-    const mockContext: Partial<Context> = {
-      logGroupName: 'mockLogGroupName',
-    }
-
-    const result = await handler(sqsEvent, <Context>mockContext)
+    const result = await handler(sqsEvent)
     expect(ssmMock).toHaveReceivedCommand(GetParameterCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommand(PutCommand)
     expect(sesMock).toHaveReceivedCommand(SendEmailCommand)
@@ -110,7 +106,7 @@ describe('Test for procesing handler', () => {
       ReturnValues: 'ALL_NEW',
     })
 
-    expect(result.statusCode).toEqual(200)
+    expect(result).toEqual(200)
   })
 
   test('Deserialize logic test', () => {

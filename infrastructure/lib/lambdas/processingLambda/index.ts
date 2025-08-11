@@ -1,5 +1,4 @@
-import { Context, SQSEvent } from 'aws-lambda'
-import { apiResponse } from '../../apigateway/responses'
+import { SQSEvent } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
@@ -28,13 +27,15 @@ const docClient = DynamoDBDocumentClient.from(client)
 TODO: Update handler with deadlock logic, adding dropped users, and adding actual processed users.
  Currently all users are "processed". As well as Pinpoint for inapp notifications
 */
-export async function handler(event: SQSEvent, context: Context) {
+
+export async function handler(event: SQSEvent): Promise<number> {
   const ledgerTableName = getEnv('LEDGER_TABLE')
   const ssmParam = await getSsmParam(ssmClient, '/os/endpoint')
   const endpoint = ssmParam ? ssmParam.Value : null
 
   if (!endpoint) {
-    return apiResponse('Endpoint is not defined', 500)
+    console.error('Endpoint is not defined')
+    return 500
   }
 
   const eventRecords: SQSBody[] = event.Records.map((record) => {

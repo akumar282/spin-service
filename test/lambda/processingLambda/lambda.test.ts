@@ -13,13 +13,9 @@ describe('Test for procesing handler', () => {
     process.env.SQS_URL =
       'https://sqs.us-west-2.amazonaws.com/739292628626/SpinServiceStack-prod-processingqueueA47DA09A-WuqWsdAjytVW'
 
-    const mockContext: Partial<Context> = {
-      logGroupName: 'mockLogGroupName',
-    }
+    const result = await handler(sqsEvent)
 
-    const result = await handler(sqsEvent, <Context>mockContext)
-
-    expect(result.statusCode).toEqual(200)
+    expect(result).toEqual(200)
   })
 
   test('Deserialize logic test', () => {
