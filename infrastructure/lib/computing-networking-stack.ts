@@ -19,6 +19,7 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
+import { schedulerRole } from './iam/schedulerRole'
 
 export class ComputingNetworkingStack extends Stack {
   public api: Api
@@ -104,6 +105,13 @@ export class ComputingNetworkingStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
+    const schedulePerms = schedulerRole(this)
+
+    const securityGroup = new ec2.SecurityGroup(scope, 'SpinTaskSecGroup', {
+      vpc,
+      allowAllOutbound: true,
+    })
+
     new FargateTask(
       this,
       'discogsTask',
@@ -117,6 +125,8 @@ export class ComputingNetworkingStack extends Stack {
       },
       vpc,
       cluster,
+      schedulePerms,
+      securityGroup,
       {
         environment: {
           API_URL: recordsApi.url,

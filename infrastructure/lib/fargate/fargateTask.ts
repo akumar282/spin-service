@@ -3,44 +3,22 @@ import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import { ContainerEnvVars, FargateScheduleProps } from './types'
-import {
-  Effect,
-  PolicyDocument,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
+import { Role } from 'aws-cdk-lib/aws-iam'
+import { SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 
-export class FargateTask {
+export class FargateTask extends Construct {
   constructor(
     scope: Construct,
     id: string,
     props: FargateScheduleProps,
     vpc: ec2.Vpc,
     cluster: ecs.Cluster,
+    role: Role,
+    securityGroup: SecurityGroup,
     passthroughProps?: ContainerEnvVars
   ) {
+    super(scope, 'FargateScraperConstruct')
     const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
-
-    const schedulerRole = new Role(scope, 'scheduleRole', {
-      assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
-      inlinePolicies: {
-        FargateScrapePolicy: new PolicyDocument({
-          statements: [
-            new PolicyStatement({
-              effect: Effect.ALLOW,
-              actions: ['ecs:RunTask'],
-              resources: [taskDefinition.taskDefinitionArn, cluster.clusterArn],
-            }),
-            new PolicyStatement({
-              effect: Effect.ALLOW,
-              actions: ['iam:PassRole'],
-              resources: ['*'],
-            }),
-          ],
-        }),
-      },
-    })
 
     taskDefinition.addContainer(props.container.id, {
       image: ecs.ContainerImage.fromAsset(props.container.assetPath),
@@ -53,11 +31,6 @@ export class FargateTask {
       }),
     })
 
-    const securityGroup = new ec2.SecurityGroup(scope, 'SpinTaskSecGroup', {
-      vpc,
-      allowAllOutbound: true,
-    })
-
     new scheduler.CfnSchedule(scope, 'FargateSchedule', {
       flexibleTimeWindow: {
         mode: 'OFF',
@@ -65,7 +38,7 @@ export class FargateTask {
       scheduleExpression: 'rate(30 minutes)',
       target: {
         arn: cluster.clusterArn,
-        roleArn: schedulerRole.roleArn,
+        roleArn: role.roleArn,
         ...(props.enableDlq
           ? { deadLetterConfig: { arn: this.addDlq(scope, 'EventDlq') } }
           : {}),
