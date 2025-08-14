@@ -107,7 +107,7 @@ export class ComputingNetworkingStack extends Stack {
 
     const schedulePerms = schedulerRole(this)
 
-    const securityGroup = new ec2.SecurityGroup(scope, 'SpinTaskSecGroup', {
+    const securityGroup = new ec2.SecurityGroup(this, 'SpinTaskSecGroup', {
       vpc,
       allowAllOutbound: true,
     })

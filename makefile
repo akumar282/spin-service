@@ -5,7 +5,7 @@ else
 endif
 export
 
-STACKS = SpinCompute-prod SpinServiceStack-prod
+STACKS = SpinCompute-prod SpinServiceStack-prod SpinClientStack-prod
 
 bootstrap:
 	cdk bootstrap

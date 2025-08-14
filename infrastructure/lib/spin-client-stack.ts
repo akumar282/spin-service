@@ -1,4 +1,4 @@
-import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
+import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
 import { Distribution, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
@@ -10,7 +10,7 @@ export class SpinClientStack extends Stack {
     super(scope, id, props)
 
     const deploymentBucket = new Bucket(this, 'DeploymentBucketSpinClient', {
-      bucketName: 'DeploymentBucketSpinClient',
+      bucketName: 'deployment-bucket-spin-client',
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
     })
@@ -25,10 +25,15 @@ export class SpinClientStack extends Stack {
 
     new BucketDeployment(this, 'SpinClientDeployment', {
       destinationBucket: deploymentBucket,
-      sources: [Source.asset('./spin-web-client/build')],
+      sources: [Source.asset('./spin-web-client/dist')],
       distribution: cloudfrontDistro,
       distributionPaths: ['/*'],
       retainOnDelete: false,
+    })
+
+    new CfnOutput(this, 'CloudfrontDomain', {
+      value: cloudfrontDistro.domainName,
+      description: 'Cloudfront URL',
     })
   }
 }
