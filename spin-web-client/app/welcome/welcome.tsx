@@ -1,5 +1,4 @@
-import logoDark from "./logo-dark.svg";
-import logoLight from "./logo-light.svg";
+import spinLogo from "./spinLogo.png";
 
 export function Welcome() {
   return (
@@ -8,7 +7,10 @@ export function Welcome() {
         <header className="flex flex-col items-center gap-9">
         </header>
         <div className="max-w-[300px] w-full space-y-6 px-4">
-          spin-service
+          <img src={spinLogo} className='animate-spin' alt="spin-service logo"></img>
+          <h1 className="text-4xl text-center">
+            spin-service
+          </h1>
           <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
             <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">
               What&apos;s next?
