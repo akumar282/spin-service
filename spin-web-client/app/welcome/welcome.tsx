@@ -2,19 +2,28 @@ import spinLogo from "./spinLogo.png";
 
 export function Welcome() {
   return (
-    <main className="flex items-center font-primary justify-center pt-16 pb-4">
-      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-        <header className="flex flex-col items-center gap-9">
-        </header>
-        <div className="max-w-[300px] w-full space-y-6 px-4">
-          <img src={spinLogo} className='animate-spin1' alt="spin-service logo"></img>
-          <h1 className="text-4xl text-center">
-            spin-service
-          </h1>
-          <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
-            <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">
-              What&apos;s next?
-            </p>
+    <main className="flex items-center font-primary justify-center bg-orange-100 dark:bg-slate-900 pb-4">
+      <div className="flex-1 flex flex-col items-center gap-16 h-screen min-h-0">
+        <header className="flex flex-col items-center gap-9"></header>
+        <div className="max-w-[300px] lg:max-w-[300px] w-full space-y-6 px-4">
+          <img
+            src={spinLogo}
+            className="animate-spin1"
+            alt="spin-service logo"
+          ></img>
+          <h1 className="text-4xl text-center">spin-service</h1>
+        </div>
+        <div className="w-9/12 max-w-[2000px] space-y-6 rounded-3xl shadow-xl">
+          <nav className="rounded-3xl border border-orange-200 border-4 p-6 dark:border-gray-700 space-y-4">
+            <h1 className="leading-6 text-2xl text-gray-700 dark:text-gray-200 text-center">
+              Welcome!
+            </h1>
+            <h3 className="leading-6 text-gray-700 pt-4 dark:text-gray-200 text-center">
+              Dont miss out on exclusive releases for vinyl and CDs ever again!
+            </h3>
+            <h3 className="leading-6 text-gray-700 pt-2 dark:text-gray-200 text-center">
+              Get notified for vinyl and cd releases when they happen!
+            </h3>
             <ul>
               {resources.map(({ href, text, icon }) => (
                 <li key={href}>
@@ -34,13 +43,13 @@ export function Welcome() {
         </div>
       </div>
     </main>
-  );
+  )
 }
 
 const resources = [
   {
-    href: "https://reactrouter.com/docs",
-    text: "React Router Docs",
+    href: 'https://reactrouter.com/docs',
+    text: 'React Router Docs',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -59,8 +68,8 @@ const resources = [
     ),
   },
   {
-    href: "https://rmx.as/discord",
-    text: "Join Discord",
+    href: 'https://rmx.as/discord',
+    text: 'Join Discord',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -77,4 +86,4 @@ const resources = [
       </svg>
     ),
   },
-];
+]
