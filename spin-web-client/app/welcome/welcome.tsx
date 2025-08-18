@@ -7,7 +7,7 @@ export function Welcome() {
         <header className="flex flex-col items-center gap-9">
         </header>
         <div className="max-w-[300px] w-full space-y-6 px-4">
-          <img src={spinLogo} className='animate-spin' alt="spin-service logo"></img>
+          <img src={spinLogo} className='animate-spin1' alt="spin-service logo"></img>
           <h1 className="text-4xl text-center">
             spin-service
           </h1>
