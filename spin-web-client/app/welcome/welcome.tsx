@@ -39,7 +39,7 @@ export function Welcome() {
               Alerts are sent through a method of your choosing. Email, Text, or
               Push notification (app required)!
             </h3>
-            <button className="shadow-xl my-5 bg-orange-300 p-3 rounded-xl transition ease-in-out hover:-translate-y-2 hover:scale-105 hover:bg-orange-400">
+            <button className="shadow-xl my-5 bg-orange-300 dark:bg-indigo-400 p-3 rounded-xl transition ease-in-out hover:-translate-y-3 hover:scale-110 hover:bg-orange-400 dark:hover:bg-indigo-800">
               Get Started
             </button>
           </nav>
