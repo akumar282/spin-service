@@ -1,4 +1,5 @@
 import spinLogo from "./spinLogo.png";
+import spinLogoDark from "./spinLogoDark.png";
 
 export function Welcome() {
   return (
@@ -8,7 +9,12 @@ export function Welcome() {
         <div className="max-w-[300px] lg:max-w-[300px] w-full space-y-6 px-4">
           <img
             src={spinLogo}
-            className="animate-spin1"
+            className="animate-spin1 block dark:hidden"
+            alt="spin-service logo"
+          ></img>
+          <img
+            src={spinLogoDark}
+            className="animate-spin1 hidden dark:block"
             alt="spin-service logo"
           ></img>
           <h1 className="text-4xl text-center">spin-service</h1>
@@ -30,7 +36,8 @@ export function Welcome() {
               label!
             </h3>
             <h3 className="leading-6 text-gray-700 pt-2 dark:text-gray-200 text-center">
-              Alerts are sent through a method of your choosing. Email, Text, or Push notification (app required)!
+              Alerts are sent through a method of your choosing. Email, Text, or
+              Push notification (app required)!
             </h3>
             <button className="shadow-xl my-5 bg-orange-300 p-3 rounded-xl transition ease-in-out hover:-translate-y-2 hover:scale-105 hover:bg-orange-400">
               Get Started
