@@ -3,9 +3,9 @@ import spinLogoDark from "./spinLogoDark.png";
 
 export function Welcome() {
   return (
-    <main className="flex items-center font-primary justify-center bg-orange-100 dark:bg-slate-900 pb-4">
-      <div className="flex-1 flex flex-col items-center gap-16 h-screen min-h-0">
-        <header className="flex flex-col items-center gap-9"></header>
+    <main className="flex items-center font-primary justify-center bg-orange-100 min-h-dvh w-full flex dark:bg-slate-900">
+      <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
+        <header className="flex flex-col items-center"></header>
         <div className="max-w-[300px] lg:max-w-[300px] w-full space-y-6 px-4">
           <img
             src={spinLogo}
@@ -44,6 +44,11 @@ export function Welcome() {
             </button>
           </nav>
         </div>
+        <footer className="w-full flex flex-col items-center bg-indigo-500 pb-5">
+          <h3 className="mt-4">
+            Made with ♥️ in Seattle
+          </h3>
+        </footer>
       </div>
     </main>
   )
