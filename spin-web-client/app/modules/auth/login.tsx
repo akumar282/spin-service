@@ -2,17 +2,11 @@ import Navbar from '~/components/Navbar'
 import OAuthButtons from '~/components/OAuthButton'
 import google from "./assets/google.svg"
 import orline from "./assets/orline.png"
-import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 export function LoginComponent() {
 
-  const [isChecked, setIsChecked] = useState(false)
   const navigate = useNavigate()
-
-  const handleCheck = () => {
-    setIsChecked(!isChecked)
-  }
 
   return (
     <main>
@@ -62,9 +56,6 @@ export function LoginComponent() {
             </form>
           </div>
         </div>
-        <footer className="w-full mt-auto flex flex-col items-center dark:bg-indigo-500 bg-orange-300 pb-5">
-          <h3 className="mt-4 text-sm">Made with 🧡 in Seattle</h3>
-        </footer>
       </div>
     </main>
   )

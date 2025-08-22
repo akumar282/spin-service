@@ -1,4 +1,4 @@
-import type { Route } from "./+types/home";
+import type { Route } from "./+types/landing";
 import { Welcome } from '~/modules/welcome/welcome';
 
 export function meta({}: Route.MetaArgs) {
@@ -8,6 +8,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function Home() {
+export default function Landing() {
   return <Welcome />;
 }

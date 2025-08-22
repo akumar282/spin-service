@@ -19,7 +19,7 @@ export function SignUpComponent() {
       <div className="font-primary flex flex-col bg-orange-100 h-dvh w-full flex dark:bg-slate-900">
         <Navbar />
         <div className="flex-1 flex flex-col items-center text-center lg:flex-col">
-          <div className="mt-8 space-y-4 justify-center">
+          <div className="mt-4 space-y-4 justify-center">
             <div className='pt-10 flex flex-col items-center justify-center'>
               <h1 className='text-center font-secondary text-4xl font-light'>Get Started</h1>
               <h2 className='text-center text-lg text-medium font-primary pt-4'>Create an account</h2>
@@ -70,9 +70,6 @@ export function SignUpComponent() {
             </form>
           </div>
         </div>
-        <footer className="w-full mt-auto flex flex-col items-center dark:bg-indigo-500 bg-orange-300 pb-5">
-          <h3 className="mt-4 text-sm">Made with 🧡 in Seattle</h3>
-        </footer>
       </div>
     </main>
   )

@@ -3,7 +3,7 @@ import { SignUpComponent } from '~/modules/auth/signup';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
+    { title: "spin-service" },
     { name: "description", content: "Welcome to React Router!" },
   ];
 }
