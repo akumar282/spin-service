@@ -1,7 +1,11 @@
 import spinLogo from "./spinLogo.png";
 import spinLogoDark from "./spinLogoDark.png";
+import { useNavigate } from 'react-router'
 
 export function Welcome() {
+
+  const navigate = useNavigate()
+
   return (
     <main className="font-primary bg-orange-100 min-h-dvh w-full flex dark:bg-slate-900">
       <div className="flex-1 flex flex-col items-center">
@@ -40,7 +44,10 @@ export function Welcome() {
               Alerts are sent through a method of your choosing. Email, Text, or
               Push notification (app required)!
             </h3>
-            <button className="shadow-xl my-5 bg-orange-300 dark:bg-indigo-400 p-3 rounded-xl transition ease-in-out hover:-translate-y-3 hover:scale-110 hover:bg-orange-400 dark:hover:bg-indigo-800">
+            <button
+              className="shadow-xl my-5 bg-orange-300 dark:bg-indigo-400 p-3 rounded-xl transition ease-in-out hover:-translate-y-3 hover:scale-110 hover:bg-orange-400 dark:hover:bg-indigo-800"
+              onClick={() => navigate('/login')}
+            >
               Get Started
             </button>
           </div>
