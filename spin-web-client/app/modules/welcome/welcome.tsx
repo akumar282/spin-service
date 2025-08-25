@@ -53,7 +53,7 @@ export function Welcome() {
           </div>
         </div>
         <footer className="w-full mt-auto flex flex-col items-center dark:bg-indigo-500 bg-orange-300 pb-5">
-          <h3 className="mt-4">Made with ♥️ in Seattle</h3>
+          <h3 className="mt-4 text-sm">Made with 🧡 in Seattle</h3>
         </footer>
       </div>
     </main>
