@@ -46,7 +46,7 @@ export function Welcome() {
             </h3>
             <button
               className="shadow-xl my-5 bg-orange-300 dark:bg-indigo-400 p-3 rounded-xl transition ease-in-out hover:-translate-y-3 hover:scale-110 hover:bg-orange-400 dark:hover:bg-indigo-800"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate({ pathname: '/signup' })}
             >
               Get Started
             </button>

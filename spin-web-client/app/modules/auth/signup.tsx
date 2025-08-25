@@ -1,11 +1,11 @@
 import Navbar from '~/components/Navbar'
 import OAuthButtons from '~/components/OAuthButton'
-import google from "./google.svg"
-import orline from "./orline.png"
+import google from "./assets/google.svg"
+import orline from "./assets/orline.png"
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
-export function LoginComponent() {
+export function SignUpComponent() {
 
   const [isChecked, setIsChecked] = useState(false)
   const navigate = useNavigate()
@@ -55,13 +55,17 @@ export function LoginComponent() {
               </div>
               <div className='pt-2 flex flex-col items-center'>
                 <button
-                  className='font-primary bg-orange-300 dark:bg-indigo-400 bg-secondary-blue text-white text-lg rounded-lg lg:px-38 px-33 py-2'
+                  className='font-primary bg-orange-300 dark:bg-indigo-400 transition ease-in-out dark:hover:scale-105 hover:bg-indigo-600 text-white text-lg rounded-lg lg:px-38 px-32 py-2'
                   type='submit' >
                   <h1 className='w-full'>Log In</h1>
                 </button>
-                <h1 className='font-primary text-center pt-5'>Already have an account? <button
-                  onClick={() => navigate('/login')}
-                  className='underline text-secondary-blue hover:text-indigo-400'>Log In</button></h1>
+                <h1 className='font-primary text-center pt-5'>Already have an account?
+                  <button
+                    type="button"
+                    onClick={() => navigate({ pathname: '/login' })}
+                    className='underline text-secondary-blue ml-2 hover:text-indigo-400 '>Log In
+                  </button>
+                </h1>
               </div>
             </form>
           </div>

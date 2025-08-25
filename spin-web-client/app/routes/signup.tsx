@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import { LoginComponent } from '~/modules/auth/login';
+import { SignUpComponent } from '~/modules/auth/signup';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,6 +8,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function Login() {
-  return <LoginComponent />;
+export default function SignUp() {
+  return <SignUpComponent />;
 }
