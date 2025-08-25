@@ -2,8 +2,17 @@ import Navbar from '~/components/Navbar'
 import OAuthButtons from '~/components/OAuthButton'
 import google from "./google.svg"
 import orline from "./orline.png"
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
 
 export function LoginComponent() {
+
+  const [isChecked, setIsChecked] = useState(false)
+  const navigate = useNavigate()
+
+  const handleCheck = () => {
+    setIsChecked(!isChecked)
+  }
 
   return (
     <main>
@@ -36,6 +45,23 @@ export function LoginComponent() {
                     placeholder="Password"
                   />
                 </div>
+              </div>
+              <div className='mx-auto justify-center py-4'>
+                <input type='radio' onChange={() => console.log()} checked={isChecked} onClick={handleCheck}></input>
+                <label className='pl-2 font-primary text-sm'>I agree to the
+                  <a onClick={() => navigate('/tos')}
+                     className='underline text-secondary-blue ml-2 hover:text-indigo-400 cursor-pointer'>Terms
+                  and Conditions</a> </label>
+              </div>
+              <div className='pt-2 flex flex-col items-center'>
+                <button
+                  className='font-primary bg-orange-300 dark:bg-indigo-400 bg-secondary-blue text-white text-lg rounded-lg lg:px-38 px-33 py-2'
+                  type='submit' >
+                  <h1 className='w-full'>Log In</h1>
+                </button>
+                <h1 className='font-primary text-center pt-5'>Already have an account? <button
+                  onClick={() => navigate('/login')}
+                  className='underline text-secondary-blue hover:text-indigo-400'>Log In</button></h1>
               </div>
             </form>
           </div>
