@@ -1,3 +1,12 @@
+interface CardProps {
+  artist: string
+  title: string
+  color: string
+  genre: string[]
+  storeLink: string
+
+}
+
 export function Card() {
   return (
     <div className="my-40 bg-white/30 font-primary rounded-3xl mx-auto shadow-2xl">
