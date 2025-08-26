@@ -23,6 +23,16 @@
     }
   }
 
+  --animate-ping1: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+  @keyframes ping {
+    75%, 100% {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+  }
+
+
   @keyframes altColors {
     0%   { --c1: 59% 0.12 264; --c2: 70% 0.15 235; --c3: 65% 0.17 145; } /* indigo, sky, emerald */
     20%  { --c1: 70% 0.15 235; --c2: 77% 0.15 136; --c3: 86% 0.10 104; } /* sky, emerald→lime, lime */
