@@ -10,7 +10,7 @@ export function Card() {
   return (
     <div className=" bg-white/80 border border-white border-2 font-primary rounded-2xl shadow-2xl">
       <div className="flex flex-col items-center">
-        <img alt="cover" className="rounded-2xl my-4"
+        <img alt="cover" className=" my-4"
              src='https://i.discogs.com/3jIXeeFG8I_JDCJLzD2WTpatabGHMeHqOBxjJibqU1A/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEzODU1/MDE5LTE2MzYxMjI1/NzctMTA1NC5qcGVn.jpeg' />
         <div className="flex flex-col items-center text-center mx-auto">
           <h1 className="lg:text-lg text-md pb-2 px-2">
