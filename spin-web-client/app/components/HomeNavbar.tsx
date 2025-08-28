@@ -6,7 +6,7 @@ export default function HomeNavbar() {
 
   return (
     <nav className="relative px-4 py-4 w-full flex justify-start items-center bg-white/75 shadow-lg shadow-gray-300/50 ">
-      <button onClick={() => navigate('/')}>
+      <button onClick={() => navigate('/home')}>
         <h1 className="font-primary text-2xl">
           spin-service
         </h1>
