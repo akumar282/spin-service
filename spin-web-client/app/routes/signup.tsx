@@ -1,5 +1,6 @@
 import type { Route } from './+types/home'
 import { SignUpComponent } from '~/modules/auth/signup'
+import React from 'react'
 
 export function meta({}: Route.MetaArgs) {
   return [

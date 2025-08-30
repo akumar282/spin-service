@@ -1,13 +1,14 @@
-import type { Route } from "./+types/home";
-import { NotificationsComponent } from '~/modules/notifcations/notifications';
+import type { Route } from './+types/home'
+import { NotificationsComponent } from '~/modules/notifcations/notifications'
+import React from 'react'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
+    { title: 'New React Router App' },
+    { name: 'description', content: 'Welcome to React Router!' },
+  ]
 }
 
 export default function Notifications() {
-  return <NotificationsComponent />;
+  return <NotificationsComponent />
 }

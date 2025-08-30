@@ -14,7 +14,8 @@ export default defineConfig([
     },
     rules: {
       '@stylistic/quotes': ['error', 'single'],
-      '@stylistic/semi': ['error', 'never']
+      '@stylistic/semi': ['error', 'never'],
+      '@stylistic/jsx-quotes': ['error', 'prefer-single']
     },
     extends: ['js/recommended'],
     languageOptions: {
