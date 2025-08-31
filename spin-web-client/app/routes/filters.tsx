@@ -1,6 +1,7 @@
 import type { Route } from './+types/home'
 import React from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
+import {ResultComponent} from '~/components/ResultComponent'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -26,6 +27,8 @@ export default function Filters() {
                 <input type='text' placeholder='Search for Artists, Releases, or Labels'
                        className='text-start py-1 bg-slate-100 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 w-full'/>
               </div>
+              <ResultComponent/>
+              <ResultComponent/>
             </div>
           </div>
         </div>
