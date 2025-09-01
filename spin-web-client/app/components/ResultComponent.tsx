@@ -1,6 +1,17 @@
 import React from 'react'
 import plus from './assets/plus.svg'
+
+export interface ResultComponentProps {
+  _typename: 'Artist' | 'Label' | 'Release' | 'MasterRelease'
+  title: string
+  subtitle: string
+  thumbnail: string
+  linkTo?: string
+  data: object
+}
+
 export function ResultComponent() {
+
   return (
     <div className='w-[99%] justify-between my-0.5 rounded rounded-xl bg-white flex flex-row border border-slate-400'>
       <div className='flex flex-row'>
@@ -20,7 +31,7 @@ export function ResultComponent() {
       </div>
       <button className='mr-5'>
         <div className='h-10 w-10'>
-          <img src={plus}/>
+          <img src={plus} alt='Plus'/>
         </div>
       </button>
     </div>

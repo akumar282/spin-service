@@ -1,7 +1,9 @@
 import type { Route } from './+types/home'
-import React from 'react'
+import React, {type ChangeEventHandler, useState} from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import {ResultComponent} from '~/components/ResultComponent'
+import debounce from 'lodash/debounce'
+
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,6 +13,21 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Filters() {
+
+  const returnEndpoint = (term: string) => {
+    return `https://api.discogs.com/database/search?q=${encodeURIComponent(term)}`
+  }
+
+  const [results, setResults] = useState<object>()
+
+  const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    console.log(e.target.value)
+    const data = await fetch(returnEndpoint(e.target.value))
+    console.log(await data.json())
+  }
+
+  const debounced = debounce(onChange, 700)
+
   return (
     <main>
       <div className='flex flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
@@ -24,8 +41,12 @@ export default function Filters() {
                 <h3 className='mb-4'>
                   Your current Filters:
                 </h3>
-                <input type='text' placeholder='Search for Artists, Releases, or Labels'
-                       className='text-start py-1 bg-slate-100 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 w-full'/>
+                <input
+                className='text-start py-1 bg-slate-100 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 w-full'
+                placeholder='Search for Artists, Releases, or Labels'
+                type='text'
+                onChange={debounced}
+                />
               </div>
               <ResultComponent/>
               <ResultComponent/>
