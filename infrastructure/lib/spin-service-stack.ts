@@ -258,6 +258,17 @@ export class SpinServiceStack extends Stack {
       },
     })
 
+    const searchProxyLambda = new lambda.Function(this, 'searchProxyLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('dist/searchProxyLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+      environment: {
+        DISCOGS_CONSUMER_KEY: props.discogs_key,
+        DISCOGS_SECRET: props.discogs_secret,
+      },
+    })
+
     recordsTable.grantReadWriteData(streamLambda)
     recordsTable.grantStreamRead(streamLambda)
     usersTable.grantReadWriteData(streamLambda)
@@ -321,6 +332,9 @@ export class SpinServiceStack extends Stack {
     const userIntegration = new apigateway.LambdaIntegration(userLambda)
     const refreshIntegration = new apigateway.LambdaIntegration(refreshLambda)
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
+    const searchProxyIntegration = new apigateway.LambdaIntegration(
+      searchProxyLambda
+    )
     const publicDataIntegration = new apigateway.LambdaIntegration(
       publicHandler
     )
@@ -407,6 +421,20 @@ export class SpinServiceStack extends Stack {
                     integration: userIntegration,
                   },
                 ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        pathPart: 'search',
+        resources: [
+          {
+            pathPart: '{proxy+}',
+            methods: [
+              {
+                method: 'GET',
+                integration: searchProxyIntegration,
               },
             ],
           },

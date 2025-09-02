@@ -25,7 +25,7 @@ export class SpinClientStack extends Stack {
 
     new BucketDeployment(this, 'SpinClientDeployment', {
       destinationBucket: deploymentBucket,
-      sources: [Source.asset('./spin-web-client/dist')],
+      sources: [Source.asset('./spin-web-client/build')],
       distribution: cloudfrontDistro,
       distributionPaths: ['/*'],
       retainOnDelete: false,

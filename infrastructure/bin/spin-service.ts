@@ -9,6 +9,8 @@ const app = new cdk.App()
 const ACCOUNT = getEnv('ACCOUNT')
 const REGION = getEnv('REGION')
 const DISCOGS_TOKEN = getEnv('DISCOGS_TOKEN')
+const DISCOGS_SECRET = getEnv('DISCOGS_SECRET')
+const DISCOGS_KEY = getEnv('DISCOGS_KEY')
 const ENV = getEnv('ENV')
 const PROXY_IP = getEnv('PROXY_IP')
 const USER = getEnv('USER')
@@ -42,6 +44,8 @@ if (validBuildParams()) {
   })
 
   const spinStack = new SpinServiceStack(app, `SpinServiceStack-${ENV}`, {
+    discogs_key: DISCOGS_KEY,
+    discogs_secret: DISCOGS_SECRET,
     opensearch_user: USER,
     domainEndpoint: computeStack.domainEndpoint,
     vpc: computeStack.vpc,
@@ -61,6 +65,8 @@ function validBuildParams() {
     REGION,
     PROXY_IP,
     DISCOGS_TOKEN,
+    DISCOGS_KEY,
+    DISCOGS_SECRET,
     USER,
     DASHPASS,
     ZONE_NAME,
