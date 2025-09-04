@@ -15,7 +15,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Filters() {
 
   const returnEndpoint = (term: string) => {
-    return `https://api.discogs.com/database/search?q=${encodeURIComponent(term)}`
+    return `https://jl8iq2i3k8.execute-api.us-west-2.amazonaws.com/prod/search/search?q=${term}`
   }
 
   const [results, setResults] = useState<object>()
