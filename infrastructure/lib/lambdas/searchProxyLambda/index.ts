@@ -4,14 +4,20 @@ import { apiResponse } from '../../apigateway/responses'
 
 export async function handler(event: APIGatewayProxyEvent) {
   console.log(event)
-  if (event.queryStringParameters && event.queryStringParameters.q) {
-    const endpoint = 'https://api.discogs.com/database/search?q='
+  const params = event.queryStringParameters
+  if (params) {
+    const queryParams = Object.keys(params)
+      .filter((x) => params[x] !== null && params[x] !== undefined)
+      .map((x) => `${x}=${encodeURIComponent(params[x]!).toString()}`)
+      .join('&')
+    const endpoint = 'https://api.discogs.com/database/search?'
     const discogsResponse = await fetch(
-      `${endpoint + event.queryStringParameters.q}&key=${getEnv(
+      `${endpoint + queryParams}&key=${getEnv(
         'DISCOGS_CONSUMER_KEY'
       )}&secret=${getEnv('DISCOGS_SECRET')}`
     )
     const data = await discogsResponse.json()
+    delete data.pagination
 
     return apiResponse(data, 200)
   }
