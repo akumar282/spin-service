@@ -1,8 +1,9 @@
 import type { Route } from './+types/home'
-import React, {type ChangeEventHandler, useState} from 'react'
+import React, { type ChangeEventHandler, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
-import {ResultComponent} from '~/components/ResultComponent'
+import {ArtistResultComponent, ResultComponent} from '~/components/ResultComponent'
 import debounce from 'lodash/debounce'
+import type { Artist, Master, Release } from '~/types'
 
 
 export function meta({}: Route.MetaArgs) {
@@ -18,12 +19,13 @@ export default function Filters() {
     return `https://jl8iq2i3k8.execute-api.us-west-2.amazonaws.com/prod/search/search?q=${term}`
   }
 
-  const [results, setResults] = useState<object>()
+  const [results, setResults] = useState<(Artist | Release | Master)[]>([])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
-    console.log(e.target.value)
     const data = await fetch(returnEndpoint(e.target.value))
-    console.log(await data.json())
+    const dataJson = await data.json()
+    const filteredResults = dataJson.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
+    setResults(filteredResults)
   }
 
   const debounced = debounce(onChange, 700)
@@ -32,10 +34,10 @@ export default function Filters() {
     <main>
       <div className='flex flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
         <HomeNavbar/>
-        <div className='w-full items-center flex flex-col'>
-          <div className='lg:w-8/10 w-11/12 rounded-xl border border-orange-400 border-3 flex flex-col space-y-4 mt-10 bg-white'>
+        <div className='w-full items-center max-w-[116rem] flex flex-col'>
+          <div className='lg:w-8/10 w-[97%] rounded-xl border border-orange-400 border-3 flex flex-col space-y-4 mt-10 bg-white'>
             <h1 className='mt-5 text-2xl mx-auto'>Set Notification Filters</h1>
-            <h3 className='mx-auto'>Manage filters so you can be notified for what you are looking for and what you want</h3>
+            <h3 className='mx-auto w-[98%] px-2 text-center'>Manage filters so you can be notified for what you are looking for and what you want</h3>
             <div className='w-full flex flex-col items-center'>
               <div className='w-9/10 space-y-2 my-3'>
                 <h3 className='mb-4'>
@@ -48,13 +50,20 @@ export default function Filters() {
                 onChange={debounced}
                 />
               </div>
-              <ResultComponent/>
-              <ResultComponent/>
+              {
+                results.map((x, index) => {
+                  if(x.type === 'artist') {
+                    return <ArtistResultComponent key={index} _typename={x.type} title={x.title} subtitle={x.title} thumbnail={x.thumb} data={x}/>
+                  }
+                  if(x.type === 'release' && x.country === 'US') {
+                    return <ResultComponent key={index} _typename={x.type} title={x.title} subtitle={x.title} thumbnail={x.thumb} data={x} year={x.year} format={x.format} linkTo={x.uri}/>
+                  }
+                })
+              }
             </div>
           </div>
         </div>
       </div>
-      Hello
     </main>
   )
 }
