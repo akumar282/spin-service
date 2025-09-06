@@ -65,3 +65,8 @@ export type Artist =   {
   cover_image: string,
   resource_url: string
 }
+
+export type ReleaseNotification = {
+  album: string,
+  type: string
+}

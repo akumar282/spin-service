@@ -3,7 +3,7 @@ import React, { type ChangeEventHandler, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import {ArtistResultComponent, ResultComponent} from '~/components/ResultComponent'
 import debounce from 'lodash/debounce'
-import type { Artist, Master, Release } from '~/types'
+import type {Artist, Master, Release, ReleaseNotification} from '~/types'
 
 
 export function meta({}: Route.MetaArgs) {
@@ -20,6 +20,10 @@ export default function Filters() {
   }
 
   const [results, setResults] = useState<(Artist | Release | Master)[]>([])
+  const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
+  const [labelFilters, setLabelFilters] = useState<string[]>([])
+  const [artistFilters, setArtistFilters] = useState<string[]>([])
+  const [allView, setAllView] = useState<(string | ReleaseNotification)[]>([])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     const data = await fetch(returnEndpoint(e.target.value))
@@ -35,7 +39,7 @@ export default function Filters() {
       <div className='flex flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
         <HomeNavbar/>
         <div className='w-full items-center max-w-[116rem] flex flex-col'>
-          <div className='lg:w-8/10 w-[97%] rounded-xl border border-orange-400 border-3 flex flex-col space-y-4 mt-10 bg-white'>
+          <div className='lg:w-8/10 w-[97%] dark:bg-gray-300 dark:text-black rounded-xl border border-orange-400 dark:border-indigo-500 border-3 flex flex-col space-y-4 mt-10 bg-white'>
             <h1 className='mt-5 text-2xl mx-auto'>Set Notification Filters</h1>
             <h3 className='mx-auto w-[98%] px-2 text-center'>Manage filters so you can be notified for what you are looking for and what you want</h3>
             <div className='w-full flex flex-col items-center'>
