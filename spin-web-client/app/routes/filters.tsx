@@ -52,42 +52,41 @@ export default function Filters() {
     data: T,
     list: T[],
   ) {
-    const isIncluded = list.includes(data)
     switch (list) {
       case releaseFilters:
-        setReleaseFilters((prevTags) =>
-          isIncluded ? prevTags.filter((t) => t !== data) : [...prevTags, data] as ReleaseNotification[]
+        setReleaseFilters(prev =>
+          prev.some(t => JSON.stringify(t) === JSON.stringify(data))
+            ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+            : [...prev, data as ReleaseNotification]
         )
         break
       case artistFilters:
-        setArtistFilters((prevTags) =>
-          isIncluded ? prevTags.filter((t) => t !== data) : [...prevTags, data] as ArtistNotification[]
+        setArtistFilters(prev =>
+          prev.some(t => JSON.stringify(t) === JSON.stringify(data))
+            ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+            : [...prev, data as ArtistNotification]
         )
         break
       case labelFilters:
-        setLabelFilters((prevTags) =>
-          isIncluded ? prevTags.filter((t) => t !== data) : [...prevTags, data] as LabelNotification[]
+        setLabelFilters(prev =>
+          prev.some(t => JSON.stringify(t) === JSON.stringify(data))
+            ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+            : [...prev, data as LabelNotification]
         )
         break
       case allTags:
-        setAllTags((prevTags) =>
-          isIncluded ? prevTags.filter((t) => t !== data) : [...prevTags, data] as AllNotifications[]
+        setAllTags(prev =>
+          prev.some(t => JSON.stringify(t) === JSON.stringify(data))
+            ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+            : [...prev, data as AllNotifications]
         )
         removeFromAll(data)
         break
     }
-    setAllTags((prevTags) => {
-        return isIncluded ? prevTags.filter((t) => t !== data) : [...prevTags, data] as AllNotifications[]
-      }
-    )
-
-  }
-
-  const handleClickAddRelease = (data: ReleaseNotification, tags: ReleaseNotification[]) => {
-    const isIncluded = tags.includes(data)
-
-    setReleaseFilters((prevTags) =>
-      isIncluded ? prevTags.filter((t) => t !== data) : [...prevTags, data] as ReleaseNotification[]
+    setAllTags(prev =>
+      prev.some(t => JSON.stringify(t) === JSON.stringify(data))
+        ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+        : [...prev, data as AllNotifications]
     )
   }
 
@@ -104,19 +103,39 @@ export default function Filters() {
                 <h3 className='mb-4'>
                   Your current Filters:
                 </h3>
-                {
-                  allTags.map((tag, index) => {
-                    if ('album' in tag) {
-                      return <Tags key={index} checked={true} title={tag.album + ' ' + tag.type} onClick={() => handleClick(tag, releaseFilters)}/>
-                    }
-                    if ('artist' in tag) {
-                      return <Tags key={index} checked={true} title={tag.artist} onClick={() => handleClick(tag, artistFilters)}/>
-                    }
-                    if ('label' in tag) {
-                      return <Tags key={index} checked={true} title={tag.label} onClick={() => handleClick(tag, labelFilters)}/>
-                    }
-                  })
-                }
+                <div className='lg:space-x-2 md:space-x-2 space-y-2'>
+                  {
+                    allTags.map((tag, index) => {
+                      if ('album' in tag) {
+                        return <Tags
+                          className='dark:bg-indigo-300 p-1 rounded-2xl shadow-xl'
+                          key={index}
+                          checked={true}
+                          title={tag.album + ' ' + tag.type}
+                          onClick={() => handleClick(tag, releaseFilters)}
+                        />
+                      }
+                      if ('artist' in tag) {
+                        return <Tags
+                          className='dark:bg-green-300 p-1 rounded-2xl shadow-xl'
+                          key={index}
+                          checked={true}
+                          title={tag.artist}
+                          onClick={() => handleClick(tag, artistFilters)}
+                        />
+                      }
+                      if ('label' in tag) {
+                        return <Tags
+                          className='dark:bg-blue-300 p-1 rounded-2xl shadow-xl'
+                          key={index}
+                          checked={true}
+                          title={tag.label}
+                          onClick={() => handleClick(tag, labelFilters)}
+                        />
+                      }
+                    })
+                  }
+                </div>
                 <input
                 className='text-start py-1 bg-slate-100 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 w-full'
                 placeholder='Search for Artists, Releases, or Labels'
@@ -134,6 +153,7 @@ export default function Filters() {
                       subtitle={x.title}
                       thumbnail={x.thumb}
                       data={x}
+                      checked={artistFilters.some(t => t.artist === x.title && t.type === 'artist')}
                       buttonFunction={() => handleClick({ artist: x.title, type: 'artist' }, artistFilters)}
                     />
                   }
@@ -148,6 +168,7 @@ export default function Filters() {
                       year={x.year}
                       format={x.format}
                       linkTo={x.uri}
+                      checked={releaseFilters.some(t => t.album === x.title && t.type === x.format[0])}
                       buttonFunction={() => handleClick({ album: x.title, type: x.format[0] }, releaseFilters)}
                     />
                   }

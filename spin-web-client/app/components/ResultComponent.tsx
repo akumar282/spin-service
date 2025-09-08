@@ -10,6 +10,7 @@ export interface ResultComponentProps {
   data: object
   year: string
   format: string[]
+  checked: boolean
   buttonFunction: () => void
 }
 
@@ -20,14 +21,13 @@ export interface ArtistResultComponentProps {
   thumbnail: string
   linkTo?: string
   data: object
+  checked: boolean
   buttonFunction: () => void
 }
 
 const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
 
 export function ResultComponent(props: ResultComponentProps) {
-
-  const [checked, setChecked] = useState<boolean>(false)
 
   return (
     <div className='w-[99%] justify-between my-0.5 rounded dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-row border border-slate-400 items-stretch'>
@@ -55,20 +55,10 @@ export function ResultComponent(props: ResultComponentProps) {
           </h3>
         </div>
       </div>
-      <button className='lg:mr-5 mr-2 my-auto'onClick={() => (props.buttonFunction(), setChecked(true))}>
+      <button className='lg:mr-5 mr-2 my-auto' onClick={() => (props.buttonFunction(), props.checked = true)}>
         <div className='h-10 w-10'>
-          {checked ? ( <img src={plus} alt='Plus'/> ) : (
-            <svg
-              fill='none'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              viewBox='0 0 22 22'
-              stroke='currentColor'
-              className='flex-shrink-0 inline w-4 h-4 ml-1 mt-1 mb-1'
-            >
-              <path d='M6 18L18 6M6 6l12 12'></path>
-            </svg>
+          {!props.checked ? ( <img src={plus} alt='Plus'/> ) : (
+            <img className='rotate-45' src={plus} alt='Plus'/>
           )}
         </div>
       </button>
@@ -77,8 +67,6 @@ export function ResultComponent(props: ResultComponentProps) {
 }
 
 export function ArtistResultComponent(props: ArtistResultComponentProps) {
-
-  const [checked, setChecked] = useState<boolean>(false)
 
   return (
     <div
@@ -106,20 +94,10 @@ export function ArtistResultComponent(props: ArtistResultComponentProps) {
           </h3>
         </div>
       </div>
-      <button className='lg:mr-5 mr-2 my-auto' onClick={() => (props.buttonFunction(), setChecked(true))}>
+      <button className='lg:mr-5 mr-2 my-auto' onClick={() => (props.buttonFunction(), props.checked = true)}>
         <div className='h-10 w-10'>
-          {checked ? (<img src={plus} alt='Plus'/>) : (
-            <svg
-              fill='none'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              viewBox='0 0 22 22'
-              stroke='currentColor'
-              className='flex-shrink-0 inline w-4 h-4 ml-1 mt-1 mb-1'
-            >
-              <path d='M6 18L18 6M6 6l12 12'></path>
-            </svg>
+          {!props.checked ? ( <img src={plus} alt='Plus'/> ) : (
+            <img className='rotate-45' src={plus} alt='Plus'/>
           )}
         </div>
       </button>

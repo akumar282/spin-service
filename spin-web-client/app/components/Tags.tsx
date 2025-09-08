@@ -9,8 +9,8 @@ interface TagButton extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Tags(props: TagButton) {
   return (
     <button className={props.className} onClick={props.onClick}>
-      <div className='flex flex-row'>
-        <h3>
+      <div className='flex flex-row items-center'>
+        <h3 className='pt-1 ml-1'>
           {props.title}
         </h3>
         {props.checked && (
@@ -21,7 +21,7 @@ export function Tags(props: TagButton) {
             strokeWidth='2'
             viewBox='0 0 22 22'
             stroke='currentColor'
-            className='flex-shrink-0 inline w-4 h-4 ml-1 mt-1 mb-1'
+            className='flex-shrink-0 inline w-8 h-8 m-2'
           >
             <path d='M6 18L18 6M6 6l12 12'></path>
           </svg>
