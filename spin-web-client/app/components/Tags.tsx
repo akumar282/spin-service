@@ -1,4 +1,4 @@
-import React, {type ButtonHTMLAttributes} from 'react'
+import React, {type ButtonHTMLAttributes } from 'react'
 
 interface TagButton extends ButtonHTMLAttributes<HTMLButtonElement> {
   checked: boolean

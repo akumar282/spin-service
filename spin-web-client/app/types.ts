@@ -70,3 +70,20 @@ export type ReleaseNotification = {
   album: string,
   type: string
 }
+
+export type GenreNotification = {
+  genre: string,
+  type: string,
+}
+
+export type ArtistNotification = {
+  artist: string,
+  type: string,
+}
+
+export type LabelNotification = {
+  label: string,
+  type: string,
+}
+
+export type AllNotifications = LabelNotification | ArtistNotification | GenreNotification | ReleaseNotification
