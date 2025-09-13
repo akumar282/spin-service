@@ -269,11 +269,32 @@ export class SpinServiceStack extends Stack {
       },
     })
 
+    const publicAuthorizerLambda = new lambda.Function(
+      this,
+      'authorizerLambda',
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        code: lambda.Code.fromAsset('dist/authorizerLambda'),
+        handler: 'index.handler',
+        timeout: Duration.seconds(10),
+        environment: {
+          WEB_CLIENT_ID: userPoolClient.userPoolClientId,
+          WEB_CLIENT_NAME: userPoolClient.userPoolClientName,
+          MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
+          MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
+          USER_POOL_ID: userPool.userPoolId,
+          TABLE_NAME: usersTable.tableName,
+          USER_TABLE_ARN: usersTable.tableArn,
+        },
+      }
+    )
+
     recordsTable.grantReadWriteData(streamLambda)
     recordsTable.grantStreamRead(streamLambda)
     usersTable.grantReadWriteData(streamLambda)
     usersTable.grantStreamRead(streamLambda)
     usersTable.grantReadWriteData(userLambda)
+    usersTable.grantReadData(publicAuthorizerLambda)
     recordsTable.grantReadWriteData(rawDataHandler)
     recordsTable.grantReadWriteData(publicHandler)
     usersTable.grantReadWriteData(authLambda)
@@ -339,6 +360,15 @@ export class SpinServiceStack extends Stack {
       publicHandler
     )
 
+    const publicAuthorizer = new apigateway.TokenAuthorizer(
+      this,
+      'PublicTokenAuthorizer',
+      {
+        handler: publicAuthorizerLambda,
+        resultsCacheTtl: Duration.hours(1),
+      }
+    )
+
     props.api.addResources([
       {
         pathPart: 'raw',
@@ -373,6 +403,13 @@ export class SpinServiceStack extends Stack {
         methods: [
           {
             method: 'POST',
+            integration: publicDataIntegration,
+            options: {
+              authorizer: publicAuthorizer,
+            },
+          },
+          {
+            method: 'GET',
             integration: publicDataIntegration,
           },
         ],
@@ -410,6 +447,9 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: userIntegration,
+                options: {
+                  authorizer: publicAuthorizer,
+                },
               },
             ],
             resources: [
@@ -419,6 +459,9 @@ export class SpinServiceStack extends Stack {
                   {
                     method: 'GET',
                     integration: userIntegration,
+                    options: {
+                      authorizer: publicAuthorizer,
+                    },
                   },
                 ],
               },

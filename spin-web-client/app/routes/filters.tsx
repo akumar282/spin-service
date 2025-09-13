@@ -1,7 +1,7 @@
 import type { Route } from './+types/home'
-import React, {type ChangeEventHandler, type Dispatch, useState} from 'react'
+import React, { type ChangeEventHandler, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
-import {ArtistResultComponent, ResultComponent} from '~/components/ResultComponent'
+import { ArtistResultComponent, ResultComponent } from '~/components/ResultComponent'
 import debounce from 'lodash/debounce'
 import type {
   AllNotifications,
@@ -108,7 +108,7 @@ export default function Filters() {
                     allTags.map((tag, index) => {
                       if ('album' in tag) {
                         return <Tags
-                          className='dark:bg-indigo-300 p-1 rounded-2xl shadow-xl'
+                          className='dark:bg-indigo-300 bg-orange-200 p-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
                           title={tag.album + ' ' + tag.type}
@@ -117,7 +117,7 @@ export default function Filters() {
                       }
                       if ('artist' in tag) {
                         return <Tags
-                          className='dark:bg-green-300 p-1 rounded-2xl shadow-xl'
+                          className='dark:bg-green-300 bg-green-200 p-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
                           title={tag.artist}
@@ -126,7 +126,7 @@ export default function Filters() {
                       }
                       if ('label' in tag) {
                         return <Tags
-                          className='dark:bg-blue-300 p-1 rounded-2xl shadow-xl'
+                          className='dark:bg-blue-300 bg-blue-300 p-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
                           title={tag.label}
@@ -153,6 +153,7 @@ export default function Filters() {
                       subtitle={x.title}
                       thumbnail={x.thumb}
                       data={x}
+                      linkTo={x.uri}
                       checked={artistFilters.some(t => t.artist === x.title && t.type === 'artist')}
                       buttonFunction={() => handleClick({ artist: x.title, type: 'artist' }, artistFilters)}
                     />
