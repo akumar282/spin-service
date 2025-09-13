@@ -61,6 +61,16 @@ export async function handler(
         ClientId: clientId,
         Username: username,
         Password: password,
+        UserAttributes: [
+          {
+            Name: 'custom:role',
+            Value: 'user',
+          },
+          {
+            Name: 'custom:version',
+            Value: '1',
+          },
+        ],
       })
       const result: SignUpCommandOutput = await cognitoClient.send(command)
 

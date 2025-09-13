@@ -283,7 +283,6 @@ export class SpinServiceStack extends Stack {
           MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
           MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
           USER_POOL_ID: userPool.userPoolId,
-          TABLE_NAME: usersTable.tableName,
           USER_TABLE_ARN: usersTable.tableArn,
         },
       }

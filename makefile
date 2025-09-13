@@ -22,7 +22,7 @@ deploy:
 deploy-all:
 	npm run cdk -- deploy ${STACKS}
 
-synth-all: 
+synth-all:
 	npm run cdk -- synth ${STACKS}
 
 synth:
@@ -44,4 +44,4 @@ buildDiff: build diff
 
 buildDeploy: build deploy-all
 
-buildSynth: build synth
+buildSynth: build synth-all
