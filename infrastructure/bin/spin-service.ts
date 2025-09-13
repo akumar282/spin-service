@@ -49,7 +49,6 @@ if (validBuildParams()) {
     opensearch_user: USER,
     domainEndpoint: computeStack.domainEndpoint,
     vpc: computeStack.vpc,
-    api: computeStack.api,
     dashpass: DASHPASS,
     env,
   })

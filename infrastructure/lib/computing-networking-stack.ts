@@ -1,4 +1,4 @@
-import { RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
+import { Fn, RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
@@ -8,21 +8,11 @@ import { ComputingNetworkStackProps } from './cdkExtendedProps'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { EbsDeviceVolumeType, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
-import { Api } from './apigateway/api'
-import * as apigateway from 'aws-cdk-lib/aws-apigateway'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
-import {
-  AnyPrincipal,
-  Effect,
-  ManagedPolicy,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
+import { AnyPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { schedulerRole } from './iam/schedulerRole'
 
 export class ComputingNetworkingStack extends Stack {
-  public api: Api
   public readonly vpc: ec2.Vpc
   public readonly domainEndpoint: string
 
@@ -63,38 +53,6 @@ export class ComputingNetworkingStack extends Stack {
       publicKey: props.ses_public_key,
     })
 
-    const logRole = new Role(this, 'ApiGwLogsRole', {
-      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AmazonAPIGatewayPushToCloudWatchLogs'
-        ),
-      ],
-    })
-
-    const recordsApi = new Api(this, {
-      id: 'spin-records-api',
-      props: {
-        restApiName: 'spinRecordsApi',
-        description: 'Master api for data ingestion, and user endpoints',
-        defaultCorsPreflightOptions: {
-          allowOrigins: apigateway.Cors.ALL_ORIGINS,
-          allowMethods: apigateway.Cors.ALL_METHODS,
-          allowHeaders: [
-            'Content-Type',
-            'X-Amz-Date',
-            'Authorization',
-            'X-Api-Key',
-          ],
-          allowCredentials: true,
-        },
-      },
-    })
-
-    recordsApi.addLogging(logRole.roleArn)
-
-    this.api = recordsApi
-
     const cluster = new ecs.Cluster(this, 'spinServiceCluster', {
       enableFargateCapacityProviders: true,
       vpc,
@@ -111,6 +69,8 @@ export class ComputingNetworkingStack extends Stack {
       vpc,
       allowAllOutbound: true,
     })
+
+    const apiUrl = Fn.importValue('SpinApiUrl')
 
     new FargateTask(
       this,
@@ -129,7 +89,7 @@ export class ComputingNetworkingStack extends Stack {
       securityGroup,
       {
         environment: {
-          API_URL: recordsApi.url,
+          API_URL: apiUrl,
           DISCOGS_TOKEN: props.discogs_token,
           PROXY_IP: props.proxy_ip,
         },

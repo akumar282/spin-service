@@ -7,7 +7,6 @@ export interface CdkExtendedProps extends StackProps {
   domainEndpoint: string
   opensearch_user: string
   dashpass: string
-  api: Api
   vpc: Vpc
 }
 

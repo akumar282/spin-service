@@ -2,6 +2,7 @@ import {
   aws_cognito as cognito,
   aws_pipes as pipes,
   aws_sqs as sqs,
+  CfnOutput,
   Duration,
   RemovalPolicy,
   Stack,
@@ -25,12 +26,49 @@ import {
   DynamoEventSource,
   SqsEventSource,
 } from 'aws-cdk-lib/aws-lambda-event-sources'
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import {
+  Effect,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
+import { Api } from './apigateway/api'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
     super(scope, id, props)
+
+    const logRole = new Role(this, 'ApiGwLogsRole', {
+      assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
+      managedPolicies: [
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AmazonAPIGatewayPushToCloudWatchLogs'
+        ),
+      ],
+    })
+
+    const recordsApi = new Api(this, {
+      id: 'spin-records-api',
+      props: {
+        restApiName: 'spinRecordsApi',
+        description: 'Master api for data ingestion, and user endpoints',
+        defaultCorsPreflightOptions: {
+          allowOrigins: apigateway.Cors.ALL_ORIGINS,
+          allowMethods: apigateway.Cors.ALL_METHODS,
+          allowHeaders: [
+            'Content-Type',
+            'X-Amz-Date',
+            'Authorization',
+            'X-Api-Key',
+          ],
+          allowCredentials: true,
+        },
+      },
+    })
+
+    recordsApi.addLogging(logRole.roleArn)
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
       tableName: 'recordsTableNew',
@@ -368,7 +406,7 @@ export class SpinServiceStack extends Stack {
       }
     )
 
-    props.api.addResources([
+    recordsApi.addResources([
       {
         pathPart: 'raw',
         methods: [
@@ -483,5 +521,10 @@ export class SpinServiceStack extends Stack {
         ],
       },
     ])
+
+    new CfnOutput(this, 'ApiUrl', {
+      value: recordsApi.url,
+      exportName: 'SpinApiUrl',
+    })
   }
 }
