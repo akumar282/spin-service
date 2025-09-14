@@ -16,9 +16,7 @@ interface WrapperProps {
 }
 
 export default function AuthWrapper({ children }: WrapperProps) {
-  const [token, setToken] = useState<string | null>(null)
-  const [sub, setSub] = useState<string | null>(null)
-  const [username, setUsername] = useState<string | null>(null)
+  const [userContext, setUserContext] = useState<UserContext | null>(null)
 
   const verifier = CognitoJwtVerifier.create({
     userPoolId: import.meta.env.USER_POOL_ID as string,
@@ -32,14 +30,15 @@ export default function AuthWrapper({ children }: WrapperProps) {
       try {
         const verifyParseToken = async () => {
           const payload = await verifier.verify(tokenCookie)
-          setSub(payload.sub)
-          setToken(tokenCookie)
-          setUsername(payload['cognito:username'])
+          const info : UserContext = {
+            sub: payload.sub,
+            token: tokenCookie,
+            username: payload['cognito:username']
+          }
+          setUserContext(info)
         }
       } catch {
-        setToken(null)
-        setSub(null)
-        setUsername(null)
+        setUserContext(null)
       }
     }
   })
