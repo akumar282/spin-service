@@ -11,7 +11,9 @@
   "dependencies": {
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
+    "aws-jwt-verify": "^5.1.0",
     "isbot": "^5.1.27",
+    "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -22,6 +24,7 @@
     "@react-router/dev": "^7.7.1",
     "@stylistic/eslint-plugin": "^5.2.3",
     "@tailwindcss/vite": "^4.1.4",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
