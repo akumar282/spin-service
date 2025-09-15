@@ -15,7 +15,7 @@ export function NotificationsComponent() {
       <div
         className='items-center justify-center max-w-[500px] text-lg w-10/12 mt-10 grid gap-5 grid-cols-1'>
         <button
-          className='group rounded-2xl flex flex-row transition ease-in-out hover:-translate-y-3 dark:bg-slate-300 hover:scale-105 dark:border-indigo-600 border-orange-400 border-3 px-3 py-3 bg-white hover:bg-orange-100'
+          className='group rounded-2xl flex dark:hover:bg-indigo-300 flex-row transition ease-in-out hover:-translate-y-3 dark:bg-slate-300 hover:scale-105 dark:border-indigo-600 border-orange-400 border-3 px-3 py-3 bg-white hover:bg-orange-100'
           onClick={() => navigate('channels')}
         >
           <h1 className='text-start w-8/12 mt-8 mr-6'>Manage Notification Channels</h1>
@@ -25,7 +25,7 @@ export function NotificationsComponent() {
           </div>
         </button>
         <button
-          className='group rounded-2xl flex flex-row transition ease-in-out hover:-translate-y-3 dark:bg-slate-300 hover:scale-105 dark:border-indigo-600 border-orange-400 border-3 px-3 py-3 bg-white hover:bg-orange-100'
+          className='group rounded-2xl flex dark:hover:bg-indigo-300 flex-row transition ease-in-out hover:-translate-y-3 dark:bg-slate-300 hover:scale-105 dark:border-indigo-600 border-orange-400 border-3 px-3 py-3 bg-white hover:bg-orange-100'
           onClick={() => navigate('filters')}
         >
           <h1 className='text-start w-8/12 mt-8 mr-6'>Notification Filters & Targets</h1>
