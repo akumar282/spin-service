@@ -56,7 +56,7 @@ export function Home() {
       </div>
       <div className='items-center max-w-[1500px] w-11/12 mt-2'>
         <div className='overflow-x-auto rounded-2xl'>
-          <div className='flex gap-4 mt-1 pb-2'>
+          <div className='flex gap-4 mt-1 pb-2 px-1.5'>
             <ReleaseCard preOrder title='Music' artist='Playboi Carti'
                          linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
             <ReleaseCard preOrder title='Music' artist='Playboi Carti'
