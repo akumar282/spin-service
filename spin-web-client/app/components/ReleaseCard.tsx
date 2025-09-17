@@ -10,9 +10,9 @@ interface ReleaseCardProps {
 
 export default function ReleaseCard(props: ReleaseCardProps) {
   return (
-    <div className='bg-slate-300 mx-auto border flex flex-col border-2 border-indigo-600 overflow-hidden rounded-2xl lg:h-68 flex-shrink-0 lg:w-52 h-60 w-44'>
+    <div className='dark:bg-slate-300 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-68 flex-shrink-0 lg:w-52 h-60 w-44'>
       <div>
-        <button className='bg-indigo-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
+        <button className='dark:bg-indigo-300 bg-orange-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
           <h1>
             Preorder
           </h1>
@@ -34,7 +34,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         </h3>
       </div>
       <div className='w-[90%] mx-auto mt-3 flex justify-center'>
-        <button className='bg-indigo-300 rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
+        <button className='dark:bg-indigo-300 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
           Get Notified
         </button>
       </div>

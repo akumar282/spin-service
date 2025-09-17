@@ -475,6 +475,9 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: refreshIntegration,
+                options: {
+                  authorizer: publicAuthorizer,
+                },
               },
             ],
           },
