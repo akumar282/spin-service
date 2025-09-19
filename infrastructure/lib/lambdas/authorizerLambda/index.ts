@@ -4,6 +4,7 @@ import {
 } from 'aws-lambda'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { getEnv } from '../../shared/utils'
+import { generatePolicy } from './functions'
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model'
 
 export async function handler(

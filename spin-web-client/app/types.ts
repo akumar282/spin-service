@@ -87,3 +87,23 @@ export type LabelNotification = {
 }
 
 export type AllNotifications = LabelNotification | ArtistNotification | GenreNotification | ReleaseNotification
+
+export type Records = {
+  id: string
+  artist: string | null | undefined
+  year: string | null | undefined
+  media: 'cd' | 'vinyl'
+  postTitle: string | null | undefined
+  content: string | null | undefined
+  created_time: string
+  link: string
+  postId: string
+  pagination: string | null | undefined
+  searchString: string
+  color: string | null
+  thumbnail: string | null
+  genre: string[]
+  title: string
+  label: string[]
+  resource_url: string
+}

@@ -1,4 +1,4 @@
-const generatePolicy = (sub: string, effect: string, method: string) => {
+export const generatePolicy = (sub: string, effect: string, method: string) => {
   return {
     principalId: sub,
     policyDocument: {

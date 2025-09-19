@@ -23,7 +23,7 @@ export function Home() {
       <div
         className='items-center justify-center max-w-[1500px] text-lg w-11/12 mt-3 grid gap-5 grid-cols-1 lg:grid-cols-3'>
         <button
-          className='group rounded-2xl flex flex-row transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
+          className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
           onClick={() => navigate('/manage/notifications')}>
           <h1 className='text-start w-8/12 mt-8 mr-6'>Manage Notifications</h1>
           <div className='mx-auto'>
@@ -33,7 +33,7 @@ export function Home() {
           </div>
         </button>
         <button
-          className='group rounded-2xl flex flex-row transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
+          className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
           onClick={() => navigate('/browse')}>
           <h1 className='text-start w-8/12 mt-8 mr-6'>Browse Latest Releases</h1>
           <div className='mx-auto'>
@@ -41,7 +41,7 @@ export function Home() {
           </div>
         </button>
         <button
-          className='group rounded-2xl flex flex-row transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
+          className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
           onClick={() => navigate('/manage/user')}>
           <h1 className='text-start w-8/12 mt-8'>Manage User Information</h1>
           <div className='mx-auto pl-8'>
