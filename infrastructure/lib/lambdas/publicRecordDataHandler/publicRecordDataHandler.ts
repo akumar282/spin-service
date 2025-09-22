@@ -1,6 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+  ScanCommand,
+} from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
 import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
@@ -17,31 +23,95 @@ export async function handler(
   } else {
     switch (event.path) {
       case 'public': {
-        // Most likely unused
-        if (event.httpMethod === 'POST') {
-          if (event.body) {
-            try {
-              const body: Records = JSON.parse(event.body)
-              const command = new PutCommand({
-                TableName: getEnv('TABLE_NAME'),
-                Item: body,
-              })
-              const response = await docClient.send(command)
-              return apiResponse(response, 200)
-            } catch (e) {
-              return apiResponse(
-                {
-                  message: 'Internal Server Error',
-                },
-                300
-              )
+        switch (event.httpMethod) {
+          case 'GET': {
+            if (event.queryStringParameters) {
+              try {
+                const nextToken = event.queryStringParameters.cursor
+                const count = event.queryStringParameters.count
+
+                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+                const yesterdayString = `${(
+                  yesterday.getMonth() + 1
+                ).toString()}-${yesterday.getDate().toString()}`
+                const cutoff = yesterday.toISOString()
+
+                const input = {
+                  TableName: getEnv('TABLE_NAME'),
+                  Limit: count || 20,
+                  ExpressionAttributeNames: {
+                    '#created_date': 'created_date',
+                  },
+                  ExpressionAttributeValues: {
+                    ':cutoff': cutoff,
+                    yesterday,
+                  },
+                  FilterExpression:
+                    '#created_date >= :cutoff AND dateGroup = :yesterday',
+                }
+
+                if (nextToken) {
+                  const cursor = JSON.parse(
+                    Buffer.from(nextToken, 'base64').toString('utf8')
+                  )
+                  Object.assign(input, { ExclusiveStartKey: cursor })
+                }
+
+                const command = new QueryCommand(input)
+
+                const response = await client.send(command)
+
+                return apiResponse(
+                  {
+                    items: response.Items,
+                    cursor: response.LastEvaluatedKey
+                      ? Buffer.from(
+                          JSON.stringify(response.LastEvaluatedKey)
+                        ).toString('base64')
+                      : null,
+                  },
+                  200,
+                  undefined,
+                  true
+                )
+              } catch (e) {
+                return apiResponse(
+                  {
+                    message: 'Internal Server Error',
+                  },
+                  300,
+                  undefined,
+                  true
+                )
+              }
+            } else {
+              return apiResponse('Malformed request', 400)
             }
-          } else {
-            return apiResponse('Malformed request', 400)
           }
-        } else {
-          return apiResponse('invalid method', 405)
+          case 'POST': {
+            if (event.body) {
+              try {
+                const body: Records = JSON.parse(event.body)
+                const command = new PutCommand({
+                  TableName: getEnv('TABLE_NAME'),
+                  Item: body,
+                })
+                const response = await docClient.send(command)
+                return apiResponse(response, 200)
+              } catch (e) {
+                return apiResponse(
+                  {
+                    message: 'Internal Server Error',
+                  },
+                  300
+                )
+              }
+            } else {
+              return apiResponse('Malformed request', 400)
+            }
+          }
         }
+        return apiResponse('Malformed request', 400)
       }
       case 'public/{id}': {
         const id = event.pathParameters?.id

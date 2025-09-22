@@ -89,6 +89,19 @@ export class SpinServiceStack extends Stack {
     })
 
     recordsTable.addGlobalSecondaryIndex({
+      indexName: 'dateGroup',
+      partitionKey: {
+        name: 'dateGroup',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'created_time',
+        type: AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    })
+
+    recordsTable.addGlobalSecondaryIndex({
       indexName: 'album',
       partitionKey: {
         name: 'albumTitle',

@@ -17,7 +17,7 @@ build:
 	npm run build
 
 deploy:
-	npm run cdk -- deploy $(STACK_NAME)-$(ENV)
+	npm run cdk -- deploy SpinClientStack-prod
 
 deploy-all:
 	npm run cdk -- deploy ${STACKS}

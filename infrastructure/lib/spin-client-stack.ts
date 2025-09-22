@@ -20,7 +20,7 @@ export class SpinClientStack extends Stack {
         origin: S3BucketOrigin.withOriginAccessControl(deploymentBucket),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
-      defaultRootObject: 'index.html',
+      defaultRootObject: 'client/index.html',
     })
 
     new BucketDeployment(this, 'SpinClientDeployment', {
