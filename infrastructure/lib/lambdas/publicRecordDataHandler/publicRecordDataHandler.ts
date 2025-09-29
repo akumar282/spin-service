@@ -16,130 +16,121 @@ export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   const resource = event.path
-  if (resource !== 'public' && resource !== 'public/{id}') {
-    return apiResponse('Invalid api path', 400)
-  } else {
-    switch (event.path) {
-      case 'public': {
-        switch (event.httpMethod) {
-          case 'GET': {
-            if (event.queryStringParameters) {
-              try {
-                const nextToken = event.queryStringParameters.cursor
-                const count = event.queryStringParameters.count
+  switch (event.path) {
+    case '/public': {
+      switch (event.httpMethod) {
+        case 'GET': {
+          try {
+            const nextToken = event.queryStringParameters?.cursor
+            const count = event.queryStringParameters?.count
 
-                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
-                const yesterdayString = `DATE#${(
-                  yesterday.getMonth() + 1
-                ).toString()}-${yesterday.getDate().toString()}`
-                const cutoff = yesterday.toISOString()
+            const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+            const yesterdayString = `DATE#${(
+              yesterday.getMonth() + 1
+            ).toString()}-${yesterday.getDate().toString()}`
+            const cutoff = yesterdayString
+            console.log(yesterdayString)
 
-                const input = {
-                  TableName: getEnv('TABLE_NAME'),
-                  Limit: !isNaN(Number(count)) ? Number(count) : 20,
-                  ExpressionAttributeNames: {
-                    '#created_date': 'created_date',
-                  },
-                  ExpressionAttributeValues: {
-                    ':cutoff': cutoff,
-                    yesterday,
-                  },
-                  FilterExpression:
-                    '#created_date >= :cutoff AND dateGroup = :yesterday',
-                }
-
-                if (nextToken) {
-                  const cursor = JSON.parse(
-                    Buffer.from(nextToken, 'base64').toString('utf8')
-                  )
-                  Object.assign(input, { ExclusiveStartKey: cursor })
-                }
-
-                const command = new QueryCommand(input)
-
-                const response = await client.send(command)
-
-                return apiResponse(
-                  {
-                    items: response.Items,
-                    cursor: response.LastEvaluatedKey
-                      ? Buffer.from(
-                          JSON.stringify(response.LastEvaluatedKey)
-                        ).toString('base64')
-                      : null,
-                  },
-                  200,
-                  undefined,
-                  true
-                )
-              } catch (e) {
-                return apiResponse(
-                  {
-                    message: 'Internal Server Error',
-                  },
-                  300,
-                  undefined,
-                  true
-                )
-              }
-            } else {
-              return apiResponse('Malformed request', 400)
+            const input = {
+              TableName: getEnv('TABLE_NAME'),
+              IndexName: 'dateGroup',
+              Limit: !isNaN(Number(count)) ? Number(count) : 20,
+              KeyConditionExpression: 'dateGroup = :dateGroup',
+              ExpressionAttributeValues: {
+                ':dateGroup': cutoff,
+              },
             }
-          }
-          case 'POST': {
-            if (event.body) {
-              try {
-                const body: Records = JSON.parse(event.body)
-                const command = new PutCommand({
-                  TableName: getEnv('TABLE_NAME'),
-                  Item: body,
-                })
-                const response = await docClient.send(command)
-                return apiResponse(response, 200)
-              } catch (e) {
-                return apiResponse(
-                  {
-                    message: 'Internal Server Error',
-                  },
-                  300
-                )
-              }
-            } else {
-              return apiResponse('Malformed request', 400)
+
+            if (nextToken) {
+              const cursor = JSON.parse(
+                Buffer.from(nextToken, 'base64').toString('utf8')
+              )
+              Object.assign(input, { ExclusiveStartKey: cursor })
             }
+
+            const command = new QueryCommand(input)
+
+            const response = await client.send(command)
+            console.log(response)
+
+            return apiResponse(
+              {
+                items: response.Items,
+                cursor: response.LastEvaluatedKey
+                  ? Buffer.from(
+                      JSON.stringify(response.LastEvaluatedKey)
+                    ).toString('base64')
+                  : null,
+              },
+              200,
+              undefined,
+              true
+            )
+          } catch (e) {
+            console.log(e)
+            return apiResponse(
+              {
+                message: 'Internal Server Error',
+              },
+              300,
+              undefined,
+              true
+            )
           }
         }
-        return apiResponse('Malformed request', 400)
-      }
-      case 'public/{id}': {
-        const id = event.pathParameters?.id
-        if (id !== undefined) {
-          switch (event.httpMethod) {
-            case 'GET': {
-              const item = await getItem(docClient, 'postId = :postId', {
-                ':postId': id,
+        case 'POST': {
+          if (event.body) {
+            try {
+              const body: Records = JSON.parse(event.body)
+              const command = new PutCommand({
+                TableName: getEnv('TABLE_NAME'),
+                Item: body,
               })
-              if (item === null) {
-                return apiResponse(`No Item found with id: ${id}`, 200)
-              }
+              const response = await docClient.send(command)
+              return apiResponse(response, 200)
+            } catch (e) {
               return apiResponse(
                 {
-                  data: item,
+                  message: 'Internal Server Error',
                 },
-                200
+                300
               )
             }
-            default: {
-              return apiResponse('invalid method', 405)
-            }
+          } else {
+            return apiResponse('Malformed request', 400)
           }
-        } else {
-          return apiResponse('id missing from Path Parameters', 400)
         }
       }
-      default: {
-        return apiResponse(event, 400)
+      return apiResponse('Malformed request', 400)
+    }
+    case 'public/{id}': {
+      const id = event.pathParameters?.id
+      if (id !== undefined) {
+        switch (event.httpMethod) {
+          case 'GET': {
+            const item = await getItem(docClient, 'postId = :postId', {
+              ':postId': id,
+            })
+            if (item === null) {
+              return apiResponse(`No Item found with id: ${id}`, 200)
+            }
+            return apiResponse(
+              {
+                data: item,
+              },
+              200
+            )
+          }
+          default: {
+            return apiResponse('invalid method', 405)
+          }
+        }
+      } else {
+        return apiResponse('id missing from Path Parameters', 400)
       }
+    }
+    default: {
+      return apiResponse(event, 400)
     }
   }
 }
