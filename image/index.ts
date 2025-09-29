@@ -31,6 +31,7 @@ type PostInfo = {
   label: string[],
   resource_url: URL,
   media: string,
+  dateGroup: string,
   expires: number
 }
 
@@ -81,6 +82,7 @@ async function getRawPosts(url: string) {
 }
 
 function mapToAttributes(rawData: HTMLElement[]) {
+  const yesterday = new Date(Date.now())
   rawData.map(post => {
     pushPostsQueue.push({
       postTitle: post.getAttribute('post-title'),
@@ -94,6 +96,7 @@ function mapToAttributes(rawData: HTMLElement[]) {
       artist: getArtist(post.getAttribute('post-title')),
       thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null,
       media: 'vinyl',
+      dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}-${yesterday.getDate().toString()}`,
       expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000)
     })
   })

@@ -2,10 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
-  GetCommand,
   PutCommand,
   QueryCommand,
-  ScanCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { apiResponse } from '../../apigateway/responses'
 import { getEnv, getItem } from '../../shared/utils'
@@ -31,14 +29,14 @@ export async function handler(
                 const count = event.queryStringParameters.count
 
                 const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
-                const yesterdayString = `${(
+                const yesterdayString = `DATE#${(
                   yesterday.getMonth() + 1
                 ).toString()}-${yesterday.getDate().toString()}`
                 const cutoff = yesterday.toISOString()
 
                 const input = {
                   TableName: getEnv('TABLE_NAME'),
-                  Limit: count || 20,
+                  Limit: !isNaN(Number(count)) ? Number(count) : 20,
                   ExpressionAttributeNames: {
                     '#created_date': 'created_date',
                   },

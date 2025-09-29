@@ -3,6 +3,8 @@ import type { Route } from '../+types/root'
 import HomeNavbar from '~/components/HomeNavbar'
 import debounce from 'lodash/debounce'
 import type {Records} from '~/types'
+import ReleaseCard from '~/components/ReleaseCard'
+import {Card} from '~/components/Card'
 
 
 export function meta({}: Route.MetaArgs) {
@@ -45,6 +47,13 @@ export default function Browse() {
             type='text'
             onChange={debounced}
           />
+        </div>
+        <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] items-center'>
+          <Card/>
+          <Card/>
+          <Card/>
+          <Card/>
+          <Card/>
         </div>
       </div>
     </main>
