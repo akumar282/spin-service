@@ -34,7 +34,7 @@ export default function Browse() {
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     console.log(e.target.value)
     if (data !== null) {
-      const search = data.filter((record) => record.title.toLowerCase().includes(e.target.value.toLowerCase()))
+      const search = data.filter((record) => record.postTitle.toLowerCase().includes(e.target.value.toLowerCase()))
       setHighlighted(search)
     }
   }
@@ -60,7 +60,7 @@ export default function Browse() {
             onChange={debounced}
           />
         </div>
-        <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] items-center'>
+        <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] items-center'>
           {
             highlighted?.map((x, index) => {
               return <Card key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre} storeLink={x.link}/>

@@ -11,20 +11,20 @@ interface CardProps {
 export function Card(props: CardProps) {
   return (
     <div
-      className=' bg-white/80 border dark:text-black border-white max-w-[18rem] min-w-[15rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
+      className=' bg-white/80 border dark:text-black border-white w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
       <button className='dark:bg-indigo-300 bg-orange-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
         <h1>
           New Release
         </h1>
       </button>
       <div className='flex flex-col items-center'>
-        <img alt='cover' className=' my-4'
+        <img alt='cover' className=' my-2'
              src='https://i.discogs.com/3jIXeeFG8I_JDCJLzD2WTpatabGHMeHqOBxjJibqU1A/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEzODU1/MDE5LTE2MzYxMjI1/NzctMTA1NC5qcGVn.jpeg'/>
         <div className='flex flex-col items-center text-center mx-auto'>
-          <h1 className='lg:text-lg text-md text-wrap truncate pb-2 px-2'>
+          <h1 className='lg:text-md max-h-19 text-md text-wrap truncate pb-2 px-2'>
             {props.title}
           </h1>
-          <h1 className='lg:text-md text-sm truncate italic'>
+          <h1 className='lg:text-md text-sm text-wrap truncate italic'>
             {props.artist}
           </h1>
           <div className='flex m-3 space-x-2 flex-row wrap-anywhere'>

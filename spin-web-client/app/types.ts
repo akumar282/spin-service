@@ -93,7 +93,7 @@ export type Records = {
   artist: string | null | undefined
   year: string | null | undefined
   media: 'cd' | 'vinyl'
-  postTitle: string | null | undefined
+  postTitle: string
   content: string | null | undefined
   created_time: string
   link: string
