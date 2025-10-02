@@ -9,7 +9,6 @@ export class SpinClient {
       baseURL: import.meta.env.VITE_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'SpinClient'
       }
     })
     this.axiosInstance.interceptors.request.use(function (config) {
@@ -18,7 +17,7 @@ export class SpinClient {
     })
   }
 
-  public getData<T>(resource: string, params?: {[key: string]: string | number}): Promise<T> {
+  public async getData<T>(resource: string, params?: { [key: string]: string | number }): Promise<T> {
     let queryString = ''
     if(params) {
       queryString = this._queryStringBuilder(params)

@@ -107,3 +107,13 @@ export type Records = {
   label: string[]
   resource_url: string
 }
+
+export type RecordsResult = {
+  items: Records[],
+  cursor: string | null
+}
+
+export type SearchResult = {
+  results: (Artist | Release | Master)[]
+  cursor: string | null
+}

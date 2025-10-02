@@ -1,10 +1,10 @@
-import React, {type ChangeEventHandler, useState} from 'react'
+import React, { type ChangeEventHandler, useEffect, useState } from 'react'
 import type { Route } from '../+types/root'
 import HomeNavbar from '~/components/HomeNavbar'
 import debounce from 'lodash/debounce'
-import type {Records} from '~/types'
-import ReleaseCard from '~/components/ReleaseCard'
-import {Card} from '~/components/Card'
+import type { Records, RecordsResult } from '~/types'
+import { Card } from '~/components/Card'
+import { SpinClient } from '~/api/client'
 
 
 export function meta({}: Route.MetaArgs) {
@@ -16,8 +16,20 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Browse() {
 
-  const [highlighted, setHighlighted] = useState<Partial<Records>[] | null>(null)
+  const [highlighted, setHighlighted] = useState<Records[] | null>(null)
   const [data, setData] = useState<Records[] | null>(null)
+
+  const client = new SpinClient()
+
+  useEffect(() => {
+    const getReleases = async () => {
+      const data = await client.getData<RecordsResult>('public?count=20')
+      setData(data.items)
+      setHighlighted(data.items)
+    }
+
+    getReleases().catch()
+  }, [])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     console.log(e.target.value)
@@ -49,11 +61,11 @@ export default function Browse() {
           />
         </div>
         <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] items-center'>
-          <Card/>
-          <Card/>
-          <Card/>
-          <Card/>
-          <Card/>
+          {
+            highlighted?.map((x, index) => {
+              return <Card key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre} storeLink={x.link}/>
+            })
+          }
         </div>
       </div>
     </main>

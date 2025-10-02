@@ -10,9 +10,10 @@ import type {
   LabelNotification,
   Master,
   Release,
-  ReleaseNotification
+  ReleaseNotification, SearchResult
 } from '~/types'
-import {Tags} from '~/components/Tags'
+import { Tags } from '~/components/Tags'
+import { SpinClient } from '~/api/client'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,9 +24,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Filters() {
 
-  const returnEndpoint = (term: string) => {
-    return `https://jl8iq2i3k8.execute-api.us-west-2.amazonaws.com/prod/search/search?q=${term}`
-  }
+  const client = new SpinClient()
 
   const [results, setResults] = useState<(Artist | Release | Master)[]>([])
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
@@ -34,9 +33,9 @@ export default function Filters() {
   const [allTags, setAllTags] = useState<AllNotifications[]>([])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
-    const data = await fetch(returnEndpoint(e.target.value))
-    const dataJson = await data.json()
-    const filteredResults = dataJson.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
+    const data = await client.getData<SearchResult>(`search/search?q=${e.target.value}`)
+    console.log(data)
+    const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
     setResults(filteredResults)
   }
 

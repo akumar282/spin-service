@@ -15,11 +15,12 @@ export default defineConfig([
     rules: {
       '@stylistic/quotes': ['error', 'single'],
       '@stylistic/semi': ['error', 'never'],
-      '@stylistic/jsx-quotes': ['error', 'prefer-single']
+      '@stylistic/jsx-quotes': ['error', 'prefer-single'],
+      'object-curly-spacing': ['error', 'always']
     },
     extends: ['js/recommended'],
     languageOptions: {
-      globals: {...globals.browser, ...globals.node}
+      globals: { ...globals.browser, ...globals.node }
     }
   },
   tseslint.configs.recommended,
