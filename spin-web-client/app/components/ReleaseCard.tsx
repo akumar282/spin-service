@@ -22,15 +22,15 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         <img
           alt='cover'
           className=''
-          src='https://upload.wikimedia.org/wikipedia/commons/0/0e/Playboi_Carti_-_Music_album_cover.svg'
+          src={props.linkTo}
         />
       </div>
       <div className='w-[90%] mt-1 mx-auto'>
         <h1 className='text-wrap truncate text-lg'>
-          Music
+          {props.title}
         </h1>
         <h3 className='truncate italic'>
-          Playboi Carti
+          {props.artist}
         </h3>
       </div>
       <div className='w-[90%] mx-auto mt-3 flex justify-center'>

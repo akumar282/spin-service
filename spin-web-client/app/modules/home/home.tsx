@@ -4,12 +4,27 @@ import alarm from './alarm.svg'
 import settings from './settings.svg'
 import HomeNavbar from '~/components/HomeNavbar'
 import { useNavigate } from 'react-router'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ReleaseCard from '~/components/ReleaseCard'
+import type { Records, RecordsResult } from '~/types'
+import { SpinClient } from '~/api/client'
 
 export function Home() {
 
   const navigate = useNavigate()
+
+  const [data, setData] = useState<Records[] | null>(null)
+
+  const client = new SpinClient()
+
+  useEffect(() => {
+    const getReleases = async () => {
+      const data = await client.getData<RecordsResult>('public?count=10')
+      setData(data.items)
+    }
+
+    getReleases().catch()
+  }, [])
 
   return (
     <main
@@ -57,26 +72,11 @@ export function Home() {
       <div className='items-center max-w-[1500px] w-11/12 mt-2'>
         <div className='overflow-x-auto rounded-2xl'>
           <div className='flex gap-4 mt-1 pb-2 px-1.5'>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
-            <ReleaseCard preOrder title='Music' artist='Playboi Carti'
-                         linkTo='https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album)' upcoming={false}/>
+            {
+              data?.map((x, index) => {
+                return <ReleaseCard preOrder upcoming={false} key={index} artist={x.artist!} title={x.title} linkTo={x.thumbnail!}/>
+              })
+            }
           </div>
         </div>
       </div>
