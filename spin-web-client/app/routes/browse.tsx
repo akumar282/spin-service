@@ -16,8 +16,9 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Browse() {
 
-  const [highlighted, setHighlighted] = useState<Records[] | null>(null)
-  const [data, setData] = useState<Records[] | null>(null)
+  const [highlighted, setHighlighted] = useState<Records[]>([])
+  const [data, setData] = useState<Records[]>([])
+  const [cursor, setCursor] = useState<string | null>(null)
 
   const client = new SpinClient()
 
@@ -26,10 +27,18 @@ export default function Browse() {
       const data = await client.getData<RecordsResult>('public?count=20')
       setData(data.items)
       setHighlighted(data.items)
+      setCursor(data.cursor)
     }
 
     getReleases().catch()
   }, [])
+
+  const useRequery = async () => {
+    const newData = await client.getData<RecordsResult>(`public?count=20&cursor=${cursor}`)
+    setCursor(newData.cursor)
+    setData([...data, ...newData.items])
+    setHighlighted([...highlighted, ...newData.items])
+  }
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     console.log(e.target.value)
@@ -45,14 +54,14 @@ export default function Browse() {
     <main
       className='flex flex-col font-primary dark:text-black items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
       <HomeNavbar/>
-      <div className='max-w-[1500px] space-y-2 flex flex-col w-11/12 mt-10 dark:text-white'>
+      <div className='max-w-[1500px] space-y-2 flex flex-col w-11/12 mt-10 mb-10 dark:text-white'>
         <h1 className='text-2xl'>
           Latest Releases
         </h1>
         <h3>
           Items here have released in the past 24 hours
         </h3>
-        <div>
+        <div className='mt-1 mb-4'>
           <input
             className='text-start py-1 bg-slate-100 text-black text-base mt-3 rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-600 w-full'
             placeholder='Search for recent releases'
@@ -67,6 +76,13 @@ export default function Browse() {
             })
           }
         </div>
+        {cursor !== null ?
+          <button className='bg-blue-700 mx-auto mt-6 lg:w-2/12 w-[97%] rounded-lg px-2 py-2 text-white' onClick={() => useRequery()}>
+            See More
+          </button>
+          :
+          <></>
+        }
       </div>
     </main>
   )

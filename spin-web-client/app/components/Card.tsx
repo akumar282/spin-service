@@ -6,7 +6,7 @@ interface CardProps {
   color: string | null | undefined
   genre: string[]
   storeLink: string
-  image: string
+  image: string | null
 }
 
 const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
@@ -15,11 +15,11 @@ function getRandomInt(max: number) {
   return Math.floor(Math.random() * max)
 }
 
-function generateTags(x: string) {
+function generateTags(x: string, key: number) {
   const colors = ['indigo', 'green', 'orange']
   const color = colors.at(getRandomInt(colors.length))
   return (
-    <div className={`rounded-4xl text-sm bg-${color}-300  px-2 py-1 break-words`}>
+    <div key={key} className={`rounded-4xl text-sm bg-${color}-300  px-2 py-1 break-words`}>
       {x}
     </div>
   )
@@ -35,7 +35,7 @@ export function Card(props: CardProps) {
             New Release
           </h1>
         </button>
-        <div className='aspect-square h-24 w-24 lg:h-32 lg:w-32 mb-2 mx-auto rounded'>
+        <div className='aspect-square h-24 w-24 md:h-32 md:w-32 lg:h-32 lg:w-32 mb-2 mx-auto rounded'>
           <img
             alt='cover'
             src={props.image ?? alternateImage}
@@ -51,7 +51,7 @@ export function Card(props: CardProps) {
           </h1>
           <div className='flex flex-wrap mt-3 justify-center mx-2 gap-2'>
             {
-              props.genre !== undefined ? props.genre.map((x) => generateTags(x)) : <></>
+              props.genre !== undefined ? props.genre.map((x, index) => generateTags(x , index)) : <></>
             }
           </div>
         </div>
