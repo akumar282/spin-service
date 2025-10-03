@@ -8,9 +8,11 @@ interface ReleaseCardProps {
   linkTo: string
 }
 
+const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
+
 export default function ReleaseCard(props: ReleaseCardProps) {
   return (
-    <div className='dark:bg-slate-300 transition ease-in-out mx-3 lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-68 flex-shrink-0 lg:w-52 h-60 w-44'>
+    <div className='dark:bg-slate-300 transition ease-in-out mx-3 lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-76 flex-shrink-0 lg:w-54 h-64 w-44'>
       <div>
         <button className='dark:bg-indigo-300 bg-orange-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
           <h1>
@@ -22,18 +24,18 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         <img
           alt='cover'
           className=''
-          src={props.linkTo}
+          src={props.linkTo !== '' ? props.linkTo : alternateImage}
         />
       </div>
       <div className='w-[90%] mt-1 mx-auto'>
-        <h1 className='text-wrap truncate text-lg'>
+        <h1 className='text-wrap max-h-13 truncate text-md'>
           {props.title}
         </h1>
-        <h3 className='truncate italic'>
+        <h3 className='truncate italic text-sm'>
           {props.artist}
         </h3>
       </div>
-      <div className='w-[90%] mx-auto mt-3 flex justify-center'>
+      <div className='w-[90%] mt-auto mx-auto mb-3 flex justify-center'>
         <button className='dark:bg-indigo-300 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
           Get Notified
         </button>
