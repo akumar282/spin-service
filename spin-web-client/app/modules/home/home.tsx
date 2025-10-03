@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 import ReleaseCard from '~/components/ReleaseCard'
 import type { Records, RecordsResult } from '~/types'
 import { SpinClient } from '~/api/client'
+import SeeMore from '~/components/SeeMore'
 
 export function Home() {
 
@@ -77,6 +78,7 @@ export function Home() {
                 return <ReleaseCard preOrder upcoming={false} key={index} artist={x.artist!} title={x.title} linkTo={x.thumbnail!}/>
               })
             }
+            <SeeMore/>
           </div>
         </div>
       </div>
