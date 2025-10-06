@@ -27,9 +27,9 @@ export const cookies = (
   refreshToken: string | undefined
 ) => {
   return [
-    `accessToken=${accessToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`,
-    `idToken=${idToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=3600`,
-    `refreshToken=${refreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=2592000`,
+    `accessToken=${accessToken}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`,
+    `idToken=${idToken}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=3600`,
+    `refreshToken=${refreshToken}; HttpOnly; Secure; Path=/; SameSite=None; Max-Age=2592000`,
   ]
 }
 
@@ -103,4 +103,19 @@ export const CORS_HEADERS = {
   'Access-Control-Allow-Headers':
     'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
   'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+}
+
+export const DYNAMIC_CORS = (host: string) => {
+  const allowedOrigins = ['http://localhost:5173', 'https://spinmyrecords.com']
+
+  const allowOrigin = allowedOrigins.includes(host ?? '')
+    ? host
+    : allowedOrigins[0]
+
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers':
+      'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+  }
 }

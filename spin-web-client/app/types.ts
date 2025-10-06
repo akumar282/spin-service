@@ -117,3 +117,17 @@ export type SearchResult = {
   results: (Artist | Release | Master)[]
   cursor: string | null
 }
+
+export type AuthRequest = {
+  type: 'login' | 'new_user'
+  platform: 'mobile' | 'web'
+  credentials: {
+    username: string
+    password: string
+  }
+  clientId: string
+}
+
+export type AuthResponse = {
+  status: number
+}

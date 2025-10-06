@@ -11,9 +11,9 @@ const BASE_URL =
 const rawPostsQueue: HTMLElement[] = []
 const pushPostsQueue: Partial<PostInfo>[] = []
 
-const ProxyIp = getEnv('PROXY_IP')
-
-const proxyAgent = new HttpsProxyAgent(ProxyIp)
+// const ProxyIp = getEnv('PROXY_IP')
+//
+// const proxyAgent = new HttpsProxyAgent(ProxyIp)
 
 type PostInfo = {
   postTitle: string | null | undefined,
@@ -38,7 +38,7 @@ type PostInfo = {
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
   try {
     const data = await axios.get(endpoint, {
-      httpsAgent: proxyAgent,
+      // httpsAgent: proxyAgent,
       headers: {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -160,9 +160,9 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
 
 async function main() {
   try {
-    if(ProxyIp) {
-      console.info('Proxy Loaded: ' + ProxyIp)
-    }
+    // if(ProxyIp) {
+    //   console.info('Proxy Loaded: ' + ProxyIp)
+    // }
     const endpointUrl = getEnv('API_URL')
     await getRawPosts(BASE_URL)
     mapToAttributes(rawPostsQueue)

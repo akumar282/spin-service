@@ -13,6 +13,9 @@ export class SpinClient {
     })
     this.axiosInstance.interceptors.request.use(function (config) {
       config.headers.Authorization = `Bearer ${Cookies.get('idToken')}`
+      if (config.url?.includes('/public/auth')) {
+        config.withCredentials = true
+      }
       return config
     })
   }

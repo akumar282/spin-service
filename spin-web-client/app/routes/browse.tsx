@@ -77,7 +77,7 @@ export default function Browse() {
           }
         </div>
         {cursor !== null ?
-          <button className='bg-blue-700 mx-auto mt-6 lg:w-2/12 w-[97%] rounded-lg px-2 py-2 text-white' onClick={() => useRequery()}>
+          <button className='dark:bg-blue-700 bg-orange-500 mx-auto mt-6 lg:w-2/12 w-[97%] rounded-lg px-2 py-2 text-white' onClick={() => useRequery()}>
             See More
           </button>
           :

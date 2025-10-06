@@ -35,6 +35,7 @@ import {
 } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
 import { Api } from './apigateway/api'
+import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
@@ -55,7 +56,7 @@ export class SpinServiceStack extends Stack {
         restApiName: 'spinRecordsApi',
         description: 'Master api for data ingestion, and user endpoints',
         defaultCorsPreflightOptions: {
-          allowOrigins: apigateway.Cors.ALL_ORIGINS,
+          allowOrigins: ['http://localhost:5173', 'https://spinmyrecords.com'],
           allowMethods: apigateway.Cors.ALL_METHODS,
           allowHeaders: [
             'Content-Type',
@@ -160,6 +161,10 @@ export class SpinServiceStack extends Stack {
       },
       accountRecovery: cognito.AccountRecovery.NONE,
       selfSignUpEnabled: true,
+      customAttributes: {
+        role: new cognito.StringAttribute({ mutable: true }),
+        version: new cognito.NumberAttribute({ mutable: true }),
+      },
     })
 
     const userPoolClient = userPool.addClient('SpinClient', {
@@ -220,6 +225,11 @@ export class SpinServiceStack extends Stack {
         },
         level: 'TRACE',
       },
+    })
+
+    new StringParameter(this, 'OpenSearchEndpoint', {
+      parameterName: '/machineKey',
+      stringValue: 'poopyMcButts',
     })
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
@@ -339,6 +349,17 @@ export class SpinServiceStack extends Stack {
       }
     )
 
+    // const robotAuthorizerLambda = new lambda.Function(
+    //   this,
+    //   'fargateAuthorizerLambda',
+    //   {
+    //     runtime: lambda.Runtime.NODEJS_20_X,
+    //     code: lambda.Code.fromAsset('dist/fargateAuthorizerLambda'),
+    //     handler: 'index.handler',
+    //     timeout: Duration.seconds(10),
+    //   }
+    // )
+
     recordsTable.grantReadWriteData(streamLambda)
     recordsTable.grantStreamRead(streamLambda)
     usersTable.grantReadWriteData(streamLambda)
@@ -419,6 +440,15 @@ export class SpinServiceStack extends Stack {
       }
     )
 
+    // const privateAuthorizer = new apigateway.TokenAuthorizer(
+    //   this,
+    //   'PrivateTokenAuthorizer',
+    //   {
+    //     handler: robotAuthorizerLambda,
+    //     resultsCacheTtl: Duration.hours(1),
+    //   }
+    // )
+
     recordsApi.addResources([
       {
         pathPart: 'raw',
@@ -426,6 +456,9 @@ export class SpinServiceStack extends Stack {
           {
             method: 'POST',
             integration: rawDataIntegration,
+            // options: {
+            //   authorizer: privateAuthorizer,
+            // },
           },
         ],
         resources: [
@@ -500,9 +533,9 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: userIntegration,
-                options: {
-                  authorizer: publicAuthorizer,
-                },
+                // options: {
+                //   authorizer: publicAuthorizer,
+                // },
               },
             ],
             resources: [
@@ -511,6 +544,13 @@ export class SpinServiceStack extends Stack {
                 methods: [
                   {
                     method: 'GET',
+                    integration: userIntegration,
+                    options: {
+                      authorizer: publicAuthorizer,
+                    },
+                  },
+                  {
+                    method: 'PATCH',
                     integration: userIntegration,
                     options: {
                       authorizer: publicAuthorizer,

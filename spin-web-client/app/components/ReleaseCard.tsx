@@ -24,7 +24,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         <img
           alt='cover'
           className=''
-          src={props.linkTo !== '' ? props.linkTo : alternateImage}
+          src={props.linkTo !== null ? props.linkTo : alternateImage}
         />
       </div>
       <div className='w-[90%] mt-1 mx-auto'>

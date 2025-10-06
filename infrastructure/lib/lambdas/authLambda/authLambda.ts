@@ -53,7 +53,9 @@ export async function handler(
         return apiResponse(
           'Login Successful',
           200,
-          cookies(AccessToken, IdToken, RefreshToken)
+          cookies(AccessToken, IdToken, RefreshToken),
+          true,
+          event.headers.origin
         )
       }
     } else if (body.type === 'new_user') {
@@ -85,7 +87,7 @@ export async function handler(
         const register = await CreateUser(result.UserSub, username, docClient)
 
         if (!register) {
-          return apiResponse('User Creation Failure', 500)
+          return apiResponse('User Creation Failure', 500, undefined, true)
         }
 
         const loginCommand = await cognitoClient.send(
@@ -105,11 +107,13 @@ export async function handler(
           return apiResponse(
             'Login Successful',
             200,
-            cookies(AccessToken, IdToken, RefreshToken)
+            cookies(AccessToken, IdToken, RefreshToken),
+            true,
+            event.headers.origin
           )
         }
       }
     }
   }
-  return apiResponse('Invalid Body Provided', 400)
+  return apiResponse('Invalid Body Provided', 400, undefined, true)
 }
