@@ -64,7 +64,8 @@ export async function handler(
               },
               200,
               undefined,
-              true
+              true,
+              event.headers.origin
             )
           } catch (e) {
             console.log(e)
@@ -74,7 +75,8 @@ export async function handler(
               },
               300,
               undefined,
-              true
+              true,
+              event.headers.origin
             )
           }
         }

@@ -36,6 +36,7 @@ import {
 import { CdkExtendedProps } from './cdkExtendedProps'
 import { Api } from './apigateway/api'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
+import { gatewayRole } from './iam/gatewayRole'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
@@ -56,7 +57,14 @@ export class SpinServiceStack extends Stack {
         restApiName: 'spinRecordsApi',
         description: 'Master api for data ingestion, and user endpoints',
         defaultCorsPreflightOptions: {
-          allowOrigins: ['http://localhost:5173', 'https://spinmyrecords.com'],
+          allowOrigins: [
+            'http://localhost:5173',
+            'https://localhost:5173',
+            'http://localhost:8080',
+            'https://localhost:8080',
+            'https://spinmyrecords.com',
+            'https://dev.spinmyrecords.com',
+          ],
           allowMethods: apigateway.Cors.ALL_METHODS,
           allowHeaders: [
             'Content-Type',
@@ -330,6 +338,18 @@ export class SpinServiceStack extends Stack {
       },
     })
 
+    const sessionLambda = new lambda.Function(this, 'sessionLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('dist/sessionLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+      environment: {
+        WEB_CLIENT_ID: userPoolClient.userPoolClientId,
+        MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
+        USER_POOL_ID: userPool.userPoolId,
+      },
+    })
+
     const publicAuthorizerLambda = new lambda.Function(
       this,
       'authorizerLambda',
@@ -421,6 +441,7 @@ export class SpinServiceStack extends Stack {
     )
 
     const authIntegration = new apigateway.LambdaIntegration(authLambda)
+    const sessionIntegration = new apigateway.LambdaIntegration(sessionLambda)
     const userIntegration = new apigateway.LambdaIntegration(userLambda)
     const refreshIntegration = new apigateway.LambdaIntegration(refreshLambda)
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
@@ -431,12 +452,17 @@ export class SpinServiceStack extends Stack {
       publicHandler
     )
 
-    const publicAuthorizer = new apigateway.TokenAuthorizer(
+    const publicAuthorizer = new apigateway.RequestAuthorizer(
       this,
-      'PublicTokenAuthorizer',
+      'PublicAuthorizer',
       {
+        identitySources: [
+          apigateway.IdentitySource.header('Cookie'),
+          apigateway.IdentitySource.header('Authorization'),
+        ],
         handler: publicAuthorizerLambda,
         resultsCacheTtl: Duration.hours(1),
+        assumeRole: gatewayRole(this),
       }
     )
 
@@ -512,6 +538,15 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: authIntegration,
+              },
+            ],
+          },
+          {
+            pathPart: 'session',
+            methods: [
+              {
+                method: 'GET',
+                integration: sessionIntegration,
               },
             ],
           },

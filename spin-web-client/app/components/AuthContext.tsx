@@ -1,6 +1,8 @@
-import React, {createContext, type Dispatch, type SetStateAction, useEffect, useState} from 'react'
+import React, { createContext, type Dispatch, type SetStateAction, useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
+import { SpinClient } from '~/api/client'
+import type { SessionResponse } from '~/types'
 
 export type UserContext = {
   sub: string
@@ -29,25 +31,21 @@ export default function AuthWrapper({ children }: WrapperProps) {
     clientId: import.meta.env.VITE_CLIENT_ID as string,
   })
 
+  const client = new SpinClient()
+
   useEffect(() => {
-    const verifyParseToken = async (token: string) => {
-      const payload = await verifier.verify(token)
+    const verifySession = async () => {
+      const data = await client.getData<SessionResponse>('public/session')
+      const decode = atob(data.token)
+      const payload = await verifier.verify(decode)
       const info : UserContext = {
         sub: payload.sub,
-        token: token,
+        token: decode,
         username: payload['cognito:username']
       }
       setUserContext(info)
     }
-
-    const tokenCookie = Cookies.get('idToken')
-    if (tokenCookie) {
-      try {
-        verifyParseToken(tokenCookie).catch()
-      } catch {
-        setUserContext(null)
-      }
-    }
+    verifySession().catch()
   }, [])
 
   return (

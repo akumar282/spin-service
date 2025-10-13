@@ -9,13 +9,11 @@ export class SpinClient {
       baseURL: import.meta.env.VITE_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+      withCredentials: true
     })
     this.axiosInstance.interceptors.request.use(function (config) {
       config.headers.Authorization = `Bearer ${Cookies.get('idToken')}`
-      if (config.url?.includes('/public/auth')) {
-        config.withCredentials = true
-      }
       return config
     })
   }

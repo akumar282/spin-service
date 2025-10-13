@@ -103,10 +103,18 @@ export const CORS_HEADERS = {
   'Access-Control-Allow-Headers':
     'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
   'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+  'Access-Control-Allow-Credentials': 'true',
 }
 
 export const DYNAMIC_CORS = (host: string) => {
-  const allowedOrigins = ['http://localhost:5173', 'https://spinmyrecords.com']
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://localhost:5173',
+    'http://localhost:8080',
+    'https://localhost:8080',
+    'https://spinmyrecords.com',
+    'https://dev.spinmyrecords.com',
+  ]
 
   const allowOrigin = allowedOrigins.includes(host ?? '')
     ? host
@@ -116,6 +124,7 @@ export const DYNAMIC_CORS = (host: string) => {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers':
       'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+    'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,PATCH,DELETE',
+    'Access-Control-Allow-Credentials': 'true',
   }
 }

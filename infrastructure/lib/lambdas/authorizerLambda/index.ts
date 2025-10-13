@@ -1,6 +1,6 @@
 import {
   APIGatewayAuthorizerResult,
-  APIGatewayTokenAuthorizerEvent,
+  APIGatewayRequestAuthorizerEvent,
 } from 'aws-lambda'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { getEnv } from '../../shared/utils'
@@ -8,9 +8,27 @@ import { generatePolicy } from './functions'
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model'
 
 export async function handler(
-  event: APIGatewayTokenAuthorizerEvent
+  event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> {
-  const token = event.authorizationToken
+  let token
+  if (event.headers?.Authorization) {
+    token = event.headers.Authorization.replace('Bearer', '')
+  } else if (event.headers?.Cookie) {
+    const cookies = event.headers.Cookie
+    const parsed = Object.fromEntries(
+      cookies.split(';').map((cookie) => {
+        const [key, value] = cookie.trim().split('=')
+        return [key, decodeURIComponent(value)]
+      })
+    )
+    token = parsed.id
+  } else {
+    return generatePolicy(
+      'User',
+      'Deny',
+      event.methodArn
+    ) as APIGatewayAuthorizerResult
+  }
   const verifier = CognitoJwtVerifier.create({
     clientId: [getEnv('WEB_CLIENT_ID'), getEnv('MOBILE_CLIENT_ID')],
     userPoolId: getEnv('USER_POOL_ID'),
@@ -18,7 +36,7 @@ export async function handler(
   })
   try {
     const payload: CognitoIdTokenPayload = await verifier.verify(token)
-    if (payload['custom:role'] === 'user' && payload.exp > Date.now()) {
+    if (payload['custom:role'] === 'user' && payload.exp * 1000 > Date.now()) {
       return generatePolicy(
         payload.sub,
         'Allow',

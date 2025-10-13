@@ -87,7 +87,13 @@ export async function handler(
         const register = await CreateUser(result.UserSub, username, docClient)
 
         if (!register) {
-          return apiResponse('User Creation Failure', 500, undefined, true)
+          return apiResponse(
+            'User Creation Failure',
+            500,
+            undefined,
+            true,
+            event.headers.origin
+          )
         }
 
         const loginCommand = await cognitoClient.send(

@@ -19,7 +19,7 @@ export async function handler(event: APIGatewayProxyEvent) {
     const data = await discogsResponse.json()
     delete data.pagination
 
-    return apiResponse(data, 200, undefined, true)
+    return apiResponse(data, 200, undefined, true, event.headers.origin)
   }
-  return apiResponse('Server Error', 500, undefined, true)
+  return apiResponse('Server Error', 500, undefined, true, event.headers.origin)
 }

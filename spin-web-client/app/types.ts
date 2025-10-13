@@ -131,3 +131,7 @@ export type AuthRequest = {
 export type AuthResponse = {
   status: number
 }
+
+export type SessionResponse = {
+  token: string
+}

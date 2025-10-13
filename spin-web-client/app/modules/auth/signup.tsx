@@ -40,8 +40,6 @@ export function SignUpComponent() {
     },
   })
 
-
-
   return (
     <main>
       <div className='font-primary flex flex-col bg-orange-100 h-dvh w-full flex dark:bg-slate-900'>
