@@ -1,8 +1,8 @@
-import React, { createContext, type Dispatch, type SetStateAction, useEffect, useState } from 'react'
+import React, { createContext, type Dispatch, type SetStateAction, useContext, useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { SpinClient } from '~/api/client'
-import type { SessionResponse } from '~/types'
+import type { SessionResponse, User } from '~/types'
 
 export type UserContext = {
   sub: string
@@ -43,8 +43,10 @@ export default function AuthWrapper({ children }: WrapperProps) {
         token: decode,
         username: payload['cognito:username']
       }
+      localStorage.setItem('id', decode)
       setUserContext(info)
     }
+
     verifySession().catch()
   }, [])
 

@@ -1,6 +1,9 @@
 import type { Route } from './+types/home'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
+import { SpinClient } from '~/api/client'
+import { AuthContext } from '~/components/AuthContext'
+import type { User } from '~/types'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,6 +13,20 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function User() {
+  const userContext = useContext(AuthContext)
+  // const [userData, ]
+
+  const client = new SpinClient()
+  useEffect(() => {
+    const fetchUser = async () => {
+
+      const data = await client.getData<User>(`public/user/${userContext?.user?.sub}`)
+      console.log(data)
+    }
+
+    fetchUser().catch()
+  }, [userContext])
+
   return (
     <main>
       <div

@@ -135,3 +135,16 @@ export type AuthResponse = {
 export type SessionResponse = {
   token: string
 }
+
+export type User = {
+  id: string
+  email: string
+  phone?: string
+  user_name: string
+  notifyType: string[]
+  genres: string[]
+  labels: string[]
+  artists: string[]
+  albums: string[]
+  deviceId?: string
+}

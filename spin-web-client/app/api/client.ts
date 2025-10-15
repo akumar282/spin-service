@@ -1,5 +1,4 @@
 import axios from 'axios'
-import Cookies from 'js-cookie'
 
 export class SpinClient {
   readonly axiosInstance
@@ -13,7 +12,7 @@ export class SpinClient {
       withCredentials: true
     })
     this.axiosInstance.interceptors.request.use(function (config) {
-      config.headers.Authorization = `Bearer ${Cookies.get('idToken')}`
+      config.headers.Authorization = `Bearer ${localStorage.getItem('id')}`
       return config
     })
   }
@@ -29,7 +28,7 @@ export class SpinClient {
       .catch(err => { throw new Error('Request Failed with message: ' + err)})
   }
 
-  public postData<T>(resource: string, body?: object): Promise<T> {
+  public async postData<T>(resource: string, body?: object): Promise<T> {
     return this.axiosInstance
       .post(resource, body)
       .then((response) => response.data)
