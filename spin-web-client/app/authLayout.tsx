@@ -2,11 +2,11 @@ import {
   isRouteErrorResponse,
   Outlet, useNavigate,
 } from 'react-router'
-import React, {useContext} from 'react'
+import React, { useContext } from 'react'
 
 import type { Route } from './+types/root'
 import './app.css'
-import {AuthContext} from '~/components/AuthContext'
+import { AuthContext } from '~/components/AuthContext'
 
 export default function AuthLayout() {
   const navigate = useNavigate()

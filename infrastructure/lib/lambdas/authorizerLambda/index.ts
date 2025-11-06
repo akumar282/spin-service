@@ -11,8 +11,11 @@ export async function handler(
   event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> {
   let token
+  console.log(event)
   if (event.headers?.Authorization) {
-    token = event.headers.Authorization.replace('Bearer', '')
+    console.log(event.headers.Authorization)
+    token = event.headers.Authorization.slice(7)
+    console.log(token)
   } else if (event.headers?.Cookie) {
     const cookies = event.headers.Cookie
     const parsed = Object.fromEntries(
@@ -21,7 +24,7 @@ export async function handler(
         return [key, decodeURIComponent(value)]
       })
     )
-    token = parsed.id
+    token = parsed.idToken
   } else {
     return generatePolicy(
       'User',

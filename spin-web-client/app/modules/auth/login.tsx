@@ -3,7 +3,7 @@ import OAuthButtons from '~/components/OAuthButton'
 import google from './assets/google.svg'
 import orline from './assets/orline.png'
 import { useNavigate } from 'react-router'
-import React, { useState } from 'react'
+import React from 'react'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
 import { SignUp } from '~/functions'
@@ -33,7 +33,9 @@ export function LoginComponent() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       const result = await SignUp(values.username, values.password, 'login')
-      console.log(result)
+      if (result === 200) {
+        navigate('/home')
+      }
     },
   })
 

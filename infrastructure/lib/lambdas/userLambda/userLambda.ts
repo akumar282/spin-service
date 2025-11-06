@@ -15,6 +15,7 @@ const docClient = DynamoDBDocumentClient.from(client)
 export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
+  console.log(event)
   const id = event.pathParameters?.id
   if (id !== undefined) {
     switch (event.httpMethod) {
@@ -29,7 +30,10 @@ export async function handler(
           {
             data: item,
           },
-          200
+          200,
+          undefined,
+          true,
+          event.headers.origin
         )
       }
       case 'PATCH': {
