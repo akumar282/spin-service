@@ -112,3 +112,10 @@ export type OpenSearchUserResult = {
     }[]
   }
 }
+
+export type ResponseBody = {
+  headers?: object
+  multiValueHeaders?: object
+  body: string
+  statusCode: number
+}

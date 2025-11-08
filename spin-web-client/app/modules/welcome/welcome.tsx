@@ -1,6 +1,7 @@
 import spinLogo from './spinLogo.png'
 import spinLogoDark from './spinLogoDark.png'
 import { useNavigate } from 'react-router'
+import React from 'react'
 
 export function Welcome() {
 

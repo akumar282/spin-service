@@ -1,5 +1,6 @@
 import { CORS_HEADERS, DYNAMIC_CORS } from '../shared/utils'
 
+/** @deprecated use ResponseBuilder */
 export function apiResponse(
   message: any,
   statusCode: number,

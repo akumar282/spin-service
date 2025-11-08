@@ -5,9 +5,9 @@ import {
   UpdateCommand,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { apiResponse } from '../../apigateway/responses'
 import { getEnv, getItem } from '../../shared/utils'
 import { User } from '../../apigateway/types'
+import { ResponseBuilder } from '../../apigateway/response'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -17,6 +17,7 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   console.log(event)
   const id = event.pathParameters?.id
+  const response = new ResponseBuilder('').addCors(event.headers.origin)
   if (id !== undefined) {
     switch (event.httpMethod) {
       case 'GET': {
@@ -24,17 +25,9 @@ export async function handler(
           ':id': id,
         })
         if (item === null) {
-          return apiResponse(`No user found with id: ${id}`, 404)
+          return response.addStatus(404).response
         }
-        return apiResponse(
-          {
-            data: item,
-          },
-          200,
-          undefined,
-          true,
-          event.headers.origin
-        )
+        return response.addBody({ data: item }).addStatus(200).response
       }
       case 'PATCH': {
         if (event.body) {
@@ -68,17 +61,17 @@ export async function handler(
               'SET #no = :no, #ge = :ge, #la = :la, #art = :art, #al = :al, #em = :em, #pho = :pho',
           }
           const command = new UpdateCommand(input)
-          const response = await docClient.send(command)
-          return apiResponse(response, 200)
+          const data = await docClient.send(command)
+          return response.addBody(data).addStatus(200).response
         } else {
-          return apiResponse('Malformed request', 400)
+          return response.addBody('').addStatus(500).response
         }
       }
       default: {
-        return apiResponse('invalid method', 405)
+        return response.addBody('').addBody(400).response
       }
     }
   } else {
-    return apiResponse('id missing from Path Parameters', 400)
+    return response.addBody('Missing path parameters').addStatus(500).response
   }
 }
