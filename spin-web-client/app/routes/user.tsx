@@ -1,10 +1,11 @@
 import type { Route } from './+types/home'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import { SpinClient } from '~/api/client'
 import { AuthContext } from '~/components/AuthContext'
 import type { User } from '~/types'
 import LoadingScreen from '~/components/LoadingScreen'
+import { useFormik } from 'formik'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,7 +16,14 @@ export function meta({}: Route.MetaArgs) {
 
 export default function User() {
   const userContext = useContext(AuthContext)
-  // const [userData, ]
+  const [userData, setUserData] = useState<User| null>(null)
+
+  const formik = useFormik({
+    initialValues: {
+      emailAddress: '',
+      phone: '',
+    }
+  })
 
   const client = new SpinClient()
   useEffect(() => {
@@ -23,14 +31,14 @@ export default function User() {
     const fetchUser = async () => {
 
       const data = await client.getData<User>(`public/user/${userContext?.user?.sub}`)
-      console.log(data)
+      setUserData(data)
     }
 
     fetchUser().catch()
   }, [userContext])
 
   return (
-    !userContext ? (
+    !userContext || !userData ? (
       <LoadingScreen />
     ) : (
       <main>
@@ -44,6 +52,7 @@ export default function User() {
                   <input
                     className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
                     type='text'
+                    placeholder={userData.data.email}
                   />
                   <h3>Email Address</h3>
                 </div>
@@ -51,6 +60,7 @@ export default function User() {
                   <input
                     className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
                     type='text'
+                    placeholder={userData.data.phone}
                   />
                   <h3>Phone</h3>
                 </div>

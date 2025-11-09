@@ -8,9 +8,15 @@ import {
 import { getEnv, getItem } from '../../shared/utils'
 import { User } from '../../apigateway/types'
 import { ResponseBuilder } from '../../apigateway/response'
+import { updateAttributes } from './attributes'
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
+const cognitoClient = new CognitoIdentityProviderClient({
+  maxAttempts: 3,
+  region: 'us-west-2',
+})
 
 export async function handler(
   event: APIGatewayProxyEvent
@@ -25,9 +31,9 @@ export async function handler(
           ':id': id,
         })
         if (item === null) {
-          return response.addStatus(404).response
+          return response.addStatus(404).build()
         }
-        return response.addBody({ data: item }).addStatus(200).response
+        return response.addBody({ data: item }).addStatus(200).build()
       }
       case 'PATCH': {
         if (event.body) {
@@ -60,18 +66,24 @@ export async function handler(
             UpdateExpression:
               'SET #no = :no, #ge = :ge, #la = :la, #art = :art, #al = :al, #em = :em, #pho = :pho',
           }
+          const attr = await updateAttributes(
+            cognitoClient,
+            id,
+            body.email || '',
+            body.phone || ''
+          )
           const command = new UpdateCommand(input)
           const data = await docClient.send(command)
-          return response.addBody(data).addStatus(200).response
+          return response.addBody(data).addStatus(200).build()
         } else {
-          return response.addBody('').addStatus(500).response
+          return response.addBody('Update Failed').addStatus(500).build()
         }
       }
       default: {
-        return response.addBody('').addBody(400).response
+        return response.addBody('').addBody(400).build()
       }
     }
   } else {
-    return response.addBody('Missing path parameters').addStatus(500).response
+    return response.addBody('Missing path parameters').addStatus(500).build()
   }
 }

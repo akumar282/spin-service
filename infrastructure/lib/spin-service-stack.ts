@@ -324,6 +324,7 @@ export class SpinServiceStack extends Stack {
       timeout: Duration.seconds(10),
       environment: {
         TABLE_NAME: usersTable.tableName,
+        USER_POOL_ID: userPool.userPoolId,
       },
     })
 

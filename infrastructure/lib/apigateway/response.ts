@@ -51,4 +51,8 @@ export class ResponseBuilder {
     this.response.statusCode = status
     return this
   }
+
+  public build() {
+    return this.response
+  }
 }
