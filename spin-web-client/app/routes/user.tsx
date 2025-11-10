@@ -18,13 +18,6 @@ export default function User() {
   const userContext = useContext(AuthContext)
   const [userData, setUserData] = useState<User| null>(null)
 
-  const formik = useFormik({
-    initialValues: {
-      emailAddress: '',
-      phone: '',
-    }
-  })
-
   const client = new SpinClient()
   useEffect(() => {
     if (!userContext?.user?.sub) return
@@ -37,6 +30,20 @@ export default function User() {
     fetchUser().catch()
   }, [userContext])
 
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      email: userData?.data.email,
+      phone: userData?.data.phone,
+    },
+    onSubmit: async (values) => {
+      const update = Object.assign({}, userData?.data, values)
+      console.log(update)
+      const data = await client.patchData<User>(`public/user/${userContext?.user?.sub}`, update)
+      console.log(data)
+    }
+  })
+
   return (
     !userContext || !userData ? (
       <LoadingScreen />
@@ -47,27 +54,40 @@ export default function User() {
           <div className='w-full h-full lg:my-auto md:my-auto mt-10 items-center'>
             <div className='flex lg:w-6/12 w-10/12 mx-auto bg-white/75 items-center flex-col border dark:border-indigo-600 border-2 border-orange-400 rounded-2xl'>
               <h1 className='text-xl m-3'>User Information</h1>
-              <div className='items-start w-10/12 space-y-4 m-5'>
-                <div className='flex space-y-2 flex-col-reverse'>
-                  <input
-                    className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
-                    type='text'
-                    placeholder={userData.data.email}
-                  />
-                  <h3>Email Address</h3>
+              <form onSubmit={formik.handleSubmit} className='w-full flex flex-col items-center'>
+                <div className='w-10/12 space-y-4 m-5'>
+                  <div className='flex space-y-2 flex-col-reverse'>
+                    <input
+                      className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
+                      type='text'
+                      name='email'
+                      id='email'
+                      placeholder={userData.data.email}
+                      value={formik.values.email || ''}
+                      onChange={formik.handleChange}
+                    />
+                    <h3>Email Address</h3>
+                  </div>
+                  <div className='flex space-y-2 flex-col-reverse'>
+                    <input
+                      className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
+                      type='text'
+                      name='phone'
+                      id='phone'
+                      placeholder={userData.data.phone}
+                      value={formik.values.phone || ''}
+                      onChange={formik.handleChange}
+                    />
+                    <h3>Phone</h3>
+                  </div>
                 </div>
-                <div className='flex space-y-2 flex-col-reverse'>
-                  <input
-                    className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
-                    type='text'
-                    placeholder={userData.data.phone}
-                  />
-                  <h3>Phone</h3>
-                </div>
-              </div>
-              <button className='bg-orange-300 rounded-2xl dark:bg-indigo-300 py-3 text-lg px-4 m-4'>
-                Update
-              </button>
+                <button
+                  className='bg-orange-300 rounded-2xl dark:bg-indigo-300 py-3 text-lg px-4 m-4'
+                  type='submit'
+                >
+                  Update
+                </button>
+              </form>
             </div>
           </div>
         </div>

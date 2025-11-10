@@ -20,7 +20,7 @@ export async function updateAttributes(
         Value: phone,
       },
       {
-        Name: 'email_address',
+        Name: 'email',
         Value: email,
       },
     ],

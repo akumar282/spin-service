@@ -418,6 +418,15 @@ export class SpinServiceStack extends Stack {
       })
     )
 
+    userLambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'AdminUpdateUser',
+        effect: Effect.ALLOW,
+        actions: ['cognito-idp:AdminUpdateUserAttributes'],
+        resources: ['*'],
+      })
+    )
+
     streamLambda.addToRolePolicy(ssmPolicy)
     processinglambda.addToRolePolicy(ssmPolicy)
 

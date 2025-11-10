@@ -43,13 +43,13 @@ export async function handler(
       return generatePolicy(
         payload.sub,
         'Allow',
-        event.methodArn
+        `${event.methodArn.split('/').slice(0, 2).join('/')}/*`
       ) as APIGatewayAuthorizerResult
     } else {
       return generatePolicy(
         payload.sub,
         'Deny',
-        event.methodArn
+        `${event.methodArn.split('/').slice(0, 2).join('/')}/*`
       ) as APIGatewayAuthorizerResult
     }
   } catch (e) {

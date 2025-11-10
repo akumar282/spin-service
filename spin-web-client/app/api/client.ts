@@ -34,6 +34,12 @@ export class SpinClient {
       .then((response) => response.data)
   }
 
+  public async patchData<T>(resource: string, body?: object): Promise<T> {
+    return this.axiosInstance
+      .patch(resource, body)
+      .then((response) => response.data)
+  }
+
   private _queryStringBuilder(params: {[key: string]: string | number}): string {
     return '?' + Object.keys(params)
       .filter(x => params[x] !== null)

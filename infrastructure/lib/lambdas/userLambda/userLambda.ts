@@ -80,7 +80,7 @@ export async function handler(
         }
       }
       default: {
-        return response.addBody('').addBody(400).build()
+        return response.addBody('').addStatus(400).build()
       }
     }
   } else {

@@ -102,7 +102,7 @@ export const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
     'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-  'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+  'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,PATCH',
   'Access-Control-Allow-Credentials': 'true',
 }
 
@@ -123,7 +123,7 @@ export const DYNAMIC_CORS = (host: string) => {
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers':
-      'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+      'Content-Type,X-Amz-Date,Authorization,authorization,X-Api-Key,X-Amz-Security-Token',
     'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,PATCH,DELETE',
     'Access-Control-Allow-Credentials': 'true',
   }
