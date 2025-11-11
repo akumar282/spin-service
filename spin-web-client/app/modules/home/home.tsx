@@ -21,7 +21,7 @@ export function Home() {
   useEffect(() => {
     const getReleases = async () => {
       const data = await client.getData<RecordsResult>('public?count=10')
-      setData(data.items)
+      setData(data.data.items)
     }
 
     getReleases().catch()

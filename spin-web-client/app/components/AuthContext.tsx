@@ -2,12 +2,14 @@ import React, { createContext, type Dispatch, type SetStateAction, useContext, u
 import Cookies from 'js-cookie'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { SpinClient } from '~/api/client'
-import type { SessionResponse, User } from '~/types'
+import { type SessionResponse, unwrap, type User } from '~/types'
+import { useNavigate } from 'react-router'
 
 export type UserContext = {
   sub: string
   token: string
   username: string
+  data: User['data']
   new_user?: boolean
 }
 
@@ -24,7 +26,7 @@ interface WrapperProps {
 
 export default function AuthWrapper({ children }: WrapperProps) {
   const [userContext, setUserContext] = useState<UserContext | null>(null)
-
+  const navigate = useNavigate()
   const verifier = CognitoJwtVerifier.create({
     userPoolId: import.meta.env.VITE_USER_POOL_ID as string,
     tokenUse: 'id',
@@ -36,15 +38,22 @@ export default function AuthWrapper({ children }: WrapperProps) {
   useEffect(() => {
     const verifySession = async () => {
       const data = await client.getData<SessionResponse>('public/session')
-      const decode = atob(data.token)
-      const payload = await verifier.verify(decode)
-      const info : UserContext = {
-        sub: payload.sub,
-        token: decode,
-        username: payload['cognito:username']
+      if (data.status === 200) {
+        const decode = atob(data.data.token)
+        const payload = await verifier.verify(decode)
+        const userData = unwrap(await client.getData<User>(`public/user/${payload.sub}`))
+        const info : UserContext = {
+          sub: payload.sub,
+          token: decode,
+          username: payload['cognito:username'],
+          data: userData.data
+        }
+        localStorage.setItem('id', decode)
+        setUserContext(info)
+      } else {
+        localStorage.clear()
+        navigate('/login')
       }
-      localStorage.setItem('id', decode)
-      setUserContext(info)
     }
 
     verifySession().catch()

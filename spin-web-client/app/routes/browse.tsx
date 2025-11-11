@@ -24,7 +24,7 @@ export default function Browse() {
 
   useEffect(() => {
     const getReleases = async () => {
-      const data = await client.getData<RecordsResult>('public?count=20')
+      const { data } = await client.getData<RecordsResult>('public?count=20')
       setData(data.items)
       setHighlighted(data.items)
       setCursor(data.cursor)
@@ -34,10 +34,10 @@ export default function Browse() {
   }, [])
 
   const useRequery = async () => {
-    const newData = await client.getData<RecordsResult>(`public?count=20&cursor=${cursor}`)
-    setCursor(newData.cursor)
-    setData([...data, ...newData.items])
-    setHighlighted([...highlighted, ...newData.items])
+    const { data } = await client.getData<RecordsResult>(`public?count=20&cursor=${cursor}`)
+    setCursor(data.cursor)
+    setData([...data.items, ...data.items])
+    setHighlighted([...highlighted, ...data.items])
   }
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {

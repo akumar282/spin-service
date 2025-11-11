@@ -136,6 +136,11 @@ export type SessionResponse = {
   token: string
 }
 
+export type ResponseData<T> = {
+  status: number,
+  data: T
+}
+
 export type User = {
   data: {
     id: string
@@ -149,4 +154,8 @@ export type User = {
     albums: string[]
     deviceId?: string
   }
+}
+
+export function unwrap<T>(data: ResponseData<T>) {
+  return data.data
 }

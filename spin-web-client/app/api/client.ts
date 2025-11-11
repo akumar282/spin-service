@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { ResponseData } from '~/types'
 
 export class SpinClient {
   readonly axiosInstance
@@ -17,27 +18,44 @@ export class SpinClient {
     })
   }
 
-  public async getData<T>(resource: string, params?: { [key: string]: string | number }): Promise<T> {
+  public async getData<T>(resource: string, params?: { [key: string]: string | number }): Promise<ResponseData<T>> {
     let queryString = ''
     if(params) {
       queryString = this._queryStringBuilder(params)
     }
     return this.axiosInstance
       .get(`${resource}${queryString}`)
-      .then((response) => response.data)
-      .catch(err => { throw new Error('Request Failed with message: ' + err)})
+      .then((response) => ({
+        status: response.status,
+        data: response.data
+      }))
+      .catch(err => ({
+        status: 502,
+        data: err
+      }))
   }
 
-  public async postData<T>(resource: string, body?: object): Promise<T> {
+  public async postData<T>(resource: string, body?: object): Promise<ResponseData<T>> {
     return this.axiosInstance
       .post(resource, body)
-      .then((response) => response.data)
+      .then((response) => ({
+        status: response.status,
+        data: response.data
+      }))
+      .catch(err => ({
+        status: 502,
+        data: err
+      }))
   }
 
-  public async patchData<T>(resource: string, body?: object): Promise<T> {
+  public async patchData<T>(resource: string, body?: object): Promise<ResponseData<T>> {
     return this.axiosInstance
       .patch(resource, body)
-      .then((response) => response.data)
+      .then((response) => ({
+        status: response.status,
+        data: response.data
+      }))
+      .catch(err => { throw new Error('Request Failed with message: ' + err)})
   }
 
   private _queryStringBuilder(params: {[key: string]: string | number}): string {

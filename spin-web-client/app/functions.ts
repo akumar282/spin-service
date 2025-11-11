@@ -12,7 +12,7 @@ export async function SignUp(username: string, password: string, type: 'login' |
     clientId: import.meta.env.VITE_CLIENT_ID
   })
 
-  if (result === 'Login Successful') {
+  if (result.data === 'Login Successful') {
     return 200
   } else {
     return 401
