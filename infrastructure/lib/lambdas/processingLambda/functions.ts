@@ -84,7 +84,7 @@ export function determineNotificationMethods(users: User[]) {
     if (user.notifyType.includes(NotifyTypes.SMS) && user.phone) {
       phone.push(user)
     }
-    if (user.notifyType.includes(NotifyTypes.INAPP)) {
+    if (user.notifyType.includes(NotifyTypes.PUSH)) {
       inapp.push(user)
     }
   }

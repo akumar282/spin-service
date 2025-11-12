@@ -3,14 +3,14 @@ import React, { type ChangeEventHandler, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import { ArtistResultComponent, ResultComponent } from '~/components/ResultComponent'
 import debounce from 'lodash/debounce'
-import type {
-  AllNotifications,
-  Artist,
-  ArtistNotification,
-  LabelNotification,
-  Master,
-  Release,
-  ReleaseNotification, SearchResult
+import {
+  type AllNotifications,
+  type Artist,
+  type ArtistNotification,
+  type LabelNotification,
+  type Master,
+  type Release,
+  type ReleaseNotification, type SearchResult, unwrap
 } from '~/types'
 import { Tags } from '~/components/Tags'
 import { SpinClient } from '~/api/client'
@@ -33,7 +33,7 @@ export default function Filters() {
   const [allTags, setAllTags] = useState<AllNotifications[]>([])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
-    const data = await client.getData<SearchResult>(`search/search?q=${e.target.value}`)
+    const data = unwrap(await client.getData<SearchResult>(`search/search?q=${e.target.value}`))
     console.log(data)
     const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
     setResults(filteredResults)

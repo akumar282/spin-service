@@ -41,11 +41,7 @@ export default function User() {
       const update = Object.assign({}, userData, values)
       if (userContext && userContext.user?.data) {
         const data = unwrap(await client.patchData<UpdateUser>(`public/user/${userContext?.user?.sub}`, update))
-        // const newContext = Object.assign(userContext.user, data.Attributes)
         const result = await client.postData<string>('/public/refresh', { platform: 'web' })
-        // console.log(newContext)
-        console.log(data.Attributes)
-        console.log(result)
         userContext.update()
         
       }
