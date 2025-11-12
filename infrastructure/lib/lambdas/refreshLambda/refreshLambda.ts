@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { cookies, extractCookies, getEnv } from '../../shared/utils'
-import { apiResponse } from '../../apigateway/responses'
+import { ResponseBuilder } from '../../apigateway/response'
 
 const cognitoClient = new CognitoIdentityProviderClient({
   maxAttempts: 3,
@@ -15,6 +15,8 @@ const cognitoClient = new CognitoIdentityProviderClient({
 export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
+  console.log(event)
+  const response = new ResponseBuilder('').addCors(event.headers.origin)
   if (event.body && event.headers) {
     const body = JSON.parse(event.body)
 
@@ -23,12 +25,13 @@ export async function handler(
         ? getEnv('MOBILE_CLIENT_ID')
         : getEnv('WEB_CLIENT_ID')
 
-    const rawCookieHeader = event.headers?.cookie
-
+    const rawCookieHeader = event.headers?.Cookie
     const cookie = extractCookies(rawCookieHeader)
-
     if (cookie.error) {
-      return apiResponse('No refresh token provided', 500)
+      return response
+        .addBody('No Refresh Token Provided')
+        .addStatus(500)
+        .build()
     }
 
     try {
@@ -43,17 +46,21 @@ export async function handler(
         })
       )
       if (refreshCommand.AuthenticationResult) {
-        const { AccessToken, IdToken, RefreshToken } =
+        let { AccessToken, IdToken, RefreshToken } =
           refreshCommand.AuthenticationResult
-        return apiResponse(
-          'Login Successful',
-          200,
-          cookies(AccessToken, IdToken, RefreshToken)
-        )
+        console.log(RefreshToken)
+        if (RefreshToken === undefined) {
+          RefreshToken = cookie.refreshToken
+        }
+        return response
+          .addBody('Login Successful')
+          .addStatus(200)
+          .addCookies(cookies(AccessToken, IdToken, RefreshToken))
+          .build()
       }
     } catch (e) {
-      return apiResponse('Session Expired', 401)
+      return response.addBody('Session Expired').addStatus(401).build()
     }
   }
-  return apiResponse('Invalid request', 500)
+  return response.addBody('Invalid Request').addStatus(500).build()
 }

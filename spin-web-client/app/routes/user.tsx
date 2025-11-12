@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import { SpinClient } from '~/api/client'
 import { AuthContext } from '~/components/AuthContext'
-import type { User } from '~/types'
+import { unwrap, type UpdateUser, type User } from '~/types'
 import LoadingScreen from '~/components/LoadingScreen'
 import { useFormik } from 'formik'
 
@@ -16,15 +16,16 @@ export function meta({}: Route.MetaArgs) {
 
 export default function User() {
   const userContext = useContext(AuthContext)
-  const [userData, setUserData] = useState<User| null>(null)
+  const [userData, setUserData] = useState<User['data']| null>(null)
 
   const client = new SpinClient()
   useEffect(() => {
     if (!userContext?.user?.sub) return
     const fetchUser = async () => {
-
-      const data = await client.getData<User>(`public/user/${userContext?.user?.sub}`)
-      setUserData(data)
+      if (userContext?.user?.data) {
+        const data = userContext.user.data
+        setUserData(data)
+      }
     }
 
     fetchUser().catch()
@@ -33,14 +34,21 @@ export default function User() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      email: userData?.data.email,
-      phone: userData?.data.phone,
+      email: userData?.email,
+      phone: userData?.phone,
     },
     onSubmit: async (values) => {
-      const update = Object.assign({}, userData?.data, values)
-      console.log(update)
-      const data = await client.patchData<User>(`public/user/${userContext?.user?.sub}`, update)
-      console.log(data)
+      const update = Object.assign({}, userData, values)
+      if (userContext && userContext.user?.data) {
+        const data = unwrap(await client.patchData<UpdateUser>(`public/user/${userContext?.user?.sub}`, update))
+        // const newContext = Object.assign(userContext.user, data.Attributes)
+        const result = await client.postData<string>('/public/refresh', { platform: 'web' })
+        // console.log(newContext)
+        console.log(data.Attributes)
+        console.log(result)
+        userContext.update()
+        
+      }
     }
   })
 
@@ -62,7 +70,7 @@ export default function User() {
                       type='text'
                       name='email'
                       id='email'
-                      placeholder={userData.data.email}
+                      placeholder={userData.email}
                       value={formik.values.email || ''}
                       onChange={formik.handleChange}
                     />
@@ -74,7 +82,7 @@ export default function User() {
                       type='text'
                       name='phone'
                       id='phone'
-                      placeholder={userData.data.phone}
+                      placeholder={userData.phone}
                       value={formik.values.phone || ''}
                       onChange={formik.handleChange}
                     />

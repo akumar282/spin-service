@@ -24,7 +24,7 @@ export class ResponseBuilder {
     return this
   }
 
-  public addCookies(cookies: []) {
+  public addCookies(cookies: any[]) {
     this.response.multiValueHeaders = Object.assign(
       {},
       this.response.multiValueHeaders,

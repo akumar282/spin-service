@@ -1,5 +1,4 @@
-import React, { createContext, type Dispatch, type SetStateAction, useContext, useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
+import React, { createContext, type Dispatch, type SetStateAction, useEffect, useState } from 'react'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { SpinClient } from '~/api/client'
 import { type SessionResponse, unwrap, type User } from '~/types'
@@ -16,6 +15,7 @@ export type UserContext = {
 export type AuthContextType = {
   user: UserContext | null
   setUser: Dispatch<SetStateAction<UserContext | null>>
+  update: () => void
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null)
@@ -37,30 +37,34 @@ export default function AuthWrapper({ children }: WrapperProps) {
 
   useEffect(() => {
     const verifySession = async () => {
-      const data = await client.getData<SessionResponse>('public/session')
-      if (data.status === 200) {
-        const decode = atob(data.data.token)
-        const payload = await verifier.verify(decode)
-        const userData = unwrap(await client.getData<User>(`public/user/${payload.sub}`))
-        const info : UserContext = {
-          sub: payload.sub,
-          token: decode,
-          username: payload['cognito:username'],
-          data: userData.data
-        }
-        localStorage.setItem('id', decode)
-        setUserContext(info)
-      } else {
-        localStorage.clear()
-        navigate('/login')
-      }
+      await updateContext()
     }
 
     verifySession().catch()
   }, [])
 
+  async function updateContext() {
+    const data = await client.getData<SessionResponse>('public/session')
+    if (data.status === 200) {
+      const decode = atob(data.data.token)
+      const payload = await verifier.verify(decode)
+      localStorage.setItem('id', decode)
+      const userData = unwrap(await client.getData<User>(`public/user/${payload.sub}`))
+      const info : UserContext = {
+        sub: payload.sub,
+        token: decode,
+        username: payload['cognito:username'],
+        data: userData.data
+      }
+      setUserContext(info)
+    } else {
+      localStorage.clear()
+      navigate('/login')
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user: userContext, setUser: setUserContext }}>
+    <AuthContext.Provider value={{ user: userContext, setUser: setUserContext, update: updateContext }}>
       { children }
     </AuthContext.Provider>
   )

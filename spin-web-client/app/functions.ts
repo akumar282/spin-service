@@ -18,3 +18,8 @@ export async function SignUp(username: string, password: string, type: 'login' |
     return 401
   }
 }
+
+export async function refreshUser() {
+  const client = new SpinClient()
+  const result = await client.postData<string>('/public/refresh')
+}

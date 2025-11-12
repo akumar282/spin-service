@@ -55,7 +55,10 @@ export class SpinClient {
         status: response.status,
         data: response.data
       }))
-      .catch(err => { throw new Error('Request Failed with message: ' + err)})
+      .catch(err => ({
+        status: 502,
+        data: err
+      }))
   }
 
   private _queryStringBuilder(params: {[key: string]: string | number}): string {
