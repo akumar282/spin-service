@@ -10,7 +10,7 @@ import {
   type LabelNotification,
   type Master,
   type Release,
-  type ReleaseNotification, type SearchResult, unwrap, type User
+  type ReleaseNotification, type SearchResult, unwrap, type UpdateUser, type User
 } from '~/types'
 import { Tags } from '~/components/Tags'
 import { SpinClient } from '~/api/client'
@@ -40,6 +40,9 @@ export default function Filters() {
       if (userContext?.user?.data) {
         const data = userContext.user.data
         setUserData(data)
+        setArtistFilters(data.artists)
+        setReleaseFilters(data.albums)
+        setAllTags([...data.albums, ...data.artists])
       }
     }
 
@@ -103,6 +106,16 @@ export default function Filters() {
     )
   }
 
+  const useSubmitPrefs = async () => {
+    const update = Object.assign({}, userData, { artists: artistFilters, labels: labelFilters, albums: releaseFilters })
+    if (userContext && userContext.user?.data) {
+      console.log(update)
+      const data = unwrap(await client.patchData<UpdateUser>(`public/user/${userContext?.user?.sub}`, update))
+      const result = await client.postData<string>('/public/refresh', { platform: 'web' })
+      userContext.update()
+    }
+  }
+
   return (
     <main>
       <div className='flex flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
@@ -150,15 +163,20 @@ export default function Filters() {
                   }
                 </div>
                 <input
-                className='text-start py-1 bg-slate-100 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 w-full'
-                placeholder='Search for Artists, Releases, or Labels'
-                type='text'
-                onChange={debounced}
+                  className='text-start py-1 bg-slate-100 text-black text-base rounded-lg border pl-2 border-slate-500 dark:focus:outline-indigo-300 focus:outline-orange-300 w-full'
+                  placeholder='Search for Artists, Releases, or Labels'
+                  type='text'
+                  onChange={debounced}
                 />
+                <button
+                  onClick={() => useSubmitPrefs()}
+                  className=' w-full dark:hover:bg-indigo-400 hover:bg-orange-300 bg-orange-300 rounded-2xl dark:bg-indigo-300 py-2 text-lgå'>
+                  Submit
+                </button>
               </div>
               {
                 results.map((x, index) => {
-                  if(x.type === 'artist') {
+                  if (x.type === 'artist') {
                     return <ArtistResultComponent
                       key={index}
                       _typename={x.type}

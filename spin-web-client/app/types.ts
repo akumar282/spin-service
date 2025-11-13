@@ -141,6 +141,11 @@ export type ResponseData<T> = {
   data: T
 }
 
+export type Item = {
+  [p: string]: string
+  type: string
+}
+
 export type User = {
   data: {
     id: string
@@ -150,8 +155,8 @@ export type User = {
     notifyType: string[]
     genres: string[]
     labels: string[]
-    artists: string[]
-    albums: string[]
+    artists: ArtistNotification[]
+    albums: ReleaseNotification[]
     deviceId?: string
   }
 }
