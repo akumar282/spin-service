@@ -4,6 +4,10 @@ import {
   QueryCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
+import {
+  AdminUpdateUserAttributesCommand,
+  CognitoIdentityProviderClient,
+} from '@aws-sdk/client-cognito-identity-provider'
 import { Cases, userTest } from '../../testData/constants'
 import { handler } from '../../../infrastructure/lib/lambdas/userLambda'
 import {
@@ -21,6 +25,9 @@ const testCases: Cases[] = [
       pathParameters: {
         id: userTest.id,
       },
+      headers: {
+        origin: 'https://local',
+      },
     },
     expected: 200,
   },
@@ -31,6 +38,9 @@ const testCases: Cases[] = [
       pathParameters: {
         id: userTest.id,
       },
+      headers: {
+        origin: 'https://local',
+      },
     },
     expected: 200,
   },
@@ -38,13 +48,17 @@ const testCases: Cases[] = [
 
 describe('User handler test cases', () => {
   const dynamoMock = mockClient(DynamoDBDocumentClient)
+  const cognitoMock = mockClient(CognitoIdentityProviderClient)
 
   beforeEach(() => {
     dynamoMock.reset()
+    cognitoMock.reset()
   })
 
   test.each(testCases)('Handler CRUD test', async ({ mockEvent, expected }) => {
     process.env.TABLE_NAME = 'usersTable'
+    process.env.USER_POOL_ID = '5'
+
     dynamoMock
       .on(QueryCommand)
       .resolves({
@@ -60,6 +74,12 @@ describe('User handler test cases', () => {
           httpStatusCode: 200,
         },
       })
+
+    cognitoMock.on(AdminUpdateUserAttributesCommand).resolves({
+      $metadata: {
+        httpStatusCode: 200,
+      },
+    })
 
     const result = await handler(
       <APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>>(

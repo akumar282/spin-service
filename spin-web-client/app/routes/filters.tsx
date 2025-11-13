@@ -1,5 +1,5 @@
 import type { Route } from './+types/home'
-import React, { type ChangeEventHandler, useState } from 'react'
+import React, { type ChangeEventHandler, useContext, useEffect, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import { ArtistResultComponent, ResultComponent } from '~/components/ResultComponent'
 import debounce from 'lodash/debounce'
@@ -10,10 +10,11 @@ import {
   type LabelNotification,
   type Master,
   type Release,
-  type ReleaseNotification, type SearchResult, unwrap
+  type ReleaseNotification, type SearchResult, unwrap, type User
 } from '~/types'
 import { Tags } from '~/components/Tags'
 import { SpinClient } from '~/api/client'
+import { AuthContext } from '~/components/AuthContext'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,7 +24,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Filters() {
-
+  const userContext = useContext(AuthContext)
   const client = new SpinClient()
 
   const [results, setResults] = useState<(Artist | Release | Master)[]>([])
@@ -31,6 +32,19 @@ export default function Filters() {
   const [labelFilters, setLabelFilters] = useState<LabelNotification[]>([])
   const [artistFilters, setArtistFilters] = useState<ArtistNotification[]>([])
   const [allTags, setAllTags] = useState<AllNotifications[]>([])
+  const [userData, setUserData] = useState<User['data']| null>(null)
+
+  useEffect(() => {
+    if (!userContext?.user?.sub) return
+    const fetchUser = async () => {
+      if (userContext?.user?.data) {
+        const data = userContext.user.data
+        setUserData(data)
+      }
+    }
+
+    fetchUser().catch()
+  }, [userContext])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     const data = unwrap(await client.getData<SearchResult>(`search/search?q=${e.target.value}`))
@@ -95,11 +109,11 @@ export default function Filters() {
         <HomeNavbar/>
         <div className='w-full items-center max-w-[116rem] flex flex-col'>
           <div className='lg:w-8/10 w-[97%] dark:bg-gray-300 dark:text-black rounded-xl border border-orange-400 dark:border-indigo-500 border-3 flex flex-col space-y-4 mt-10 bg-white'>
-            <h1 className='mt-5 text-2xl mx-auto'>Set Notification Filters</h1>
+            <h1 className='mt-5 text-2xl mx-auto text-center'>Set Notification Filters</h1>
             <h3 className='mx-auto w-[98%] px-2 text-center'>Manage filters so you can be notified for what you are looking for and what you want</h3>
             <div className='w-full flex flex-col items-center'>
-              <div className='w-9/10 space-y-2 my-3'>
-                <h3 className='mb-4'>
+              <div className='w-[97%] space-y-2 my-3'>
+                <h3 className='mb-4 text-center'>
                   Your current Filters:
                 </h3>
                 <div className='lg:space-x-2 md:space-x-2 space-y-2'>

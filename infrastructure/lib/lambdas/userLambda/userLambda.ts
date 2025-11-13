@@ -6,10 +6,11 @@ import {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { getEnv, getItem } from '../../shared/utils'
-import { User } from '../../apigateway/types'
+import { UserPreprocess } from '../../apigateway/types'
 import { ResponseBuilder } from '../../apigateway/response'
 import { updateAttributes } from './attributes'
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
+import { nestData, unnestData } from './functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -21,7 +22,6 @@ const cognitoClient = new CognitoIdentityProviderClient({
 export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  console.log(event)
   const id = event.pathParameters?.id
   const response = new ResponseBuilder('').addCors(event.headers.origin)
   if (id !== undefined) {
@@ -33,11 +33,14 @@ export async function handler(
         if (item === null) {
           return response.addStatus(404).build()
         }
+        item.genres = nestData(item.genres, 'genre')
+        item.artists = nestData(item.artists, 'artist')
+        item.labels = nestData(item.labels, 'label')
         return response.addBody({ data: item }).addStatus(200).build()
       }
       case 'PATCH': {
         if (event.body) {
-          const body: Partial<User> = JSON.parse(event.body)
+          const body: Partial<UserPreprocess> = JSON.parse(event.body)
           const input: UpdateCommandInput = {
             ExpressionAttributeNames: {
               '#no': 'notifyType',
@@ -50,9 +53,9 @@ export async function handler(
             },
             ExpressionAttributeValues: {
               ':no': body.notifyType,
-              ':ge': body.genres,
-              ':la': body.labels,
-              ':art': body.artists,
+              ':ge': unnestData(body.genres),
+              ':la': unnestData(body.labels),
+              ':art': unnestData(body.artists),
               ':al': body.albums,
               ':em': body.email,
               ':pho': body.phone,

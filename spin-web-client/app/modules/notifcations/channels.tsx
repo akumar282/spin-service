@@ -59,19 +59,37 @@ export function ChannelsComponent() {
               </h1>
               <div className='items-start space-y-5 m-5'>
                 <div className='flex space-x-3 flex-row'>
-                  <input className='h-6 w-6' value='PUSH' onClick={() => handleClick('TEXT')} type='checkbox'/>
+                  <input
+                    className='h-6 w-6'
+                    checked={(notification.indexOf('TEXT') !== -1)}
+                    value='TEXT'
+                    onChange={() => handleClick('TEXT')}
+                    type='checkbox'
+                  />
                   <h3>
                     Text/SMS
                   </h3>
                 </div>
                 <div className='flex space-x-3 flex-row'>
-                  <input className='h-6 w-6' value='EMAIL' onClick={() => handleClick('EMAIL')} type='checkbox'/>
+                  <input
+                    className='h-6 w-6'
+                    checked={(notification.indexOf('EMAIL') !== -1)}
+                    value='EMAIL'
+                    onChange={() => handleClick('EMAIL')}
+                    type='checkbox'
+                  />
                   <h3>
                     Email
                   </h3>
                 </div>
                 <div className='flex space-x-3 flex-row'>
-                  <input className='h-6 w-6 shrink-0' value='PUSH' onClick={() => handleClick('PUSH')} type='checkbox'/>
+                  <input
+                    className='h-6 w-6 shrink-0'
+                    checked={(notification.indexOf('PUSH') !== -1)}
+                    value='PUSH'
+                    onChange={() => handleClick('PUSH')}
+                    type='checkbox'
+                  />
                   <h3>
                     Push Notifications (App Required)
                   </h3>

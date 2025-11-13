@@ -49,6 +49,11 @@ export type Ledger = {
   ttl: string
 }
 
+export type Item = {
+  [p: string]: string
+  type: string
+}
+
 export type User = {
   id: string
   email: string
@@ -58,7 +63,20 @@ export type User = {
   genres: string[]
   labels: string[]
   artists: string[]
-  albums: string[]
+  albums: Item[]
+  deviceId?: string
+}
+
+export type UserPreprocess = {
+  id: string
+  email: string
+  phone?: string
+  user_name: string
+  notifyType: NotifyTypes[]
+  genres: Item[]
+  labels: Item[]
+  artists: Item[]
+  albums: Item[]
   deviceId?: string
 }
 
