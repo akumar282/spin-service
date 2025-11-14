@@ -15,11 +15,11 @@ function getRandomInt(max: number) {
   return Math.floor(Math.random() * max)
 }
 
-function generateTags(x: string, key: number) {
+export function generateTags(x: string, key: number) {
   const colors = ['bg-indigo-300', 'bg-green-300', 'bg-orange-300', 'bg-red-300', 'bg-emerald-300', 'bg-pink-300']
   const color = colors.at(getRandomInt(colors.length))
   return (
-    <div key={key} className={`rounded-4xl text-sm ${color}  px-2 py-1 break-words`}>
+    <div key={key} className={`rounded-4xl text-sm ${color} w-fit px-2 py-1 break-words`}>
       {x}
     </div>
   )

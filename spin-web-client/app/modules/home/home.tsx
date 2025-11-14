@@ -75,7 +75,7 @@ export function Home() {
           <div className='flex gap-4 mt-1 pb-2 px-1.5'>
             {
               data?.map((x, index) => {
-                return <ReleaseCard preOrder upcoming={false} key={index} artist={x.artist!} title={x.title} linkTo={x.thumbnail!}/>
+                return <ReleaseCard preOrder upcoming={false} key={index} artist={x.artist!} title={x.title} linkTo={x.thumbnail!} data={x}/>
               })
             }
             <SeeMore/>
