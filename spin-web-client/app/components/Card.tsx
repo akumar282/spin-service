@@ -1,4 +1,6 @@
 import React from 'react'
+import { useNavigate } from 'react-router'
+import type { Records } from '~/types'
 
 interface CardProps {
   artist: string | null | undefined
@@ -7,6 +9,7 @@ interface CardProps {
   genre: string[]
   storeLink: string
   image: string | null
+  data: Records
 }
 
 const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
@@ -26,8 +29,11 @@ export function generateTags(x: string, key: number) {
 }
 
 export function Card(props: CardProps) {
+
+  const navigate = useNavigate()
+
   return (
-    <div
+    <div onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })}
       className=' bg-white/80 border dark:text-black border-white w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
       <div className='flex flex-col h-full items-center'>
         <button className='dark:bg-indigo-300 bg-orange-300 mr-40 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
@@ -38,7 +44,7 @@ export function Card(props: CardProps) {
         <div className='aspect-square h-24 w-24 md:h-32 md:w-32 lg:h-32 lg:w-32 mb-2 mx-auto rounded'>
           <img
             alt='cover'
-            src={props.image ?? alternateImage}
+            src={props.image && props.image !== '' ? props.image : alternateImage}
             className='h-full w-full object-cover'
           />
         </div>

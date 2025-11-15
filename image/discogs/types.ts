@@ -168,7 +168,7 @@ export type ResultSearch =  {
   }
   label: string[]
   catno: string
-  year: number
+  year: string
   genre: string[]
   resource_url: URL
   type: string

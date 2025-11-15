@@ -98,20 +98,23 @@ export default function ReleasePage() {
         <div className='w-full items-center max-w-[116rem] pt-3 flex flex-col'>
           <div
             className='w-[98%] justify-between my-0.5 rounded dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-row border border-slate-400 items-stretch'>
-            <div className='flex lg:flex-row md:flex-row flex-col'>
+            <div className='flex w-full lg:flex-row md:flex-row flex-col'>
               <div className='flex items-center justify-center lg:m-3 m-3'>
                 <div className='h-[180px] w-[180px] lg:w-[220px] lg:h-[220px] flex-shrink-0'>
                   <img
                     className='h-full w-full object-cover rounded'
-                    src={data.thumbnail !== '' ? data.thumbnail : alternateImage}
+                    src={data.thumbnail !== null  ? data.thumbnail : alternateImage}
                     alt='title'
                   />
                 </div>
               </div>
-              <div className='lg:m-5 m-2 flex flex-col'>
+              <div className='lg:m-5 w-full m-2 flex flex-col'>
                 <h1 className='text-lg'>
                   {data.title}
                 </h1>
+                <h3 className='text-sm my-1 text-wrap'>
+                  Artist: {data.artist}
+                </h3>
                 <h3 className='text-sm italic text-wrap'>
                   {'Release'}, {results?.year},
                   Format: {cap(data.media)}
@@ -122,17 +125,17 @@ export default function ReleasePage() {
                     on Discogs</a>
                 </h3>
                 <div className='lg:m-5 flex flex-wrap mt-3 justify-center gap-2'>
-                  {
-                    data.genre.map((x: string, index: number) => generateTags(x, index))
+                  {data.genre ?
+                    data.genre.map((x: string, index: number) => generateTags(x, index)) : <></>
                   }
                 </div>
                 <div className='w-full mt-auto mx-auto mb-3 flex flex-col space-y-2 pt-3 justify-center'>
                   <button onClick={() => addAlbum(albumData)}
-                    className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
+                          className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
                     Notify me for this album
                   </button>
                   <button onClick={() => addArtist(artistData)}
-                    className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
+                          className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
                     Notify me this artists releases
                   </button>
                 </div>

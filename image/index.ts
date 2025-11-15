@@ -27,6 +27,7 @@ type PostInfo = {
   thumbnail: string | null,
   genre: string[],
   title: string,
+  year: string,
   artist: string | null,
   label: string[],
   resource_url: URL,
@@ -153,6 +154,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
         item.label = first.label
         item.thumbnail ||= first.thumb
         item.uri = first.uri
+        item.year = first.year
       }
     } else {
       console.warn(`[DISCOGS_CALL]: ${item.postTitle} not found in Discogs`)
