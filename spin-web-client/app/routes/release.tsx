@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams, useLocation } from 'react-router'
+import { useLocation } from 'react-router'
 import HomeNavbar from '~/components/HomeNavbar'
 import {
   type Artist, type ArtistNotification,
@@ -7,8 +7,7 @@ import {
   type Release,
   type ReleaseNotification,
   type SearchResult,
-  unwrap, type UpdateUser,
-  type User
+  unwrap, type User
 } from '~/types'
 import { SpinClient } from '~/api/client'
 import { generateTags } from '~/components/Card'
@@ -108,7 +107,7 @@ export default function ReleasePage() {
                   />
                 </div>
               </div>
-              <div className='lg:m-5 w-full m-2 flex flex-col'>
+              <div className='lg:m-5 m-2 lg:w-full md:w-full flex flex-col'>
                 <h1 className='text-lg'>
                   {data.title}
                 </h1>
@@ -120,9 +119,9 @@ export default function ReleasePage() {
                   Format: {cap(data.media)}
                 </h3>
                 <h3 className='text-sm text-blue-700 mt-1'>
-                  <a target='_blank' title={'View on Discogs'} href={'https://discogs.com/' + results?.uri}
+                  <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + results?.uri}
                      rel='noreferrer'>View
-                    on Discogs</a>
+                    on Discogs {results?.uri}</a>
                 </h3>
                 <div className='lg:m-5 flex flex-wrap mt-3 justify-center gap-2'>
                   {data.genre ?

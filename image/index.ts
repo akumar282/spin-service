@@ -3,7 +3,10 @@ import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
 import { ResponseBody, SearchResult } from './discogs/types'
 import { getEnv, requestHttpMethod, requestWithBody } from './utils'
+import { ulid } from 'ulid'
+import * as OpenAI from 'openai'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+
 
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
@@ -34,7 +37,10 @@ type PostInfo = {
   uri: string,
   media: string,
   dateGroup: string,
-  expires: number
+  expires: number,
+  preorder: boolean,
+  secondaryId: string,
+  source: string
 }
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
@@ -99,7 +105,9 @@ function mapToAttributes(rawData: HTMLElement[]) {
       thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null,
       media: 'vinyl',
       dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}-${yesterday.getDate().toString()}`,
-      expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000)
+      expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000),
+      source: 'Reddit (r/VinylReleases)',
+      secondaryId: ulid()
     })
   })
 }
@@ -152,7 +160,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
         item.resource_url = first.resource_url
         item.genre = first.genre
         item.label = first.label
-        item.thumbnail ||= first.thumb
+        item.thumbnail = first.thumb
         item.uri = first.uri
         item.year = first.year
       }
