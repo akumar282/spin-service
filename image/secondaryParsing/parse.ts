@@ -63,7 +63,7 @@ export async function mapToData(list: Partial<PostInfo>[]) {
       post.searchString = data.searchString ?? post.searchString
       post.preorder = data.preorder
       post.edition = data.edition
-      post.release_date = data.release_date ?? ''
+      post.releaseDate = data.releaseDate ?? ''
       post.album = data.album
       post.format = data.format
     }

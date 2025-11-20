@@ -42,8 +42,9 @@ export type PostInfo = {
   secondaryId: string,
   source: string,
   album: string,
+  releaseType: string | null,
   edition: string | null,
-  release_date: string | null,
+  releaseDate: string | null,
   format: string | null,
 }
 
@@ -107,6 +108,11 @@ function mapToAttributes(rawData: HTMLElement[]) {
       color: getColor(post.getAttribute('post-title')),
       artist: getArtist(post.getAttribute('post-title')),
       thumbnail: post.querySelector('div[slot="thumbnail"] img')?.getAttribute('src') ?? null,
+      releaseType: post
+        .querySelector('div[class="flair-content [&_.flair-image]:align-bottom max-w-full overflow-hidden whitespace-nowrap text-ellipsis"]')
+        ?.text
+        .replace(/(\r\n|\n|\r)/gm, "")
+        .trim(),
       media: 'vinyl',
       dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}-${yesterday.getDate().toString()}`,
       expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000),

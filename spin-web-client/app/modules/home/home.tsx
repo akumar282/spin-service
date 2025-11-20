@@ -1,4 +1,3 @@
-import { Card } from '~/components/Card'
 import vinyl from './vinyl.svg'
 import alarm from './alarm.svg'
 import settings from './settings.svg'
@@ -75,7 +74,7 @@ export function Home() {
           <div className='flex gap-4 mt-1 pb-2 px-1.5'>
             {
               data?.map((x, index) => {
-                return <ReleaseCard preOrder upcoming={false} key={index} artist={x.artist!} title={x.album} linkTo={x.thumbnail!} data={x}/>
+                return <ReleaseCard preOrder={x.preorder} upcoming={false} key={index} artist={x.artist!} title={x.album} linkTo={x.thumbnail!} data={x}/>
               })
             }
             <SeeMore/>

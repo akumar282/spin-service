@@ -102,7 +102,7 @@ export default function ReleasePage() {
                 <div className='h-[180px] w-[180px] lg:w-[220px] lg:h-[220px] flex-shrink-0'>
                   <img
                     className='h-full w-full object-cover rounded'
-                    src={data.thumbnail !== null  ? data.thumbnail : alternateImage}
+                    src={data.thumbnail && data.thumbnail !== '' ? data.thumbnail : alternateImage}
                     alt='title'
                   />
                 </div>
