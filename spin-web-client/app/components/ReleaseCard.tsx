@@ -35,7 +35,6 @@ export default function ReleaseCard(props: ReleaseCardProps) {
             </button>
           )
         }
-
       </div>
       <div className='lg:h-32 lg:w-32 h-24 w-24 mx-auto'>
         <img

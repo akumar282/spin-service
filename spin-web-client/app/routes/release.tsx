@@ -2,12 +2,9 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 import HomeNavbar from '~/components/HomeNavbar'
 import {
-  type Artist, type ArtistNotification,
-  type Master,
-  type Release,
+  type ArtistNotification,
   type ReleaseNotification,
-  type SearchResult,
-  unwrap, type User
+  type User
 } from '~/types'
 import { SpinClient } from '~/api/client'
 import { generateTags } from '~/components/Card'
@@ -15,12 +12,10 @@ import { AuthContext } from '~/components/AuthContext'
 import { updateUser } from '~/functions'
 
 export default function ReleasePage() {
-  // const params = useParams()
   const location = useLocation()
   const userContext = useContext(AuthContext)
 
   const { data }  = location.state
-  const [results, setResults] = useState<(Release | null)>(null)
   const [userData, setUserData] = useState<User['data']| null>(null)
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
   const [artistFilters, setArtistFilters] = useState<ArtistNotification[]>([])
@@ -40,9 +35,6 @@ export default function ReleasePage() {
   useEffect(() => {
     if (!userContext?.user?.sub) return
     const fetchData = async () => {
-      const request = unwrap(await client.getData<SearchResult>(`search/search?q=${data.title}`))
-      const filteredResults: Release[] = request.results.filter((x: (Artist | Release | Master)) => x.type != 'master' && x.type != 'artist')
-      setResults(filteredResults.at(0)!)
       if (userContext?.user?.data) {
         const user = userContext.user.data
         setUserData(user)
@@ -118,7 +110,7 @@ export default function ReleasePage() {
                   {'Release'}
                 </h3>
                 <h3 className='text-sm italic text-wrap'>
-                  {results?.year}
+                  {data.year}
                 </h3>
                 <h3 className='text-sm italic text-wrap'>
                   Format: {cap(data.media)}
