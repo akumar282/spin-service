@@ -1,12 +1,13 @@
 import * as OpenAI from 'openai'
 import { getEnv } from '../utils'
+import { PostInfo } from '../index'
 
 const client = new OpenAI.OpenAI({
-  organization:  getEnv('OPEN_AI_ORG_ID'),
+  organization: getEnv('OPEN_AI_ORG_ID'),
   apiKey: getEnv('OPEN_AI_KEY')
 })
 
-export async function getMetadata(data: string[]) {
+async function getMetadata(data: string) {
   const response = await client.responses.create({
     model: "gpt-5-nano",
     reasoning: { effort: "minimal" },
@@ -25,11 +26,13 @@ export async function getMetadata(data: string[]) {
           "4. Extract color variants such as \"pink\", \"blue\", \"mauve\", \"clear\", \"magenta\".\n" +
           "5. Extract edition information such as \"limited\", \"exclusive\", \"numbered /500\".\n" +
           "6. Extract release dates if mentioned.\n" +
-          "7. Create a canonical 'search_query' by combining artist and album in the form: \n" +
+          "7. Create a canonical 'searchString' by combining artist and album in the form: \n" +
           "   \"artist album\", but *exclude* format/color/edition keep it short and also exclude special chars.\n" +
           "8. If album is self-titled (S/T), use the artist name.\n" +
+          "9. You may get longer titles so use data and context clues to avoid errors or hallucinations.\n" +
+          "10. Capitalize the Words.\n" +
           "\n" +
-          "Respond *only* with valid a JSON list using this structure:\n" +
+          "Respond *only* with valid a JSON object using this structure:\n" +
           "\n" +
           "{\n" +
           "  \"artist\": \"\",\n" +
@@ -37,7 +40,7 @@ export async function getMetadata(data: string[]) {
           "  \"format\": \"\",\n" +
           "  \"color\": \"\",\n" +
           "  \"edition\": \"\",\n" +
-          "  \"release_date\": \"\",\n" +
+          "  \"releaseDate\": \"\",\n" +
           "  \"searchString\": \"\"\n" +
           "  \"preorder\": boolean\n" +
           "}"
@@ -48,5 +51,38 @@ export async function getMetadata(data: string[]) {
       },
     ],
   })
-  return response.output_text
+  return JSON.parse(response.output_text) as Partial<PostInfo>
 }
+
+export async function mapToData(list: Partial<PostInfo>[]) {
+  for (const post of list) {
+    if (post.postTitle && post.artist) {
+      const data = await getMetadata(post.postTitle)
+      post.artist = data.artist ?? post.artist
+      post.color = setColor(data.color, post.color)
+      post.searchString = data.searchString ?? post.searchString
+      post.preorder = data.preorder
+      post.edition = data.edition
+      post.release_date = data.release_date ?? ''
+      post.album = data.album
+      post.format = data.format
+    }
+  }
+}
+
+function setColor(data: string | null | undefined, post: string | null | undefined) {
+  if( data !== '' && data !== null && data !== undefined ) {
+    return data
+  } else {
+    return post
+  }
+}
+
+// function mergeData(scraped: Partial<PostInfo>, llm: Partial<PostInfo>, keys: (keyof PostInfo)[]) {
+//   for (const key of keys) {
+//     const value = llm[key]
+//     if (value !== '' && value != null && scraped[key] !== undefined) {
+//       scraped[key] = llm[key]
+//     }
+//   }
+// }

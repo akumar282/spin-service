@@ -89,6 +89,7 @@ export type LabelNotification = {
 export type AllNotifications = LabelNotification | ArtistNotification | GenreNotification | ReleaseNotification
 
 export type Records = {
+  album: string
   id: string
   artist: string | null | undefined
   year: string | null | undefined

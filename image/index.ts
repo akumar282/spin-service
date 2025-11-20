@@ -4,8 +4,8 @@ import { DiscogsClient } from './discogs/client'
 import { ResponseBody, SearchResult } from './discogs/types'
 import { getEnv, requestHttpMethod, requestWithBody } from './utils'
 import { ulid } from 'ulid'
-import * as OpenAI from 'openai'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import { mapToData } from './secondaryParsing/parse'
 
 
 const BASE_URL =
@@ -18,7 +18,7 @@ const pushPostsQueue: Partial<PostInfo>[] = []
 //
 // const proxyAgent = new HttpsProxyAgent(ProxyIp)
 
-type PostInfo = {
+export type PostInfo = {
   postTitle: string | null | undefined,
   content: string | null | undefined,
   created_time: Date,
@@ -40,7 +40,11 @@ type PostInfo = {
   expires: number,
   preorder: boolean,
   secondaryId: string,
-  source: string
+  source: string,
+  album: string,
+  edition: string | null,
+  release_date: string | null,
+  format: string | null,
 }
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
@@ -178,6 +182,7 @@ async function main() {
     const endpointUrl = getEnv('API_URL')
     await getRawPosts(BASE_URL)
     mapToAttributes(rawPostsQueue)
+    await mapToData(pushPostsQueue)
     await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
       try {

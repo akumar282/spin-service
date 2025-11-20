@@ -109,19 +109,24 @@ export default function ReleasePage() {
               </div>
               <div className='lg:m-5 m-2 lg:w-full md:w-full flex flex-col'>
                 <h1 className='text-lg'>
-                  {data.title}
+                  {data.album}
                 </h1>
-                <h3 className='text-sm my-1 text-wrap'>
-                  Artist: {data.artist}
+                <h3 className='text-md mb-3  text-wrap'>
+                  {data.artist}
+                </h3>
+                <h3 className='text-sm italic  text-wrap'>
+                  {'Release'}
                 </h3>
                 <h3 className='text-sm italic text-wrap'>
-                  {'Release'}, {results?.year},
+                  {results?.year}
+                </h3>
+                <h3 className='text-sm italic text-wrap'>
                   Format: {cap(data.media)}
                 </h3>
-                <h3 className='text-sm text-blue-700 mt-1'>
-                  <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + results?.uri}
-                     rel='noreferrer'>View
-                    on Discogs {results?.uri}</a>
+                <h3 className='text-sm text-blue-700 mt-2'>
+                  <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + data.uri}
+                     rel='noreferrer'>View full information
+                    on Discogs</a>
                 </h3>
                 <div className='lg:m-5 flex flex-wrap mt-3 justify-center gap-2'>
                   {data.genre ?
@@ -129,6 +134,14 @@ export default function ReleasePage() {
                   }
                 </div>
                 <div className='w-full mt-auto mx-auto mb-3 flex flex-col space-y-2 pt-3 justify-center'>
+                  <a
+                    target='_blank'
+                    className='text-center dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'
+                    title={'View on Discogs'}
+                    href={data.content}
+                    rel='noreferrer'>
+                    Buy now (Go to this drop)
+                  </a>
                   <button onClick={() => addAlbum(albumData)}
                           className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
                     Notify me for this album
