@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
 import type { Records } from '~/types'
+import { Notation } from '~/components/Notation'
 
 interface CardProps {
   artist: string | null | undefined,
@@ -11,7 +12,8 @@ interface CardProps {
   storeLink: string
   image: string | null
   data: Records
-  preOrder: boolean
+  preOrder: boolean,
+  tag: string
 }
 
 const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
@@ -39,22 +41,7 @@ export function Card(props: CardProps) {
       className=' bg-white/80 border dark:text-black border-white w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
       <div className='flex flex-col h-full items-start'>
         <div className='flex flex-row'>
-          {
-            props.preOrder ? (
-              <button className='dark:bg-indigo-300 bg-orange-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
-                <h1>
-                  Preorder
-                </h1>
-              </button>
-            ) : (
-              <></>
-            )
-          }
-          <button className='dark:bg-indigo-300 bg-orange-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
-            <h1>
-              New Release
-            </h1>
-          </button>
+          { Notation(props.tag, props.preOrder, 1) }
         </div>
         <div className='aspect-square h-30 w-30 md:h-33 md:w-33 lg:h-34 lg:w-34 mb-2 mx-auto rounded'>
           <img

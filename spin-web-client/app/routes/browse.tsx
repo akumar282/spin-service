@@ -72,7 +72,7 @@ export default function Browse() {
         <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] items-center'>
           {
             highlighted?.map((x, index) => {
-              return <Card preOrder={x.preorder} album={x.album} data={x} image={x.thumbnail} key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre} storeLink={x.link}/>
+              return <Card tag={x.releaseType} preOrder={x.preorder} album={x.album} data={x} image={x.thumbnail} key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre} storeLink={x.link}/>
             })
           }
         </div>

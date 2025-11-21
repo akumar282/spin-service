@@ -9,7 +9,7 @@ import {
 import { SpinClient } from '~/api/client'
 import { generateTags } from '~/components/Card'
 import { AuthContext } from '~/components/AuthContext'
-import { updateUser } from '~/functions'
+import { cap, updateUser } from '~/functions'
 
 export default function ReleasePage() {
   const location = useLocation()
@@ -24,13 +24,6 @@ export default function ReleasePage() {
 
   const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
   const client = new SpinClient()
-  
-  function cap(inputString: string): string {
-    if (!inputString) {
-      return inputString
-    }
-    return inputString.charAt(0).toUpperCase() + inputString.slice(1)
-  }
 
   useEffect(() => {
     if (!userContext?.user?.sub) return
@@ -114,6 +107,9 @@ export default function ReleasePage() {
                 </h3>
                 <h3 className='text-sm italic text-wrap'>
                   Format: {cap(data.media)}
+                </h3>
+                <h3 className='text-sm italic text-wrap'>
+                  Color: {cap(data.color)}
                 </h3>
                 <h3 className='text-sm text-blue-700 mt-2'>
                   <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + data.uri}

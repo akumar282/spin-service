@@ -89,6 +89,7 @@ export type LabelNotification = {
 export type AllNotifications = LabelNotification | ArtistNotification | GenreNotification | ReleaseNotification
 
 export type Records = {
+  releaseType: string
   preorder: boolean
   album: string
   id: string
