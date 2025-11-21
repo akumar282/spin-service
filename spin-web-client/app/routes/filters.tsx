@@ -134,7 +134,7 @@ export default function Filters() {
                     allTags.map((tag, index) => {
                       if ('album' in tag) {
                         return <Tags
-                          className='dark:bg-indigo-300 bg-orange-200 p-1 rounded-2xl shadow-xl'
+                          className='dark:bg-indigo-300 bg-orange-200 p-1 m-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
                           title={tag.album + ' ' + tag.type}
@@ -143,7 +143,7 @@ export default function Filters() {
                       }
                       if ('artist' in tag) {
                         return <Tags
-                          className='dark:bg-green-300 bg-green-200 p-1 rounded-2xl shadow-xl'
+                          className='dark:bg-green-300 bg-green-200 p-1 m-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
                           title={tag.artist}
@@ -152,7 +152,7 @@ export default function Filters() {
                       }
                       if ('label' in tag) {
                         return <Tags
-                          className='dark:bg-blue-300 bg-blue-300 p-1 rounded-2xl shadow-xl'
+                          className='dark:bg-blue-300 bg-blue-300 p-1 m-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
                           title={tag.label}

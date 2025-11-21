@@ -164,7 +164,8 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
       { query: item.searchString }
     )
     if('results' in data) {
-      const first = data.results.pop()
+      const filteredList = data.results.filter((item) => item.type != 'artist')
+      const first = filteredList[0]
       if(first !== undefined) {
         item.title = first.title
         item.resource_url = first.resource_url
