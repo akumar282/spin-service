@@ -79,7 +79,7 @@ export class ComputingNetworkingStack extends Stack {
         taskDefId: 'spinServiceTaskDiscogs',
         container: {
           id: 'spinServiceContainer',
-          assetPath: './image',
+          assetPath: './images/image',
         },
         enableDlq: true,
       },
@@ -92,6 +92,29 @@ export class ComputingNetworkingStack extends Stack {
           API_URL: apiUrl,
           DISCOGS_TOKEN: props.discogs_token,
           PROXY_IP: props.proxy_ip,
+        },
+        logs: logGroup,
+      }
+    )
+
+    new FargateTask(
+      this,
+      'upcomingReleasesTask',
+      {
+        taskDefId: 'upcomingReleasesTask',
+        container: {
+          id: 'upcomingReleaseContainer',
+          assetPath: './images/upcomingReleaseImage',
+        },
+        enableDlq: true,
+      },
+      vpc,
+      cluster,
+      schedulePerms,
+      securityGroup,
+      {
+        environment: {
+          API_URL: apiUrl,
         },
         logs: logGroup,
       }
