@@ -42,6 +42,7 @@ export async function handler(
       const input = {
         TableName: getEnv('TABLE_NAME'),
         IndexName: 'id',
+        Limit: !isNaN(Number(count)) ? Number(count) : 20,
       }
 
       if (nextToken) {
