@@ -54,6 +54,12 @@ export type Item = {
   type: string
 }
 
+export type Upcoming = {
+  artist: string
+  album: string
+  note: string
+}
+
 export type User = {
   id: string
   email: string

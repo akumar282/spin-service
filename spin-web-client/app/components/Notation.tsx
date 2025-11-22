@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { cap } from '~/functions'
 
 export function Notation(tag: string, preOrder: boolean, size: number) {
@@ -44,5 +44,5 @@ export function Notation(tag: string, preOrder: boolean, size: number) {
       </button>
     ))
   }
-  return notations
+  return <>{notations.map((x, i) => React.cloneElement(x, { key: i }))}</>
 }

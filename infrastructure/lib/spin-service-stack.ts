@@ -156,6 +156,25 @@ export class SpinServiceStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
+    const upcomingTable = new dynamodb.TableV2(this, 'upcomingTable', {
+      tableName: 'upcomingTable',
+      partitionKey: {
+        name: 'id',
+        type: AttributeType.STRING,
+      },
+      timeToLiveAttribute: 'expires',
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+
+    upcomingTable.addGlobalSecondaryIndex({
+      indexName: 'album',
+      partitionKey: {
+        name: 'albumTitle',
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    })
+
     const userPool = new cognito.UserPool(this, 'SpinUsers', {
       userPoolName: 'SpinUsers',
       signInAliases: {
@@ -370,6 +389,20 @@ export class SpinServiceStack extends Stack {
       }
     )
 
+    const upcomingReleasesLambda = new lambda.Function(
+      this,
+      'UpcomingReleasesHandler',
+      {
+        runtime: lambda.Runtime.NODEJS_20_X,
+        code: lambda.Code.fromAsset('dist/upcomingReleasesHandler'),
+        handler: 'index.handler',
+        timeout: Duration.seconds(20),
+        environment: {
+          TABLE_NAME: upcomingTable.tableName,
+        },
+      }
+    )
+
     // const robotAuthorizerLambda = new lambda.Function(
     //   this,
     //   'fargateAuthorizerLambda',
@@ -566,6 +599,31 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: refreshIntegration,
+                options: {
+                  authorizer: publicAuthorizer,
+                },
+              },
+            ],
+          },
+          {
+            pathPart: 'guest',
+            methods: [
+              {
+                method: 'GET',
+                integration: publicDataIntegration,
+              },
+            ],
+          },
+          {
+            pathPart: 'upcoming',
+            methods: [
+              {
+                method: 'GET',
+                integration: publicDataIntegration,
+              },
+              {
+                method: 'POST',
+                integration: publicDataIntegration,
                 options: {
                   authorizer: publicAuthorizer,
                 },

@@ -20,7 +20,9 @@ export default function ReleaseCard(props: ReleaseCardProps) {
   const navigate = useNavigate()
 
   return (
-    <div className='dark:bg-slate-300 transition ease-in-out mx-3 lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-76 flex-shrink-0 lg:w-54 h-64 w-44'>
+    <div
+      onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })}
+      className='dark:bg-slate-300 transition ease-in-out mx-3 lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-76 flex-shrink-0 lg:w-54 h-64 w-44'>
       <div className='flex flex-row'>
         { Notation(props.tag, props.preOrder, 0) }
       </div>
