@@ -35,7 +35,7 @@ export class FargateTask extends Construct {
       flexibleTimeWindow: {
         mode: 'OFF',
       },
-      scheduleExpression: 'rate(30 minutes)',
+      scheduleExpression: props.scheduleExpression ?? 'rate(30 minutes)',
       target: {
         arn: cluster.clusterArn,
         roleArn: role.roleArn,

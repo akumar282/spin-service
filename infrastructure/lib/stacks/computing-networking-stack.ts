@@ -107,6 +107,7 @@ export class ComputingNetworkingStack extends Stack {
           assetPath: './images/upcomingReleaseImage',
         },
         enableDlq: true,
+        scheduleExpression: 'rate(12 hours)',
       },
       vpc,
       cluster,

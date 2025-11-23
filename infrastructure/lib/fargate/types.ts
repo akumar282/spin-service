@@ -7,6 +7,7 @@ export type FargateScheduleProps = {
     assetPath: string
   }
   enableDlq: boolean
+  scheduleExpression?: string
 }
 
 export type ContainerEnvVars = {

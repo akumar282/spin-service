@@ -544,6 +544,9 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: rawDataIntegration,
+                // options: {
+                //   authorizer: privateAuthorizer,
+                // },
               },
             ],
           },
