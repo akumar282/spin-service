@@ -1,5 +1,5 @@
 import * as OpenAI from 'openai'
-import { getEnv } from '../utils'
+import { getEnv } from '../../utils'
 import { PostInfo } from '../index'
 
 const client = new OpenAI.OpenAI({

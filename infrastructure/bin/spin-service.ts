@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib'
-import { SpinServiceStack } from '../lib/spin-service-stack'
-import { ComputingNetworkingStack } from '../lib/computing-networking-stack'
+import { SpinServiceStack } from '../lib/stacks/spin-service-stack'
+import { ComputingNetworkingStack } from '../lib/stacks/computing-networking-stack'
 import { getEnv } from '../lib/shared/utils'
-import { SpinClientStack } from '../lib/spin-client-stack'
+import { SpinClientStack } from '../lib/stacks/spin-client-stack'
 
 const app = new cdk.App()
 

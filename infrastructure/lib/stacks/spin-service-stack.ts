@@ -20,7 +20,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
 import { LogGroup } from 'aws-cdk-lib/aws-logs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
-import { queueRole } from './iam/queueRole'
+import { queueRole } from '../iam/queueRole'
 import { CfnPipeProps } from 'aws-cdk-lib/aws-pipes'
 import {
   DynamoEventSource,
@@ -34,9 +34,9 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
 import { CdkExtendedProps } from './cdkExtendedProps'
-import { Api } from './apigateway/api'
+import { Api } from '../apigateway/api'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
-import { gatewayRole } from './iam/gatewayRole'
+import { gatewayRole } from '../iam/gatewayRole'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
@@ -267,6 +267,7 @@ export class SpinServiceStack extends Stack {
       environment: {
         TABLE_NAME: recordsTable.tableName,
         TABLE_ARN: recordsTable.tableArn,
+        UPCOMING_TABLE: upcomingTable.tableName,
       },
     })
 
@@ -278,6 +279,7 @@ export class SpinServiceStack extends Stack {
       environment: {
         TABLE_NAME: recordsTable.tableName,
         USER_TABLE: usersTable.tableName,
+        UPCOMING_TABLE: upcomingTable.tableName,
       },
     })
 
@@ -389,20 +391,6 @@ export class SpinServiceStack extends Stack {
       }
     )
 
-    const upcomingReleasesLambda = new lambda.Function(
-      this,
-      'UpcomingReleasesHandler',
-      {
-        runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset('dist/upcomingReleasesHandler'),
-        handler: 'index.handler',
-        timeout: Duration.seconds(20),
-        environment: {
-          TABLE_NAME: upcomingTable.tableName,
-        },
-      }
-    )
-
     // const robotAuthorizerLambda = new lambda.Function(
     //   this,
     //   'fargateAuthorizerLambda',
@@ -425,6 +413,8 @@ export class SpinServiceStack extends Stack {
     usersTable.grantReadWriteData(authLambda)
     ledgerTable.grantReadWriteData(processinglambda)
     recordsTable.grantStreamRead(processinglambda)
+    upcomingTable.grantReadWriteData(publicHandler)
+    upcomingTable.grantReadWriteData(rawDataHandler)
 
     const ssmPolicy = new PolicyStatement({
       sid: 'SSMGetParam',
@@ -548,6 +538,15 @@ export class SpinServiceStack extends Stack {
               },
             ],
           },
+          {
+            pathPart: 'upcoming',
+            methods: [
+              {
+                method: 'POST',
+                integration: rawDataIntegration,
+              },
+            ],
+          },
         ],
       },
       {
@@ -620,13 +619,6 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'GET',
                 integration: publicDataIntegration,
-              },
-              {
-                method: 'POST',
-                integration: publicDataIntegration,
-                options: {
-                  authorizer: publicAuthorizer,
-                },
               },
             ],
           },

@@ -2,15 +2,15 @@ import { Fn, RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
-import { FargateTask } from './fargate/fargateTask'
-import { SESConstruct } from './ses/ses'
+import { FargateTask } from '../fargate/fargateTask'
+import { SESConstruct } from '../ses/ses'
 import { ComputingNetworkStackProps } from './cdkExtendedProps'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { EbsDeviceVolumeType, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import { AnyPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
-import { schedulerRole } from './iam/schedulerRole'
+import { schedulerRole } from '../iam/schedulerRole'
 
 export class ComputingNetworkingStack extends Stack {
   public readonly vpc: ec2.Vpc

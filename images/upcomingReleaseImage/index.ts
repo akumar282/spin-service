@@ -1,15 +1,10 @@
 import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { ulid } from 'ulid'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { getEnv, requestHttpMethod, requestWithBody } from '../utils'
 
-
-const rawPostsQueue: HTMLElement[] = []
+const list: Upcoming[] = []
 const BASE_URL = 'https://www.metacritic.com/browse/albums/release-date/coming-soon/date'
-
-// const ProxyIp = getEnv('PROXY_IP')
-//
-// const proxyAgent = new HttpsProxyAgent(ProxyIp)
 
 type Upcoming = {
   album: string
@@ -48,7 +43,6 @@ function clean(list: Upcoming[]) {
 
 async function parseData() {
   const data = await getPage(BASE_URL)
-  const list: Upcoming[] = []
   const posts = (data as HTMLElement)?.querySelectorAll('table[class="musicTable"]')
   for (const post of posts) {
     let currentDate: string | undefined = ''
@@ -75,21 +69,18 @@ async function parseData() {
 async function main() {
 
   await parseData()
-  // try {
-  //   // if(ProxyIp) {
-  //   //   console.info('Proxy Loaded: ' + ProxyIp)
-  //   // }
-  //   const endpointUrl = getEnv('API_URL')
-  //   for (const item of pushPostsQueue) {
-  //     try {
-  //       await requestWithBody('raw', endpointUrl, item, requestHttpMethod.POST)
-  //     } catch (e) {
-  //       console.error(`[API_INGESTION_CALL] Post call failed for ${item.postId}`)
-  //     }
-  //   }
-  // } catch (e) {
-  //   console.error('[MAIN]: Execution failed with message ' + e)
-  // }
+  try {
+    const endpointUrl = getEnv('API_URL')
+    for (const item of list) {
+      try {
+        await requestWithBody('raw', endpointUrl, item, requestHttpMethod.POST)
+      } catch (e) {
+        console.error(`[API_INGESTION_CALL] Post call failed for ${item.id}`)
+      }
+    }
+  } catch (e) {
+    console.error('[MAIN]: Execution failed with message ' + e)
+  }
 }
 
 main().then(() => {

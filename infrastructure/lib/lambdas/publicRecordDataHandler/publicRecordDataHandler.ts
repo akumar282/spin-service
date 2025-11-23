@@ -5,9 +5,9 @@ import {
   PutCommand,
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { apiResponse } from '../../apigateway/responses'
 import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
+import { ResponseBuilder } from '../../apigateway/response'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -15,7 +15,7 @@ const docClient = DynamoDBDocumentClient.from(client)
 export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  const resource = event.path
+  const response = new ResponseBuilder('').addCors(event.headers.origin)
   switch (event.path) {
     case '/public': {
       switch (event.httpMethod) {
@@ -50,34 +50,28 @@ export async function handler(
 
             const command = new QueryCommand(input)
 
-            const response = await client.send(command)
-            console.log(response)
+            const item = await client.send(command)
+            console.log(item)
 
-            return apiResponse(
-              {
-                items: response.Items,
-                cursor: response.LastEvaluatedKey
-                  ? Buffer.from(
-                      JSON.stringify(response.LastEvaluatedKey)
-                    ).toString('base64')
+            return response
+              .addBody({
+                items: item.Items,
+                cursor: item.LastEvaluatedKey
+                  ? Buffer.from(JSON.stringify(item.LastEvaluatedKey)).toString(
+                      'base64'
+                    )
                   : null,
-              },
-              200,
-              undefined,
-              true,
-              event.headers.origin
-            )
+              })
+              .addStatus(200)
+              .build()
           } catch (e) {
             console.log(e)
-            return apiResponse(
-              {
+            return response
+              .addBody({
                 message: 'Internal Server Error',
-              },
-              300,
-              undefined,
-              true,
-              event.headers.origin
-            )
+              })
+              .addStatus(300)
+              .build()
           }
         }
         case 'POST': {
@@ -88,22 +82,22 @@ export async function handler(
                 TableName: getEnv('TABLE_NAME'),
                 Item: body,
               })
-              const response = await docClient.send(command)
-              return apiResponse(response, 200)
+              const item = await docClient.send(command)
+              return response.addBody(item).addStatus(200).build()
             } catch (e) {
-              return apiResponse(
-                {
+              return response
+                .addBody({
                   message: 'Internal Server Error',
-                },
-                300
-              )
+                })
+                .addStatus(500)
+                .build()
             }
           } else {
-            return apiResponse('Malformed request', 400)
+            return response.addBody('Bad Request').addStatus(400).build()
           }
         }
       }
-      return apiResponse('Malformed request', 400)
+      return response.addBody('Bad Request').addStatus(400).build()
     }
     case 'public/{id}': {
       const id = event.pathParameters?.id
@@ -114,25 +108,79 @@ export async function handler(
               ':postId': id,
             })
             if (item === null) {
-              return apiResponse(`No Item found with id: ${id}`, 200)
+              return response
+                .addBody({
+                  data: `No Item found with id: ${id}`,
+                })
+                .addStatus(404)
+                .build()
             }
-            return apiResponse(
-              {
+            return response
+              .addBody({
                 data: item,
-              },
-              200
-            )
+              })
+              .addStatus(200)
+              .build()
           }
           default: {
-            return apiResponse('invalid method', 405)
+            return response.addBody('Invalid Method').addStatus(400).build()
           }
         }
       } else {
-        return apiResponse('id missing from Path Parameters', 400)
+        return response
+          .addBody('Missing path parameters')
+          .addStatus(403)
+          .build()
       }
     }
+    case 'public/upcoming': {
+      if (event.httpMethod === 'GET') {
+        try {
+          const nextToken = event.queryStringParameters?.cursor
+          const count = event.queryStringParameters?.count
+
+          const input = {
+            TableName: getEnv('UPCOMING_TABLE'),
+            IndexName: 'id',
+            Limit: !isNaN(Number(count)) ? Number(count) : 20,
+          }
+
+          if (nextToken) {
+            const cursor = JSON.parse(
+              Buffer.from(nextToken, 'base64').toString('utf8')
+            )
+            Object.assign(input, { ExclusiveStartKey: cursor })
+          }
+
+          const command = new QueryCommand(input)
+
+          const query = await client.send(command)
+          console.log(response)
+          return response
+            .addBody({
+              items: query.Items,
+              cursor: query.LastEvaluatedKey
+                ? Buffer.from(JSON.stringify(query.LastEvaluatedKey)).toString(
+                    'base64'
+                  )
+                : null,
+            })
+            .addStatus(200)
+            .build()
+        } catch (e) {
+          console.log(e)
+          return response
+            .addBody({
+              message: 'Internal Server Error',
+            })
+            .addStatus(500)
+            .build()
+        }
+      }
+      return response.addBody('Invalid Method').addStatus(400).build()
+    }
     default: {
-      return apiResponse(event, 400)
+      return response.addBody('Default').addStatus(400).build()
     }
   }
 }
