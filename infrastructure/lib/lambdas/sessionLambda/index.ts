@@ -1,40 +1,43 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
-import { getEnv } from '../../shared/utils'
+import { cookies, getEnv } from '../../shared/utils'
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model'
-import { apiResponse } from '../../apigateway/responses'
+import { ResponseBuilder } from '../../apigateway/response'
 
 export async function handler(event: APIGatewayProxyEvent) {
-  const cookies = event.headers.Cookie
-  console.log(cookies)
-  if (cookies) {
-    const verifier = CognitoJwtVerifier.create({
-      clientId: [getEnv('WEB_CLIENT_ID'), getEnv('MOBILE_CLIENT_ID')],
-      userPoolId: getEnv('USER_POOL_ID'),
-      tokenUse: 'id',
-    })
-
-    const parsed = Object.fromEntries(
-      cookies.split(';').map((cookie) => {
-        const [key, value] = cookie.trim().split('=')
-        return [key, decodeURIComponent(value)]
+  const response = new ResponseBuilder('').addCors(event.headers.origin)
+  const cookie = event.headers.Cookie
+  console.log(cookie)
+  if (event.path === '/public/session') {
+    if (cookie) {
+      const verifier = CognitoJwtVerifier.create({
+        clientId: [getEnv('WEB_CLIENT_ID'), getEnv('MOBILE_CLIENT_ID')],
+        userPoolId: getEnv('USER_POOL_ID'),
+        tokenUse: 'id',
       })
-    )
-    console.log(parsed)
 
-    const data: CognitoIdTokenPayload = await verifier.verify(parsed.idToken)
-    if (data['custom:role'] === 'user' && data.exp * 1000 > Date.now()) {
-      const data = Buffer.from(parsed.idToken).toString('base64')
-      return apiResponse(
-        { token: data },
-        200,
-        undefined,
-        true,
-        event.headers.origin
+      const parsed = Object.fromEntries(
+        cookie.split(';').map((cookie) => {
+          const [key, value] = cookie.trim().split('=')
+          return [key, decodeURIComponent(value)]
+        })
       )
-    } else {
-      return apiResponse('deny', 401, undefined, true, event.headers.origin)
+      console.log(parsed)
+
+      const data: CognitoIdTokenPayload = await verifier.verify(parsed.idToken)
+      if (data['custom:role'] === 'user' && data.exp * 1000 > Date.now()) {
+        const data = Buffer.from(parsed.idToken).toString('base64')
+        return response.addBody({ token: data }).addStatus(200).build()
+      } else {
+        return response.addBody('deny').addStatus(400).build()
+      }
     }
   }
-  return apiResponse('deny', 404, undefined, true, event.headers.origin)
+  if (event.path === '/public/session/logout') {
+    return response
+      .addStatus(200)
+      .addCookies(cookies('none', 'none', 'none'))
+      .build()
+  }
+  return response.addBody('deny').addStatus(404).build()
 }

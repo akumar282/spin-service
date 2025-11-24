@@ -16,6 +16,7 @@ export type AuthContextType = {
   user: UserContext | null
   setUser: Dispatch<SetStateAction<UserContext | null>>
   update: () => void
+  logOut: () => void
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null)
@@ -63,8 +64,13 @@ export default function AuthWrapper({ children }: WrapperProps) {
     }
   }
 
+  function logOut() {
+    localStorage.clear()
+    // Session Endpoint
+  }
+
   return (
-    <AuthContext.Provider value={{ user: userContext, setUser: setUserContext, update: updateContext }}>
+    <AuthContext.Provider value={{ user: userContext, setUser: setUserContext, update: updateContext, logOut: logOut }}>
       { children }
     </AuthContext.Provider>
   )
