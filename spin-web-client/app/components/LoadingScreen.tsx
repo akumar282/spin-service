@@ -1,6 +1,6 @@
 import React from 'react'
-import spinLogo from '~/modules/welcome/spinLogo.png'
-import spinLogoDark from '~/modules/welcome/spinLogoDark.png'
+import spinLogo from 'app/assets/spinLogo.png'
+import spinLogoDark from 'app/assets/spinLogoDark.png'
 import Typewriter from 'typewriter-effect'
 
 

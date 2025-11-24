@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import logout from './assets/logout.svg'
+import logout from '~/assets/logout.svg'
 import React from 'react'
 import { useTriggerOut } from '~/functions'
 
@@ -14,6 +14,9 @@ export default function HomeNavbar() {
       <button onClick={() => navigate('/home')}>
         <h1 className='font-primary text-2xl'>
           spin-service
+          <sub className='text-sm'>
+            beta
+          </sub>
         </h1>
       </button>
       <button onClick={triggerOut}>

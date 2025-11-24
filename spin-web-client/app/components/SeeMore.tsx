@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
-import plus from './assets/plus.svg'
+import plus from '~/assets/plus.svg'
 
 export function SeeMore() {
 

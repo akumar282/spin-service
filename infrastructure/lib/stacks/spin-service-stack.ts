@@ -594,6 +594,17 @@ export class SpinServiceStack extends Stack {
                 integration: sessionIntegration,
               },
             ],
+            resources: [
+              {
+                pathPart: 'logout',
+                methods: [
+                  {
+                    method: 'GET',
+                    integration: sessionIntegration,
+                  },
+                ],
+              },
+            ],
           },
           {
             pathPart: 'refresh',

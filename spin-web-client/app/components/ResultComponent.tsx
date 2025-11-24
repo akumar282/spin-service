@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import plus from './assets/plus.svg'
+import React, { useState } from 'react'
+import plus from '~/assets/plus.svg'
 
 export interface ResultComponentProps {
   _typename: 'release' | 'master'
