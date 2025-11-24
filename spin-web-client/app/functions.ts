@@ -1,6 +1,7 @@
 import { SpinClient } from '~/api/client'
 import { unwrap, type UpdateUser } from '~/types'
-import type { AuthContextType } from '~/components/AuthContext'
+import { AuthContext, type AuthContextType } from '~/components/AuthContext'
+import { useContext } from 'react'
 
 export async function SignUp(username: string, password: string, type: 'login' | 'new_user'): Promise<200 | 400 | 401> {
   const client = new SpinClient()
@@ -37,4 +38,11 @@ export function cap(inputString: string): string {
   let lowercase = ''
   list.forEach((word) => lowercase += (word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() + ' '))
   return lowercase
+}
+
+export function useTriggerOut() {
+  const context = useContext(AuthContext)
+  if (context) {
+    return () => context.logOut()
+  }
 }

@@ -64,9 +64,11 @@ export default function AuthWrapper({ children }: WrapperProps) {
     }
   }
 
-  function logOut() {
+  async function logOut() {
     localStorage.clear()
     // Session Endpoint
+    await client.getData<SessionResponse>('public/session/logout')
+    navigate('/login')
   }
 
   return (
