@@ -174,6 +174,7 @@ export async function handler(
     case '/raw/upcoming': {
       if (event.httpMethod === 'POST') {
         if (event.body) {
+          console.log(event.body)
           try {
             const body: Upcoming = JSON.parse(event.body)
             const command = new PutCommand({
@@ -181,6 +182,7 @@ export async function handler(
               Item: body,
             })
             const placeItem: PutCommandOutput = await docClient.send(command)
+            console.log(placeItem)
             return response.addBody(placeItem).addStatus(200).build()
           } catch (e) {
             return response.addBody(e).addStatus(500).build()

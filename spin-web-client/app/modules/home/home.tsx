@@ -5,15 +5,17 @@ import HomeNavbar from '~/components/HomeNavbar'
 import { useNavigate } from 'react-router'
 import React, { useEffect, useState } from 'react'
 import ReleaseCard from '~/components/ReleaseCard'
-import type { Records, RecordsResult } from '~/types'
+import type { Records, RecordsResult, Upcoming, UpcomingResult } from '~/types'
 import { SpinClient } from '~/api/client'
-import SeeMore from '~/components/SeeMore'
+import { SeeMore, SeeMoreSmall } from '~/components/SeeMore'
+import UpcomingCard from '~/components/UpcomingCard'
 
 export function Home() {
 
   const navigate = useNavigate()
 
   const [data, setData] = useState<Records[] | null>(null)
+  const [upcoming, setUpcoming] = useState<Upcoming[] | null>(null)
 
   const client = new SpinClient()
 
@@ -23,7 +25,13 @@ export function Home() {
       setData(data.data.items)
     }
 
+    const getUpcoming = async () => {
+      const data = await client.getData<UpcomingResult>('public/upcoming?count=10')
+      setUpcoming(data.data.items)
+    }
+
     getReleases().catch()
+    getUpcoming().catch()
   }, [])
 
   return (
@@ -64,20 +72,51 @@ export function Home() {
           </div>
         </button>
       </div>
-      <div className='max-w-[1500px] w-11/12 mt-6 dark:text-white text-2xl'>
-        <h1>
+      <div className='max-w-[1500px] w-11/12 mt-6 space-y-2 dark:text-white'>
+        <h1 className='text-2xl'>
           Recent Releases
         </h1>
+        <h3 className='text-md'>
+          Releases, Restocks, Represses that have happened in the past 24 hours
+        </h3>
       </div>
       <div className='items-center max-w-[1500px] w-11/12 mt-2'>
         <div className='overflow-x-auto rounded-2xl'>
           <div className='flex gap-4 mt-1 pb-2 px-1.5'>
             {
               data?.map((x, index) => {
-                return <ReleaseCard tag={x.releaseType} preOrder={x.preorder} upcoming={false} key={index} artist={x.artist!} title={x.album} linkTo={x.thumbnail!} data={x}/>
+                return <ReleaseCard tag={x.releaseType} preOrder={x.preorder} upcoming={false} key={index}
+                                    artist={x.artist!} title={x.album} linkTo={x.thumbnail!} data={x}/>
               })
             }
             <SeeMore/>
+          </div>
+        </div>
+      </div>
+      <div className='max-w-[1500px] w-11/12 mt-6 space-y-2 dark:text-white'>
+        <h1 className='text-2xl'>
+          Upcoming Albums
+        </h1>
+        <h3 className='text-md'>
+          Albums that have potential drops upon release
+        </h3>
+      </div>
+      <div className='items-center max-w-[1500px] w-11/12 mt-2'>
+        <div className='overflow-x-auto rounded-2xl'>
+          <div className='flex gap-4 mt-1 pb-2 px-1.5'>
+            {
+              upcoming?.map((x, index) => {
+                return <UpcomingCard
+                  date={x.date}
+                  key={index}
+                  artist={x.artist}
+                  title={x.album}
+                  data={x}
+                  upcoming={true}
+                />
+              })
+            }
+            <SeeMoreSmall/>
           </div>
         </div>
       </div>

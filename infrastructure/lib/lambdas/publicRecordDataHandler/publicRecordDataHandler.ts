@@ -4,6 +4,7 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
+  ScanCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
@@ -99,7 +100,7 @@ export async function handler(
       }
       return response.addBody('Bad Request').addStatus(400).build()
     }
-    case 'public/{id}': {
+    case '/public/{id}': {
       const id = event.pathParameters?.id
       if (id !== undefined) {
         switch (event.httpMethod) {
@@ -133,7 +134,7 @@ export async function handler(
           .build()
       }
     }
-    case 'public/upcoming': {
+    case '/public/upcoming': {
       if (event.httpMethod === 'GET') {
         try {
           const nextToken = event.queryStringParameters?.cursor
@@ -141,7 +142,6 @@ export async function handler(
 
           const input = {
             TableName: getEnv('UPCOMING_TABLE'),
-            IndexName: 'id',
             Limit: !isNaN(Number(count)) ? Number(count) : 20,
           }
 
@@ -152,7 +152,7 @@ export async function handler(
             Object.assign(input, { ExclusiveStartKey: cursor })
           }
 
-          const command = new QueryCommand(input)
+          const command = new ScanCommand(input)
 
           const query = await client.send(command)
           console.log(response)

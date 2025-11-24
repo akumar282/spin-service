@@ -17,7 +17,7 @@ export class FargateTask extends Construct {
     securityGroup: SecurityGroup,
     passthroughProps?: ContainerEnvVars
   ) {
-    super(scope, 'FargateScraperConstruct')
+    super(scope, `FargateScraperConstruct-${id}`)
     const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
 
     taskDefinition.addContainer(props.container.id, {
@@ -31,7 +31,7 @@ export class FargateTask extends Construct {
       }),
     })
 
-    new scheduler.CfnSchedule(scope, 'FargateSchedule', {
+    new scheduler.CfnSchedule(scope, `FargateSchedule-${id}`, {
       flexibleTimeWindow: {
         mode: 'OFF',
       },
@@ -40,7 +40,7 @@ export class FargateTask extends Construct {
         arn: cluster.clusterArn,
         roleArn: role.roleArn,
         ...(props.enableDlq
-          ? { deadLetterConfig: { arn: this.addDlq(scope, 'EventDlq') } }
+          ? { deadLetterConfig: { arn: this.addDlq(scope, `EventDlq-${id}`) } }
           : {}),
         ecsParameters: {
           taskDefinitionArn: taskDefinition.taskDefinitionArn,

@@ -73,7 +73,7 @@ async function main() {
     const endpointUrl = getEnv('API_URL')
     for (const item of list) {
       try {
-        await requestWithBody('raw', endpointUrl, item, requestHttpMethod.POST)
+        await requestWithBody('raw/upcoming', endpointUrl, item, requestHttpMethod.POST)
       } catch (e) {
         console.error(`[API_INGESTION_CALL] Post call failed for ${item.id}`)
       }

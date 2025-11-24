@@ -112,8 +112,21 @@ export type Records = {
   uri: string
 }
 
+export type Upcoming = {
+  album: string
+  artist: string
+  id: string
+  note: string
+  date: string
+}
+
 export type RecordsResult = {
   items: Records[],
+  cursor: string | null
+}
+
+export type UpcomingResult = {
+  items: Upcoming[],
   cursor: string | null
 }
 

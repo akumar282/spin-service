@@ -91,8 +91,7 @@ describe('Raw data handler test cases', () => {
       const result = await handler(
         <APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>>(
           mockEvent
-        ),
-        <Context>mockContext
+        )
       )
 
       if (mockEvent.httpMethod === 'POST') {
@@ -124,10 +123,7 @@ test('[IT] Lambda Test', async () => {
   }
 
   const result = await handler(
-    <APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>>(
-      mockEvent
-    ),
-    <Context>mockContext
+    <APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>>mockEvent
   )
   expect(result.statusCode).toEqual(200)
 }, 30)
