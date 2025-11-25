@@ -1,5 +1,5 @@
 import type { Route } from './+types/home'
-import React from 'react'
+import React, { useContext } from 'react'
 import { useNavigate } from 'react-router'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
@@ -8,6 +8,7 @@ import Navbar from '~/components/Navbar'
 import OAuthButtons from '~/components/OAuthButton'
 import google from '~/assets/google.svg'
 import orline from '~/assets/orline.png'
+import { AuthContext } from '~/components/AuthContext'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,6 +19,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Login() {
 
+  const auth = useContext(AuthContext)
   const navigate = useNavigate()
 
   const validationSchema = yup.object({
@@ -41,6 +43,7 @@ export default function Login() {
     onSubmit: async (values) => {
       const result = await SignUp(values.username, values.password, 'login')
       if (result === 200) {
+        auth?.update()
         navigate('/home')
       }
     },

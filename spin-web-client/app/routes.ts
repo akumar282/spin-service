@@ -8,9 +8,11 @@ export default [
     route('home', 'routes/home.tsx'),
     route('browse', 'routes/browse.tsx'),
     route('release/:rid', 'routes/release.tsx'),
-    route('manage/notifications', 'routes/notifications.tsx'),
-    route('manage/notifications/channels', 'routes/channels.tsx'),
-    route('manage/notifications/filters', 'routes/filters.tsx'),
-    route('manage/user', 'routes/user.tsx'),
+    layout('authLayout.tsx', [
+      route('manage/notifications', 'routes/notifications.tsx'),
+      route('manage/notifications/channels', 'routes/channels.tsx'),
+      route('manage/notifications/filters', 'routes/filters.tsx'),
+      route('manage/user', 'routes/user.tsx'),
+    ])
   ])
 ] satisfies RouteConfig

@@ -3,6 +3,7 @@ import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { SpinClient } from '~/api/client'
 import { type SessionResponse, unwrap, type User } from '~/types'
 import { useNavigate } from 'react-router'
+import LoadingScreen from '~/components/LoadingScreen'
 
 export type UserContext = {
   sub: string
@@ -27,6 +28,7 @@ interface WrapperProps {
 
 export default function AuthWrapper({ children }: WrapperProps) {
   const [userContext, setUserContext] = useState<UserContext | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
   const verifier = CognitoJwtVerifier.create({
     userPoolId: import.meta.env.VITE_USER_POOL_ID as string,
@@ -41,7 +43,7 @@ export default function AuthWrapper({ children }: WrapperProps) {
       await updateContext()
     }
 
-    verifySession().catch()
+    verifySession().finally(() => setLoading(false))
   }, [])
 
   async function updateContext() {
@@ -60,7 +62,7 @@ export default function AuthWrapper({ children }: WrapperProps) {
       setUserContext(info)
     } else {
       localStorage.clear()
-      navigate('/login')
+      // navigate('/login')
     }
   }
 
@@ -69,6 +71,10 @@ export default function AuthWrapper({ children }: WrapperProps) {
     // Session Endpoint
     await client.getData<SessionResponse>('public/session/logout')
     navigate('/login')
+  }
+
+  if (loading) {
+    return <LoadingScreen/>
   }
 
   return (
