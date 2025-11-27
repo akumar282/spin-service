@@ -15,6 +15,9 @@ import {
 import { Tags } from '~/components/Tags'
 import { SpinClient } from '~/api/client'
 import { AuthContext } from '~/components/AuthContext'
+import spinLogo from '~/assets/spinLogo.png'
+import spinLogoDark from '~/assets/spinLogoDark.png'
+import { Card } from '~/components/Card'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -27,6 +30,7 @@ export default function Filters() {
   const userContext = useContext(AuthContext)
   const client = new SpinClient()
 
+  const [loading, setLoading] = useState<boolean>(true)
   const [results, setResults] = useState<(Artist | Release | Master)[]>([])
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
   const [labelFilters, setLabelFilters] = useState<LabelNotification[]>([])
@@ -50,10 +54,12 @@ export default function Filters() {
   }, [userContext])
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    setLoading(true)
     const data = unwrap(await client.getData<SearchResult>(`search/search?q=${e.target.value}`))
     console.log(data)
     const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
     setResults(filteredResults)
+    setLoading(false)
   }
 
   const debounced = debounce(onChange, 700)
@@ -175,36 +181,55 @@ export default function Filters() {
                 </button>
               </div>
               {
-                results.map((x, index) => {
-                  if (x.type === 'artist') {
-                    return <ArtistResultComponent
-                      key={index}
-                      _typename={x.type}
-                      title={x.title}
-                      subtitle={x.title}
-                      thumbnail={x.thumb}
-                      data={x}
-                      linkTo={x.uri}
-                      checked={artistFilters.some(t => t.artist === x.title && t.type === 'artist')}
-                      buttonFunction={() => handleClick({ artist: x.title, type: 'artist' }, artistFilters)}
-                    />
-                  }
-                  if(x.type === 'release' && x.country === 'US') {
-                    return <ResultComponent
-                      key={index}
-                      _typename={x.type}
-                      title={x.title}
-                      subtitle={x.title}
-                      thumbnail={x.thumb}
-                      data={x}
-                      year={x.year}
-                      format={x.format}
-                      linkTo={x.uri}
-                      checked={releaseFilters.some(t => t.album === x.title && t.type === x.format[0])}
-                      buttonFunction={() => handleClick({ album: x.title, type: x.format[0] }, releaseFilters)}
-                    />
-                  }
-                })
+                loading ? (
+                  <div className='w-full justify-center flex space-y-6 my-8 px-4'>
+                    <img
+                      src={spinLogo}
+                      className='max-w-[300px] lg:max-w-[300px] animate-spin1 block dark:hidden'
+                      alt='spin-service logo'
+                    ></img>
+                    <img
+                      src={spinLogoDark}
+                      className='max-w-[300px] lg:max-w-[300px] animate-spin1 hidden dark:block'
+                      alt='spin-service logo'
+                    ></img>
+                  </div>
+                ) : (
+                  <>
+                    {
+                      results.map((x, index) => {
+                        if (x.type === 'artist') {
+                          return <ArtistResultComponent
+                            key={index}
+                            _typename={x.type}
+                            title={x.title}
+                            subtitle={x.title}
+                            thumbnail={x.thumb}
+                            data={x}
+                            linkTo={x.uri}
+                            checked={artistFilters.some(t => t.artist === x.title && t.type === 'artist')}
+                            buttonFunction={() => handleClick({ artist: x.title, type: 'artist' }, artistFilters)}
+                          />
+                        }
+                        if(x.type === 'release' && x.country === 'US') {
+                          return <ResultComponent
+                            key={index}
+                            _typename={x.type}
+                            title={x.title}
+                            subtitle={x.title}
+                            thumbnail={x.thumb}
+                            data={x}
+                            year={x.year}
+                            format={x.format}
+                            linkTo={x.uri}
+                            checked={releaseFilters.some(t => t.album === x.title && t.type === x.format[0])}
+                            buttonFunction={() => handleClick({ album: x.title, type: x.format[0] }, releaseFilters)}
+                          />
+                        }
+                      })
+                    }
+                  </>
+                )
               }
             </div>
           </div>

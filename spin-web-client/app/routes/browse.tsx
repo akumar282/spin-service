@@ -5,6 +5,8 @@ import debounce from 'lodash/debounce'
 import type { Records, RecordsResult } from '~/types'
 import { Card } from '~/components/Card'
 import { SpinClient } from '~/api/client'
+import spinLogo from '~/assets/spinLogo.png'
+import spinLogoDark from '~/assets/spinLogoDark.png'
 
 
 export function meta({}: Route.MetaArgs) {
@@ -16,6 +18,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Browse() {
 
+  const [loading, setLoading] = useState<boolean>(true)
   const [highlighted, setHighlighted] = useState<Records[]>([])
   const [data, setData] = useState<Records[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
@@ -30,7 +33,7 @@ export default function Browse() {
       setCursor(data.cursor)
     }
 
-    getReleases().catch()
+    getReleases().finally(() => setLoading(false)).catch()
   }, [])
 
   const useRequery = async () => {
@@ -71,13 +74,35 @@ export default function Browse() {
         </div>
         <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] items-center'>
           {
-            highlighted?.map((x, index) => {
-              return <Card tag={x.releaseType} preOrder={x.preorder} album={x.album} data={x} image={x.thumbnail} key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre} storeLink={x.link}/>
-            })
+            loading ? (
+              <div className='w-full justify-center flex space-y-6 my-8 px-4'>
+                <img
+                  src={spinLogo}
+                  className='max-w-[300px] lg:max-w-[300px] animate-spin1 block dark:hidden'
+                  alt='spin-service logo'
+                ></img>
+                <img
+                  src={spinLogoDark}
+                  className='max-w-[300px] lg:max-w-[300px] animate-spin1 hidden dark:block'
+                  alt='spin-service logo'
+                ></img>
+              </div>
+            ) : (
+              <>
+                {
+                  highlighted?.map((x, index) => {
+                    return <Card tag={x.releaseType} preOrder={x.preorder} album={x.album} data={x} image={x.thumbnail}
+                                 key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre}
+                                 storeLink={x.link}/>
+                  })
+                }
+              </>
+            )
           }
         </div>
         {cursor !== null ?
-          <button className='dark:bg-blue-700 bg-orange-500 mx-auto mt-6 lg:w-2/12 w-[97%] rounded-lg px-2 py-2 text-white' onClick={() => useRequery()}>
+          <button
+            className='dark:bg-blue-700 bg-orange-500 mx-auto mt-6 lg:w-2/12 w-[97%] rounded-lg px-2 py-2 text-white' onClick={() => useRequery()}>
             See More
           </button>
           :
