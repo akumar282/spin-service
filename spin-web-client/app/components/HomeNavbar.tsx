@@ -1,12 +1,10 @@
 import { useNavigate } from 'react-router'
-import logout from '~/assets/logout.svg'
 import React from 'react'
-import { useTriggerOut } from '~/functions'
+import WhichButton from '~/components/WhichButton'
 
 export default function HomeNavbar() {
 
   const navigate = useNavigate()
-  const triggerOut = useTriggerOut()
 
   return (
     <nav
@@ -19,9 +17,7 @@ export default function HomeNavbar() {
           </sub>
         </h1>
       </button>
-      <button onClick={triggerOut}>
-        <img height={30} width={30} src={logout} alt={'logout image'}/>
-      </button>
+      <WhichButton/>
     </nav>
   )
 }

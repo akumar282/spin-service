@@ -1,4 +1,4 @@
-import React, { createContext, type Dispatch, type SetStateAction, useEffect, useState } from 'react'
+import React, { createContext, type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { SpinClient } from '~/api/client'
 import { type SessionResponse, unwrap, type User } from '~/types'
@@ -20,7 +20,12 @@ export type AuthContextType = {
   logOut: () => void
 }
 
-export const AuthContext = createContext<AuthContextType | null>(null)
+export const AuthContext = createContext<AuthContextType>({
+  logOut(): void {},
+  setUser(): void {},
+  update(): void {},
+  user: null
+})
 
 interface WrapperProps {
   children: React.ReactNode
@@ -51,27 +56,27 @@ export default function AuthWrapper({ children }: WrapperProps) {
     if (data.status === 200) {
       const decode = atob(data.data.token)
       const payload = await verifier.verify(decode)
-      localStorage.setItem('id', decode)
       const userData = unwrap(await client.getData<User>(`public/user/${payload.sub}`))
-      const info : UserContext = {
+      setUserContext({
         sub: payload.sub,
         token: decode,
         username: payload['cognito:username'],
         data: userData.data
-      }
-      setUserContext(info)
+      })
+      localStorage.setItem('id', decode)
     } else {
       localStorage.clear()
     }
   }
 
-  async function logOut() {
+  const logOut = useCallback(async () => {
     localStorage.clear()
     // Session Endpoint
     await client.getData<SessionResponse>('public/session/logout')
     navigate('/login')
-  }
+  }, [])
 
+  
   if (loading) {
     return <LoadingScreen/>
   }
