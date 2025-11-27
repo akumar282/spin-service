@@ -2,10 +2,8 @@ import React, { useState } from 'react'
 import { useLocation } from 'react-router'
 import HomeNavbar from '~/components/HomeNavbar'
 import { generateTags } from '~/components/Card'
-import { cap } from '~/functions'
-import { Notation } from '~/components/Notation'
-import AddPrefButtons from '~/components/AddPrefButtons'
 import AuthModal from '~/components/AuthModal'
+import AddPrefButtons from '~/components/AddPrefButtons'
 
 export default function ReleasePage() {
   const location = useLocation()
@@ -14,8 +12,6 @@ export default function ReleasePage() {
   const [open, setOpen] = useState<boolean>(false)
 
   const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
-
-  const notation = Notation(data.releaseType, data.preorder, 2)
 
   return (
     <main>
@@ -27,7 +23,7 @@ export default function ReleasePage() {
           <div
             className='w-[98%] justify-between my-0.5 rounded dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-col border border-slate-400 items-stretch'>
             <div>
-              {notation}
+
             </div>
             <div className='flex w-full justify-center'>
               <div className='mx-2 lg:w-full md:w-full flex grow flex-col'>
@@ -51,19 +47,11 @@ export default function ReleasePage() {
                     <h3 className='lg:text-md text-sm italic  text-wrap'>
                       {'Release'}
                     </h3>
-                    <h3 className='lg:text-md text-sm italic text-wrap'>
-                      {data.year}
+                    <h3 className='lg:text-md text-sm italic  text-wrap'>
+                      {data.date}
                     </h3>
-                    <h3 className='lg:text-md text-sm text-smitalic text-wrap'>
-                      Format: {cap(data.media)}
-                    </h3>
-                    <h3 className='lg:text-md text-sm italic text-wrap'>
-                      Color: {cap(data.color)}
-                    </h3>
-                    <h3 className='lg:text-md text-sm text-blue-700 mt-2'>
-                      <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + data.uri}
-                         rel='noreferrer'>View full information
-                        on Discogs</a>
+                    <h3 className='lg:text-md text-sm italic  text-wrap'>
+                      {data.note}
                     </h3>
                   </div>
                 </div>
@@ -72,17 +60,7 @@ export default function ReleasePage() {
                     data.genre.map((x: string, index: number) => generateTags(x, index)) : <></>
                   }
                 </div>
-                <div className='w-full mt-auto mx-auto mb-3 flex flex-col pt-3 justify-center'>
-                  <a
-                    target='_blank'
-                    className='text-center dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'
-                    title={'View on Discogs'}
-                    href={data.content}
-                    rel='noreferrer'>
-                    Buy now (Go to this drop)
-                  </a>
-                  <AddPrefButtons data={data} setOpen={setOpen}/>
-                </div>
+                <AddPrefButtons data={data} setOpen={setOpen} />
               </div>
             </div>
           </div>

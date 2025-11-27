@@ -62,7 +62,6 @@ export default function AuthWrapper({ children }: WrapperProps) {
       setUserContext(info)
     } else {
       localStorage.clear()
-      // navigate('/login')
     }
   }
 

@@ -28,13 +28,6 @@ export default function UpcomingCard(props: ReleaseCardProps) {
           </h1>
         </button>
       </div>
-      {/*<div className='lg:h-32 lg:w-32 h-24 w-24 mx-auto'>*/}
-      {/*  <img*/}
-      {/*    alt='cover'*/}
-      {/*    className=''*/}
-      {/*    src={props.linkTo && props.linkTo !== '' ? props.linkTo : alternateImage}*/}
-      {/*  />*/}
-      {/*</div>*/}
       <div className='w-[90%] mt-3 h-full flex flex-col justify-between space-y-3 mx-auto'>
         <div>
           <h1 className='text-wrap text-lg max-h-13 truncate'>

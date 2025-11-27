@@ -4,9 +4,10 @@ import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
+import flowbiteReact from 'flowbite-react/plugin/vite';
 
 export default defineConfig({
-  plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+  plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), flowbiteReact()],
   server: {
     https: {
       key: fs.readFileSync(path.resolve(__dirname, 'localhost-key.pem')),

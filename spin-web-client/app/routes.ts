@@ -8,6 +8,7 @@ export default [
     route('home', 'routes/home.tsx'),
     route('browse', 'routes/browse.tsx'),
     route('release/:rid', 'routes/release.tsx'),
+    route('upcoming/:rid', 'routes/upcoming.tsx'),
     layout('authLayout.tsx', [
       route('manage/notifications', 'routes/notifications.tsx'),
       route('manage/notifications/channels', 'routes/channels.tsx'),
