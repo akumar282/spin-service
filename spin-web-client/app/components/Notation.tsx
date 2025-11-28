@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { cap } from '~/functions'
 
 export function Notation(tag: string, preOrder: boolean, size: number) {

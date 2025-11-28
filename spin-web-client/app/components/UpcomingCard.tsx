@@ -1,7 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router'
 import type { Upcoming } from '~/types'
-import { Notation } from '~/components/Notation'
 
 interface ReleaseCardProps {
   upcoming: boolean
@@ -10,8 +9,6 @@ interface ReleaseCardProps {
   data: Upcoming,
   date: string
 }
-
-const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
 
 export default function UpcomingCard(props: ReleaseCardProps) {
 

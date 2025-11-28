@@ -12,11 +12,7 @@ export async function handler(
 ): Promise<APIGatewayAuthorizerResult> {
   let token
   console.log(event)
-  if (event.headers?.Authorization) {
-    console.log(event.headers.Authorization)
-    token = event.headers.Authorization.slice(7)
-    console.log(token)
-  } else if (event.headers?.Cookie) {
+  if (event.headers?.Cookie) {
     const cookies = event.headers.Cookie
     const parsed = Object.fromEntries(
       cookies.split(';').map((cookie) => {

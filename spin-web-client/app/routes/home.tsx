@@ -11,7 +11,6 @@ import ReleaseCard from '~/components/ReleaseCard'
 import { SeeMore, SeeMoreSmall } from '~/components/SeeMore'
 import UpcomingCard from '~/components/UpcomingCard'
 import { AuthContext } from '~/components/AuthContext'
-import spinLogo from '~/assets/spinLogo.png'
 import CardLoader from '~/components/CardLoader'
 
 export function meta({}: Route.MetaArgs) {
@@ -36,7 +35,7 @@ export default function Landing() {
     const getReleases = async () => {
       const data = await client.getData<RecordsResult>('public?count=10')
       setData(data.data.items)
-      
+
       const soon = await client.getData<UpcomingResult>('public/upcoming?count=10')
       setUpcoming(soon.data.items)
     }

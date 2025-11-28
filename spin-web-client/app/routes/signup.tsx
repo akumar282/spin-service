@@ -1,13 +1,9 @@
 import type { Route } from './+types/home'
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router'
-import * as yup from 'yup'
-import { useFormik } from 'formik'
+import React from 'react'
 import Navbar from '~/components/Navbar'
 import OAuthButtons from '~/components/OAuthButton'
 import google from '~/assets/google.svg'
 import orline from '~/assets/orline.png'
-import { SignUp } from '~/functions'
 import SignUpForm from '~/components/SignUpForm'
 
 export function meta({}: Route.MetaArgs) {

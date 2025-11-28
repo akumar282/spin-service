@@ -12,7 +12,7 @@ export default function WhichButton() {
   if (!user) {
     return (
       <>
-        <button className='dark:bg-indigo-700 bg-orange-500 py-1.5 px-4 rounded-xl text-lg text-white' onClick={() => navigate('/login')}>
+        <button className='bg-gradient-to-r hover:bg-gradient-to-b dark:from-indigo-700 dark:to-indigo-500 from-orange-500 to-orange-400 dark:shadow-md dark:shadow-indigo-600 shadow-lg shadow-orange-300 py-1.5 px-4 rounded-xl text-lg text-white' onClick={() => navigate('/login')}>
           Log In
         </button>
       </>

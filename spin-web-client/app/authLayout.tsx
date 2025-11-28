@@ -11,7 +11,6 @@ export default function AuthLayout() {
   const context = useContext(AuthContext)
 
   if (!context) {
-    console.log('no notext')
     return
   }
 
@@ -31,7 +30,7 @@ export default function AuthLayout() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let details = 'You\'re not supposed to be here'
+  let details = '403 | You\'re not supposed to be here'
   let stack: string | undefined
 
   const navigate = useNavigate()

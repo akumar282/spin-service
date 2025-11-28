@@ -4,12 +4,13 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
+  ScrollRestoration, useNavigate,
 } from 'react-router'
 import React from 'react'
 
 import type { Route } from './+types/root'
 import './app.css'
+import shrug from '~/assets/shrug.png'
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -51,11 +52,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let details = 'An unexpected error occurred.'
   let stack: string | undefined
 
+  const navigate = useNavigate()
+
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? '404' : 'Error'
     details =
       error.status === 404
-        ? 'The requested page could not be found.'
+        ? '404 | I don\'t have that in the back'
         : error.statusText || details
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message
@@ -63,14 +66,23 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className='pt-16 p-4 container mx-auto'>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className='w-full p-4 overflow-x-auto'>
+    <main className='pt-16 p-4 flex bg-gray-800 h-full w-full'>
+      <div className='mx-auto items-center flex flex-col'>
+        <h1 className='text-2xl font-primary'>{details}</h1>
+        <img src={shrug} alt={'shrug man'}/>
+        {stack && (
+          <pre className='w-full p-4 overflow-x-auto'>
           <code>{stack}</code>
         </pre>
-      )}
+        )}
+        <h1 className='font-primary text-center text-xl pt-5'>Back to
+          <button
+            type='button'
+            onClick={() => navigate('/home')}
+            className='underline text-secondary-blue ml-2 hover:text-indigo-400 '>home
+          </button>
+        </h1>
+      </div>
     </main>
   )
 }

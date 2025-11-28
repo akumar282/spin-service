@@ -17,7 +17,6 @@ import { SpinClient } from '~/api/client'
 import { AuthContext } from '~/components/AuthContext'
 import spinLogo from '~/assets/spinLogo.png'
 import spinLogoDark from '~/assets/spinLogoDark.png'
-import { Card } from '~/components/Card'
 
 export function meta({}: Route.MetaArgs) {
   return [

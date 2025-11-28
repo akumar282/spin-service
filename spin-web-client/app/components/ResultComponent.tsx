@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import plus from '~/assets/plus.svg'
 
 export interface ResultComponentProps {

@@ -3,9 +3,10 @@ import React, { useContext, useEffect, useState } from 'react'
 import HomeNavbar from '~/components/HomeNavbar'
 import { SpinClient } from '~/api/client'
 import { AuthContext } from '~/components/AuthContext'
-import { unwrap, type UpdateUser, type User } from '~/types'
+import { type User } from '~/types'
 import LoadingScreen from '~/components/LoadingScreen'
 import { useFormik } from 'formik'
+import { updateUser } from '~/functions'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -39,12 +40,7 @@ export default function User() {
     },
     onSubmit: async (values) => {
       const update = Object.assign({}, userData, values)
-      if (userContext && userContext.user?.data) {
-        const data = unwrap(await client.patchData<UpdateUser>(`public/user/${userContext?.user?.sub}`, update))
-        const result = await client.postData<string>('/public/refresh', { platform: 'web' })
-        userContext.update()
-        
-      }
+      await updateUser(userContext, client, update)
     }
   })
 

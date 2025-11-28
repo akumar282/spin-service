@@ -63,7 +63,6 @@ export default function AuthWrapper({ children }: WrapperProps) {
         username: payload['cognito:username'],
         data: userData.data
       })
-      localStorage.setItem('id', decode)
     } else {
       localStorage.clear()
     }
