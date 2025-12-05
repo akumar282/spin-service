@@ -1,4 +1,10 @@
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
+import {
+  CfnOutput,
+  Duration,
+  RemovalPolicy,
+  Stack,
+  StackProps,
+} from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3'
 import { Distribution, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
@@ -13,6 +19,14 @@ export class SpinClientStack extends Stack {
       bucketName: 'deployment-bucket-spin-client',
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
+      blockPublicAccess: {
+        blockPublicAcls: false,
+        ignorePublicAcls: false,
+        blockPublicPolicy: false,
+        restrictPublicBuckets: false,
+      },
+      publicReadAccess: true,
+      // websiteIndexDocument: 'client/index.html',
     })
 
     const cloudfrontDistro = new Distribution(this, 'SpinClientDistribution', {
@@ -21,6 +35,14 @@ export class SpinClientStack extends Stack {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       defaultRootObject: 'client/index.html',
+      errorResponses: [
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/client/index.html',
+          ttl: Duration.seconds(1),
+        },
+      ],
     })
 
     new BucketDeployment(this, 'SpinClientDeployment', {

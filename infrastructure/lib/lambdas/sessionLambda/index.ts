@@ -7,7 +7,6 @@ import { ResponseBuilder } from '../../apigateway/response'
 export async function handler(event: APIGatewayProxyEvent) {
   const response = new ResponseBuilder('').addCors(event.headers.origin)
   const cookie = event.headers.Cookie
-  console.log(cookie)
   if (event.path === '/public/session') {
     if (cookie) {
       const verifier = CognitoJwtVerifier.create({
@@ -22,7 +21,10 @@ export async function handler(event: APIGatewayProxyEvent) {
           return [key, decodeURIComponent(value)]
         })
       )
-      console.log(parsed)
+
+      if (parsed.idToken === undefined || parsed.idToken === null) {
+        return response.addBody('deny').addStatus(400).build()
+      }
 
       const data: CognitoIdTokenPayload = await verifier.verify(parsed.idToken)
       if (data['custom:role'] === 'user' && data.exp * 1000 > Date.now()) {

@@ -64,6 +64,8 @@ export class SpinServiceStack extends Stack {
             'https://localhost:8080',
             'https://spinmyrecords.com',
             'https://dev.spinmyrecords.com',
+            'http://dyg0yscwt3p9e.cloudfront.net/',
+            'https://dyg0yscwt3p9e.cloudfront.net/',
           ],
           allowMethods: apigateway.Cors.ALL_METHODS,
           allowHeaders: [
