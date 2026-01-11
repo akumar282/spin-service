@@ -114,6 +114,7 @@ export const DYNAMIC_CORS = (host: string) => {
     'https://localhost:8080',
     'https://spinmyrecords.com',
     'https://dev.spinmyrecords.com',
+    getEnv('CLOUD_DISTRO'),
   ]
 
   const allowOrigin = allowedOrigins.includes(host ?? '')

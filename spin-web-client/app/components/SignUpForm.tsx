@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router'
 import * as yup from 'yup'
 import { useFormik } from 'formik'
 import { SignUp } from '~/functions'
+import { AuthContext } from '~/components/AuthContext'
 
 export default function SignUpForm() {
   const [isChecked, setIsChecked] = useState(false)
   const navigate = useNavigate()
+  const auth = useContext(AuthContext)
 
   const handleCheck = () => {
     setIsChecked(!isChecked)
@@ -15,7 +17,7 @@ export default function SignUpForm() {
     username: yup
       .string()
       .min(3, 'Username should be of minimum 3 characters')
-      .max(20, 'Username should be of maximum 20 characters')
+      .max(40, 'Username should be of maximum 20 characters')
       .required('Username is required'),
     password: yup
       .string()
@@ -31,7 +33,10 @@ export default function SignUpForm() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       const result = await SignUp(values.username, values.password, 'new_user')
-      console.log(result)
+      if (result === 200) {
+        auth?.update()
+        navigate('/home')
+      }
     },
   })
 
@@ -72,7 +77,6 @@ export default function SignUpForm() {
         <button
           className='font-primary bg-orange-300 dark:bg-indigo-400 transition ease-in-out dark:hover:scale-105 hover:bg-indigo-600 text-white text-lg rounded-lg lg:px-38 px-32 py-2'
           type='submit'
-          onClick={() => formik.handleSubmit}
         >
           <h1 className='w-full'>Sign Up</h1>
         </button>

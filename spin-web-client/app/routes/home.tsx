@@ -15,7 +15,7 @@ import CardLoader from '~/components/CardLoader'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'New React Router App' },
+    { title: 'home | spin-service' },
     { name: 'description', content: 'Welcome to React Router!' },
   ]
 }
@@ -58,8 +58,8 @@ export default function Landing() {
           className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
           onClick={() => navigate('/browse')}>
           <h1 className='text-start w-8/12 mt-8 mr-6'>Browse Latest Releases</h1>
-          <div className='mx-auto'>
-            <img className='group-hover:animate-spin1' height={60} width={60} src={vinyl}/>
+          <div className='mx-auto h-15 w-15'>
+            <img className='group-hover:animate-spin1' src={vinyl}/>
           </div>
         </button>
         {
@@ -69,17 +69,19 @@ export default function Landing() {
                 className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
                 onClick={() => navigate('/manage/notifications')}>
                 <h1 className='text-start w-8/12 mt-8 mr-6'>Manage Notifications</h1>
-                <div className='mx-auto'>
-                  <img className='absolute inline-flex group-hover:animate-ping1 opacity-75' height={60} width={60}
-                       src={alarm}/>
-                  <img className='relative inline-flex' height={60} width={60} src={alarm}/>
+                <div className='relative mx-auto h-15 w-15'> {/* <─ NEW: relative container */}
+                  <img
+                    className='absolute inset-0 animate-none group-hover:animate-ping1 opacity-75'
+                    src={alarm}
+                  />
+                  <img className='relative inset-0' src={alarm}/>
                 </div>
               </button>
               <button
                 className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-white dark:bg-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
                 onClick={() => navigate('/manage/user')}>
                 <h1 className='text-start w-8/12 mt-8'>Manage User Information</h1>
-                <div className='mx-auto pl-8'>
+                <div className='mx-auto pl-8 '>
                   <img className='group-hover:animate-spin1' height={60} width={60} src={settings}/>
                 </div>
               </button>

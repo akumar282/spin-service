@@ -29,9 +29,7 @@ export class Api {
   ) {
     const { props } = definition
     this.api = new apigateway.RestApi(scope, definition.id, {
-      restApiName: props.restApiName,
-      description: props.description,
-      defaultCorsPreflightOptions: props.defaultCorsPreflightOptions,
+      ...props,
     })
 
     this.url = this.api.url

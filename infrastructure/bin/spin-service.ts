@@ -30,6 +30,10 @@ const SSH_IP = getEnv('SSH_IP')
 if (validBuildParams()) {
   const env = { account: ACCOUNT, region: REGION }
 
+  const spinClient = new SpinClientStack(app, `SpinClientStack-${ENV}`, {
+    env,
+  })
+
   const computeStack = new ComputingNetworkingStack(app, `SpinCompute-${ENV}`, {
     discogs_token: DISCOGS_TOKEN,
     proxy_ip: PROXY_IP,
@@ -50,10 +54,6 @@ if (validBuildParams()) {
     domainEndpoint: computeStack.domainEndpoint,
     vpc: computeStack.vpc,
     dashpass: DASHPASS,
-    env,
-  })
-
-  const spinClient = new SpinClientStack(app, `SpinClientStack-${ENV}`, {
     env,
   })
 }

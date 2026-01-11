@@ -23,7 +23,7 @@ function getRandomInt(max: number) {
 }
 
 export function generateTags(x: string, key: number) {
-  const colors = ['bg-indigo-300', 'bg-green-300', 'bg-orange-300', 'bg-red-300', 'bg-emerald-300', 'bg-pink-300']
+  const colors = ['bg-indigo-300', 'bg-green-300', 'bg-orange-300', 'bg-red-300', 'bg-emerald-300', 'bg-pink-300', 'bg-blue-300']
   const color = colors.at(getRandomInt(colors.length))
   return (
     <div key={key} className={`rounded-4xl text-sm ${color} w-fit px-2 py-1 break-words`}>
@@ -38,7 +38,7 @@ export function Card(props: CardProps) {
 
   return (
     <div onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })}
-      className=' bg-white/80 border dark:text-black border-white w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
+      className=' bg-white/80 dark:text-black border-orange-400 dark:border-indigo-500 w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
       <div className='flex flex-col h-full items-start'>
         <div className='flex flex-row'>
           { Notation(props.tag, props.preOrder, 1) }
@@ -50,13 +50,17 @@ export function Card(props: CardProps) {
             className='h-full w-full object-cover'
           />
         </div>
-        <div className='flex flex-col items-center h-full overflow-hidden text-center mx-auto'>
-          <h1 className='lg:text-lg max-h-19 text-lg/5 my-1 text-wrap truncate mx-2'>
-            {props.album}
-          </h1>
-          <h1 className='lg:text-md text-md text-wrap truncate italic mx-2'>
-            {props.artist}
-          </h1>
+        <div className='flex flex-col items-center h-full w-full overflow-hidden text-center mx-auto'>
+          <div className='lg:text-lg text-lg/5 max-h-16 my-1 text-wrap overflow-ellipsis truncate'>
+            <h1>
+              {props.album}
+            </h1>
+          </div>
+          <div className='lg:text-md text-md text-wrap truncate italic mx-2'>
+            <h1>
+              {props.artist}
+            </h1>
+          </div>
           <div className='flex flex-wrap mt-3 justify-center mx-2 gap-2'>
             {
               props.genre !== undefined ? props.genre.map((x, index) => generateTags(x , index)) : <></>

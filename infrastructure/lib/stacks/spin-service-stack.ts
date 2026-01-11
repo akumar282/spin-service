@@ -4,6 +4,7 @@ import {
   aws_sqs as sqs,
   CfnOutput,
   Duration,
+  Fn,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib'
@@ -51,6 +52,11 @@ export class SpinServiceStack extends Stack {
       ],
     })
 
+    const allowedDomain = StringParameter.valueForStringParameter(
+      this,
+      '/domain/endpoint'
+    )
+
     const recordsApi = new Api(this, {
       id: 'spin-records-api',
       props: {
@@ -64,8 +70,7 @@ export class SpinServiceStack extends Stack {
             'https://localhost:8080',
             'https://spinmyrecords.com',
             'https://dev.spinmyrecords.com',
-            'http://dyg0yscwt3p9e.cloudfront.net/',
-            'https://dyg0yscwt3p9e.cloudfront.net/',
+            allowedDomain,
           ],
           allowMethods: apigateway.Cors.ALL_METHODS,
           allowHeaders: [
@@ -282,6 +287,7 @@ export class SpinServiceStack extends Stack {
         TABLE_NAME: recordsTable.tableName,
         USER_TABLE: usersTable.tableName,
         UPCOMING_TABLE: upcomingTable.tableName,
+        CLOUD_DISTRO: allowedDomain,
       },
     })
 
@@ -324,6 +330,7 @@ export class SpinServiceStack extends Stack {
         USER_POOL_ID: userPool.userPoolId,
         TABLE_NAME: usersTable.tableName,
         USER_TABLE_ARN: usersTable.tableArn,
+        CLOUD_DISTRO: allowedDomain,
       },
     })
 
@@ -337,6 +344,7 @@ export class SpinServiceStack extends Stack {
         WEB_CLIENT_NAME: userPoolClient.userPoolClientName,
         MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
         MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
+        CLOUD_DISTRO: allowedDomain,
       },
     })
 
@@ -348,6 +356,7 @@ export class SpinServiceStack extends Stack {
       environment: {
         TABLE_NAME: usersTable.tableName,
         USER_POOL_ID: userPool.userPoolId,
+        CLOUD_DISTRO: allowedDomain,
       },
     })
 
@@ -359,6 +368,7 @@ export class SpinServiceStack extends Stack {
       environment: {
         DISCOGS_CONSUMER_KEY: props.discogs_key,
         DISCOGS_SECRET: props.discogs_secret,
+        CLOUD_DISTRO: allowedDomain,
       },
     })
 
@@ -371,6 +381,7 @@ export class SpinServiceStack extends Stack {
         WEB_CLIENT_ID: userPoolClient.userPoolClientId,
         MOBILE_CLIENT_ID: userPoolClientMobile.userPoolClientId,
         USER_POOL_ID: userPool.userPoolId,
+        CLOUD_DISTRO: allowedDomain,
       },
     })
 
@@ -389,6 +400,7 @@ export class SpinServiceStack extends Stack {
           MOBILE_CLIENT_NAME: userPoolClientMobile.userPoolClientName,
           USER_POOL_ID: userPool.userPoolId,
           USER_TABLE_ARN: usersTable.tableArn,
+          CLOUD_DISTRO: allowedDomain,
         },
       }
     )

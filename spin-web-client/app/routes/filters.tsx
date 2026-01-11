@@ -29,7 +29,7 @@ export default function Filters() {
   const userContext = useContext(AuthContext)
   const client = new SpinClient()
 
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(false)
   const [results, setResults] = useState<(Artist | Release | Master)[]>([])
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
   const [labelFilters, setLabelFilters] = useState<LabelNotification[]>([])

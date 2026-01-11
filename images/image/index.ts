@@ -114,7 +114,7 @@ function mapToAttributes(rawData: HTMLElement[]) {
         .replace(/(\r\n|\n|\r)/gm, "")
         .trim(),
       media: 'vinyl',
-      dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}-${yesterday.getDate().toString()}`,
+      dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}`,
       expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000),
       source: 'Reddit (r/VinylReleases)',
       secondaryId: ulid()

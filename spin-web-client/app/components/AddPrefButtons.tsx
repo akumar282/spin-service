@@ -82,11 +82,11 @@ export default function AddPrefButtons(props: ButtonProps) {
   return (
     <div className='w-full mx-auto mb-3 flex flex-col space-y-2 pt-2 justify-center'>
       <button onClick={() => addAlbum(albumData)}
-              className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
+              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
         Notify me for this album
       </button>
       <button onClick={() => addArtist(artistData)}
-              className='dark:bg-indigo-300 border-2 border-indigo-600 bg-orange-300 text-md rounded-xl w-full py-0.5 lg:px-0 px-1.5 dark:hover:bg-indigo-500'>
+              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 lg:px-0 px-1.5 dark:hover:bg-indigo-500'>
         Notify me this artists releases
       </button>
     </div>

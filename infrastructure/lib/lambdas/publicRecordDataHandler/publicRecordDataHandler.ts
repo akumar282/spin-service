@@ -26,19 +26,21 @@ export async function handler(
             const count = event.queryStringParameters?.count
 
             const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
-            const yesterdayString = `DATE#${(
-              yesterday.getMonth() + 1
-            ).toString()}-${yesterday.getDate().toString()}`
-            const cutoff = yesterdayString
-            console.log(yesterdayString)
+            const rightNow = new Date().toISOString()
+            const monthString = `DATE#${(yesterday.getMonth() + 1).toString()}`
+            const cutoff = monthString
+            console.log(monthString)
 
             const input = {
               TableName: getEnv('TABLE_NAME'),
               IndexName: 'dateGroup',
               Limit: !isNaN(Number(count)) ? Number(count) : 20,
-              KeyConditionExpression: 'dateGroup = :dateGroup',
+              KeyConditionExpression:
+                'dateGroup = :dateGroup AND created_time BETWEEN :yesterday AND :today',
               ExpressionAttributeValues: {
                 ':dateGroup': cutoff,
+                ':yesterday': yesterday.toISOString(),
+                ':today': rightNow,
               },
             }
 
