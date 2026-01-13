@@ -483,6 +483,7 @@ export class SpinServiceStack extends Stack {
         batchSize: 50,
         maxBatchingWindow: Duration.minutes(1),
         maxConcurrency: 10,
+        reportBatchItemFailures: true,
       })
     )
 

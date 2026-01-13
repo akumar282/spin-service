@@ -92,6 +92,7 @@ export type SQSBody = {
   eventName: string
   eventVersion: string
   eventSource: string
+  messageId: string
   awsRegion: string
   dynamodb: {
     ApproximateCreationDateTime: number

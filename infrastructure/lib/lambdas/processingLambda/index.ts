@@ -1,5 +1,8 @@
 import { SQSEvent } from 'aws-lambda'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import {
+  ConditionalCheckFailedException,
+  DynamoDBClient,
+} from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { SESClient } from '@aws-sdk/client-ses'
 import { getEnv, getSsmParam, requestWithBody } from '../../shared/utils'
@@ -24,34 +27,42 @@ const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
 
 /*
-TODO: Update handler with deadlock logic, adding dropped users, and adding actual processed users.
- Currently all users are "processed". As well as Pinpoint for inapp notifications
+TODO: Pinpoint for inapp notifications
 */
 
-export async function handler(event: SQSEvent): Promise<number> {
+export async function handler(event: SQSEvent) {
+  const authHeader = `Basic ${Buffer.from(
+    `${getEnv('USER')}:${getEnv('DASHPASS')}`
+  ).toString('base64')}`
   const ledgerTableName = getEnv('LEDGER_TABLE')
   const ssmParam = await getSsmParam(ssmClient, '/os/endpoint')
   const endpoint = ssmParam ? ssmParam.Value : null
+  const batchItemFailures = []
 
   if (!endpoint) {
     console.error('Endpoint is not defined')
-    return 500
+    return {
+      batchItemFailures: event.Records.map((record) => ({
+        itemIdentifier: record.messageId,
+      })),
+    }
   }
 
   const eventRecords: SQSBody[] = event.Records.map((record) => {
     const data = JSON.parse(record.body) as SQSBody
     data.receiptHandle = record.receiptHandle
+    data.messageId = record.messageId
     return data
   })
 
-  try {
-    for (const eventRecord of eventRecords) {
-      const usersToProcess: User[] = []
-      const item = unmarshall(eventRecord.dynamodb.NewImage) as Records
-      let userQueryBody
+  for (const eventRecord of eventRecords) {
+    const usersToProcess: User[] = []
+    const item = unmarshall(eventRecord.dynamodb.NewImage) as Records
+    let userQueryBody
 
-      console.log(`Processing: ${item.postId}`)
+    console.log(`Processing: ${item.postId}`)
 
+    try {
       await docClient.send(
         new PutCommand({
           TableName: ledgerTableName,
@@ -65,64 +76,81 @@ export async function handler(event: SQSEvent): Promise<number> {
           ConditionExpression: 'attribute_not_exists(postId)',
         })
       )
+    } catch (e) {
+      if (e instanceof ConditionalCheckFailedException) {
+        continue
+      }
+      console.error(`Dynamo Error: ${e}`)
+      batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
+      continue
+    }
 
-      const artistName = item.artist
+    const artistName = item.artist
 
-      if (artistName) {
-        userQueryBody = createQuery(
-          artistName,
-          item.album,
-          item.media,
-          item.genre
-        )
-        console.log(JSON.stringify(userQueryBody))
+    if (artistName) {
+      userQueryBody = createQuery(
+        artistName,
+        item.album,
+        item.media,
+        item.genre
+      )
+      console.log(JSON.stringify(userQueryBody))
+
+      let users: OpenSearchUserResult
+
+      try {
         const data = await requestWithBody(
           'users/_search',
           endpoint,
           userQueryBody,
           'POST',
-          `Basic ${Buffer.from(
-            `${getEnv('USER')}:${getEnv('DASHPASS')}`
-          ).toString('base64')}`
+          authHeader
         )
-        const users: OpenSearchUserResult = await data.json()
-        users.hits.hits.forEach((x) => usersToProcess.push(x._source))
-        const { email, phone, inapp } =
-          determineNotificationMethods(usersToProcess)
-        try {
-          await sendEmail(ses, email, item)
-          console.log(`Emailed for: ${item.postId}`)
-        } catch (e) {
-          await updateLedgerItem(docClient, [], item.postId, 'FAILED_EMAIL')
-          console.error(
-            'Error sending emails for record ',
-            item.postId,
-            'Failed with error ',
-            e
-          )
-          return 500
-        }
-
-        // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
-
-        try {
-          const ids = usersToProcess.map((x) => x.id)
-          await updateLedgerItem(docClient, ids, item.postId)
-          console.log(`Finished for: ${item.postId}`)
-        } catch (e) {
-          console.error(
-            'Error updating ledger for ',
-            item.postId,
-            'Failed with error ',
-            e
-          )
-          return 500
-        }
+        users = await data.json()
+      } catch (e) {
+        console.log(`Opensearch Query Failure: ${e}`)
+        batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
+        continue
       }
+
+      users.hits.hits.forEach((x) => usersToProcess.push(x._source))
+
+      const { email, phone, inapp } =
+        determineNotificationMethods(usersToProcess)
+
+      try {
+        await sendEmail(ses, email, item)
+        console.log(`Emailed for: ${item.postId}`)
+      } catch (e) {
+        await updateLedgerItem(docClient, [], item.postId, 'FAILED_EMAIL')
+        batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
+        console.error(
+          'Error sending emails for record ',
+          item.postId,
+          'Failed with error ',
+          e
+        )
+        continue
+      }
+
+      // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
+
+      try {
+        const ids = usersToProcess.map((x) => x.id)
+        await updateLedgerItem(docClient, ids, item.postId)
+        console.log(`Finished for: ${item.postId}`)
+      } catch (e) {
+        console.error(
+          'Error updating ledger for ',
+          item.postId,
+          'Failed with error ',
+          e
+        )
+        batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
+      }
+    } else {
+      await updateLedgerItem(docClient, [], item.postId, 'MISSING_INFO')
     }
-  } catch (e) {
-    console.error('Records processing failed with ', e)
-    return 500
   }
-  return 200
+  return { batchItemFailures }
 }
