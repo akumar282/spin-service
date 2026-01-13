@@ -16,6 +16,9 @@ install:
 build:
 	npm run build
 
+build-all:
+	npm run build-all
+
 deploy:
 	npm run cdk -- deploy SpinCompute-prod
 
@@ -43,5 +46,7 @@ bootstrap:
 buildDiff: build diff
 
 buildDeploy: build deploy-all
+
+buildDeployAll: build-all deploy-all
 
 buildSynth: build synth-all
