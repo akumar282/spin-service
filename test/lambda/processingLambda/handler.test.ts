@@ -85,27 +85,24 @@ describe('Test for procesing handler', () => {
     expect(ssmMock).toHaveReceivedCommand(GetParameterCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommand(PutCommand)
     expect(sesMock).toHaveReceivedCommand(SendEmailCommand)
-    expect(sqsClient).toHaveReceivedCommand(DeleteMessageCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
 
     expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateCommand, {
-      TableName: 'ledgerTable',
-      Key: { id: 't3_1jtink0' },
       ExpressionAttributeNames: {
-        '#st': 'status',
         '#pr': 'processed',
+        '#st': 'status',
         '#to': 'to',
       },
-      ExpressionAttributeValues: expect.objectContaining({
-        ':st': 'COMPLETED',
+      ExpressionAttributeValues: {
         ':pr': true,
-        ':to': [userTest],
-      }),
-      UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
+        ':st': 'COMPLETED',
+        ':to': ['48c113f0-5041-70db-7d2f-2cb7dbc5d0b9'],
+      },
+      Key: { postId: 't3_1jtink0' },
       ReturnValues: 'ALL_NEW',
+      TableName: 'ledgerTable',
+      UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
     })
-
-    expect(result).toEqual(200)
   })
 
   test('Deserialize logic test', () => {

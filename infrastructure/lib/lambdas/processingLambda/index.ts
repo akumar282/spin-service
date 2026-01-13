@@ -27,7 +27,7 @@ const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
 
 /*
-TODO: Pinpoint for inapp notifications
+  TODO: Pinpoint for push notifications
 */
 
 export async function handler(event: SQSEvent) {
