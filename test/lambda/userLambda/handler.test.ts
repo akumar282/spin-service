@@ -15,6 +15,7 @@ import {
   APIGatewayProxyEventBase,
 } from 'aws-lambda'
 import 'aws-sdk-client-mock-jest'
+import process from 'node:process'
 
 const testCases: Cases[] = [
   {
@@ -58,6 +59,7 @@ describe('User handler test cases', () => {
   test.each(testCases)('Handler CRUD test', async ({ mockEvent, expected }) => {
     process.env.TABLE_NAME = 'usersTable'
     process.env.USER_POOL_ID = '5'
+    process.env.CLOUD_DISTRO = 'https://idk.com'
 
     dynamoMock
       .on(QueryCommand)

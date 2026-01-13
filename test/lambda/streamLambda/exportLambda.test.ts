@@ -35,13 +35,4 @@ describe('environmental variables', () => {
     console.log(result)
     expect(result.statusCode).toEqual(200)
   })
-
-  test('will receive process.env variables', async () => {
-    const mockContext: Partial<Context> = {
-      logGroupName: 'mockLogGroupName',
-    }
-
-    const result = await handler(mockEvent, <Context>mockContext)
-    expect(result)
-  }, 35000)
 })

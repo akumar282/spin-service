@@ -17,9 +17,24 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
 
-export function createQuery(artist: string, genres: string[]) {
+export function createQuery(
+  artist: string,
+  album: string,
+  media: string,
+  genres: string[]
+) {
   const shouldList = []
-  shouldList.push({ match: { artists: artist } })
+  shouldList.push({
+    bool: {
+      must: [
+        { match: { 'albums.album': album } },
+        { term: { 'albums.type.keyword': media } },
+      ],
+    },
+  })
+  shouldList.push({
+    term: { 'artists.keyword': { value: artist, case_insensitive: true } },
+  })
   if (genres && genres.length > 0) {
     for (const genre of genres) {
       shouldList.push({ match: { genres: genre } })
@@ -28,14 +43,8 @@ export function createQuery(artist: string, genres: string[]) {
   return {
     query: {
       bool: {
-        must: [
-          {
-            bool: {
-              should: shouldList,
-              minimum_should_match: 1,
-            },
-          },
-        ],
+        should: shouldList,
+        minimum_should_match: 1,
       },
     },
   }
@@ -46,6 +55,7 @@ export async function sendEmail(
   destination: User[],
   item: Records
 ): Promise<SendEmailCommandOutput> {
+  console.log(destination)
   const link = item.content ? item.content : item.link
   const input: SendEmailCommandInput = {
     Destination: {
@@ -108,8 +118,9 @@ export async function deleteSQSMessage(
 
 export async function updateLedgerItem(
   client: DynamoDBDocumentClient,
-  to: User[],
-  id: string
+  to: string[],
+  id: string,
+  status?: string
 ) {
   const input: UpdateCommandInput = {
     ExpressionAttributeNames: {
@@ -118,12 +129,12 @@ export async function updateLedgerItem(
       '#to': 'to',
     },
     ExpressionAttributeValues: {
-      ':st': 'COMPLETED',
+      ':st': status ?? 'COMPLETED',
       ':pr': true,
       ':to': to,
     },
     Key: {
-      id,
+      postId: id,
     },
     ReturnValues: 'ALL_NEW',
     TableName: getEnv('LEDGER_TABLE'),

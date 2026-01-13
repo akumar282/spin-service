@@ -28,6 +28,7 @@ describe('Auth Lambda Test', () => {
     process.env.WEB_CLIENT_ID = 'WEB_CLIENT_ID'
     process.env.USER_POOL_ID = 'USER_POOL_ID'
     process.env.TABLE_NAME = 'usersTable'
+    process.env.CLOUD_DISTRO = 'https://idk.com'
 
     dynamoMock
       .on(PutCommand, {
@@ -83,6 +84,9 @@ describe('Auth Lambda Test', () => {
 
     const mockEvent: Partial<APIGatewayProxyEvent> = {
       body,
+      headers: {
+        origin: 'https://idk.com',
+      },
     }
 
     const result = await handler(

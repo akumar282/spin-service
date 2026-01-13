@@ -40,6 +40,7 @@ export type Records = {
   title: string
   label: string[]
   resource_url: string
+  album: string
 }
 
 export type Ledger = {

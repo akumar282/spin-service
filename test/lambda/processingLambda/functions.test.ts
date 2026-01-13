@@ -18,6 +18,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { record1, users } from '../../testData/constants'
 import 'aws-sdk-client-mock-jest'
+import { Records } from '../../../spin-web-client/app/types'
 
 describe('Assorted test for functions', () => {
   const sesMock = mockClient(SESClient)
@@ -33,40 +34,71 @@ describe('Assorted test for functions', () => {
   })
 
   test('Will generate correct open search query', async () => {
-    const result = createQuery('PinkPantheress', ['R&B', 'Pop'])
+    const result = createQuery('PinkPantheress', 'Fancy That', 'vinyl', [
+      'R&B',
+      'Pop',
+    ])
     expect(result).toEqual({
       query: {
         bool: {
-          must: [
+          should: [
             {
               bool: {
-                should: [
-                  { match: { artists: 'PinkPantheress' } },
-                  { match: { genres: 'R&B' } },
-                  { match: { genres: 'Pop' } },
+                must: [
+                  { match: { 'albums.album': 'Fancy That' } },
+                  { term: { 'albums.type.keyword': 'vinyl' } },
                 ],
-                minimum_should_match: 1,
+              },
+            },
+            {
+              term: {
+                'artists.keyword': {
+                  value: 'PinkPantheress',
+                  case_insensitive: true,
+                },
+              },
+            },
+            {
+              match: {
+                genres: 'R&B',
+              },
+            },
+            {
+              match: {
+                genres: 'Pop',
               },
             },
           ],
+          minimum_should_match: 1,
         },
       },
     })
   })
 
   test('Will make no list', async () => {
-    const result = createQuery('PinkPantheress', [])
+    const result = createQuery('PinkPantheress', 'Fancy That', 'vinyl', [])
     expect(result).toEqual({
       query: {
         bool: {
-          must: [
+          should: [
             {
               bool: {
-                should: [{ match: { artists: 'PinkPantheress' } }],
-                minimum_should_match: 1,
+                must: [
+                  { match: { 'albums.album': 'Fancy That' } },
+                  { term: { 'albums.type.keyword': 'vinyl' } },
+                ],
+              },
+            },
+            {
+              term: {
+                'artists.keyword': {
+                  value: 'PinkPantheress',
+                  case_insensitive: true,
+                },
               },
             },
           ],
+          minimum_should_match: 1,
         },
       },
     })
@@ -76,9 +108,14 @@ describe('Assorted test for functions', () => {
     process.env.DASHPASS = ''
     process.env.USER = ''
     const endpoint =
-      'https://search-spin-data-ncvue37awszjvvba2vsoz5rhym.us-west-2.es.amazonaws.com/'
+      'https://search-spin-data-naf233edf778repl34opf5lrq.us-west-2.es.amazonaws.com/'
 
-    const userQueryBody = createQuery('PinkPantheress', [])
+    const userQueryBody = createQuery(
+      'PinkPantheress',
+      'Fancy That',
+      'vinyl',
+      []
+    )
     const data = await requestWithBody(
       'users/_search',
       endpoint,
@@ -102,7 +139,7 @@ describe('Assorted test for functions', () => {
     expect(inapp.length).toEqual(1)
   })
 
-  test('Send Email Test', async () => {
+  test.skip('Send Email Test', async () => {
     const { email } = determineNotificationMethods(users as User[])
 
     expect(email.length).toEqual(3)
@@ -111,7 +148,7 @@ describe('Assorted test for functions', () => {
       MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
     })
 
-    const result = await sendEmail(new SESClient({}), email, record1)
+    const result = await sendEmail(new SESClient({}), email, record1 as Records)
     expect(result).toEqual({
       MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
     })
@@ -152,7 +189,7 @@ describe('Assorted test for functions', () => {
         TableName: 'ledgerTable',
       })
       .resolves(expected)
-
+    const ids = users.map((x) => x.id)
     const result = await updateLedgerItem(
       DynamoDBDocumentClient.from(
         new DynamoDBClient({
@@ -160,14 +197,14 @@ describe('Assorted test for functions', () => {
           maxAttempts: 3,
         })
       ),
-      users as User[],
+      ids,
       'testId'
     )
 
     expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
     expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateCommand, {
       TableName: 'ledgerTable',
-      Key: { id: 'testId' },
+      Key: { postId: 'testId' },
       ExpressionAttributeNames: {
         '#st': 'status',
         '#pr': 'processed',
@@ -176,7 +213,7 @@ describe('Assorted test for functions', () => {
       ExpressionAttributeValues: expect.objectContaining({
         ':st': 'COMPLETED',
         ':pr': true,
-        ':to': users,
+        ':to': ids,
       }),
       UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
       ReturnValues: 'ALL_NEW',

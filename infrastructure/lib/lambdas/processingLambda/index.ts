@@ -44,15 +44,15 @@ export async function handler(event: SQSEvent): Promise<number> {
     return data
   })
 
-  const notifiedUsers = new Set<User>()
-  const usersToProcess: User[] = []
-
   try {
     for (const eventRecord of eventRecords) {
+      const usersToProcess: User[] = []
       const item = unmarshall(eventRecord.dynamodb.NewImage) as Records
       let userQueryBody
 
-      const ledgerTableResponse = await docClient.send(
+      console.log(`Processing: ${item.postId}`)
+
+      await docClient.send(
         new PutCommand({
           TableName: ledgerTableName,
           Item: {
@@ -62,13 +62,20 @@ export async function handler(event: SQSEvent): Promise<number> {
             to: [],
             ttl: Math.floor(Date.now() / 1000) + 86400,
           },
+          ConditionExpression: 'attribute_not_exists(postId)',
         })
       )
 
       const artistName = item.artist
-      console.log(artistName)
+
       if (artistName) {
-        userQueryBody = createQuery(artistName, item.genre)
+        userQueryBody = createQuery(
+          artistName,
+          item.album,
+          item.media,
+          item.genre
+        )
+        console.log(JSON.stringify(userQueryBody))
         const data = await requestWithBody(
           'users/_search',
           endpoint,
@@ -83,8 +90,10 @@ export async function handler(event: SQSEvent): Promise<number> {
         const { email, phone, inapp } =
           determineNotificationMethods(usersToProcess)
         try {
-          const emailUsers = await sendEmail(ses, email, item)
+          await sendEmail(ses, email, item)
+          console.log(`Emailed for: ${item.postId}`)
         } catch (e) {
+          await updateLedgerItem(docClient, [], item.postId, 'FAILED_EMAIL')
           console.error(
             'Error sending emails for record ',
             item.postId,
@@ -97,11 +106,9 @@ export async function handler(event: SQSEvent): Promise<number> {
         // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
 
         try {
-          const updateLedger = await updateLedgerItem(
-            docClient,
-            usersToProcess,
-            item.postId
-          )
+          const ids = usersToProcess.map((x) => x.id)
+          await updateLedgerItem(docClient, ids, item.postId)
+          console.log(`Finished for: ${item.postId}`)
         } catch (e) {
           console.error(
             'Error updating ledger for ',

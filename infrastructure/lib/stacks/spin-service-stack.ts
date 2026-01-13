@@ -4,7 +4,6 @@ import {
   aws_sqs as sqs,
   CfnOutput,
   Duration,
-  Fn,
   RemovalPolicy,
   Stack,
 } from 'aws-cdk-lib'

@@ -146,7 +146,7 @@ export const users = [
   },
   {
     albums: [],
-    notifyType: ['SMS', 'EMAIL', 'INAPP'],
+    notifyType: ['SMS', 'EMAIL', 'PUSH'],
     artists: ['PinkPantheress'],
     phone: '+14257372110',
     genres: ['Jazz', 'Pop', 'Hip Hop', 'Rock', 'Electronic', 'Hip Pop', 'R&B'],

@@ -20,7 +20,7 @@ const testCases: Cases[] = [
         id: 'userTest.id',
       },
       headers: {
-        cookie:
+        Cookie:
           'refreshToken=12345; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=2592000',
       },
     },
