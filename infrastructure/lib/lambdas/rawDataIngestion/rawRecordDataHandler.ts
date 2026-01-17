@@ -180,9 +180,9 @@ export async function handler(
             const command = new PutCommand({
               TableName: getEnv('UPCOMING_TABLE'),
               Item: body,
+              ConditionExpression: 'attribute_not_exists(id)',
             })
             const placeItem: PutCommandOutput = await docClient.send(command)
-            console.log(placeItem)
             return response.addBody(placeItem).addStatus(200).build()
           } catch (e) {
             return response.addBody(e).addStatus(500).build()

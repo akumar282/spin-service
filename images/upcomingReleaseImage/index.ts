@@ -57,8 +57,9 @@ async function parseData() {
         album: x.querySelector('td[class="albumTitle"]')?.text.replace(/(\r\n|\n|\r)/gm, "").trim() ?? '',
         note: note ?? '',
         date: currentDate !== '' && currentDate ? currentDate : (note ?? ''),
-        id: ulid()
+        id: ''
       }
+      item.id = Buffer.from(`${item.artist + item.album + item.note}`, 'utf-8').toString('base64')
       list.push(item)
     })
 

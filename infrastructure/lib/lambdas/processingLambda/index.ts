@@ -115,6 +115,11 @@ export async function handler(event: SQSEvent) {
 
       users.hits.hits.forEach((x) => usersToProcess.push(x._source))
 
+      if (usersToProcess.length === 0) {
+        await updateLedgerItem(docClient, [], item.postId, 'NO_RECIPIENTS')
+        continue
+      }
+
       const { email, phone, inapp } =
         determineNotificationMethods(usersToProcess)
 

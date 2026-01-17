@@ -76,7 +76,7 @@ export async function sendEmail(
         Data: `You liked this record: ${item.title} is in stock.`,
       },
     },
-    Source: 'notifications@spinmyrecords.com',
+    Source: '"spin-service" <notifications@spinmyrecords.com>',
   }
   const command = new SendEmailCommand(input)
   return await client.send(command)
