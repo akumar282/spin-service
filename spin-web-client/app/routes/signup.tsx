@@ -8,8 +8,8 @@ import SignUpForm from '~/components/SignUpForm'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'spin-service' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { title: 'signup | spin-service' },
+    { name: 'spin service sign up', content: 'sign up now!!!' },
   ]
 }
 

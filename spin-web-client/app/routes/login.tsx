@@ -12,8 +12,8 @@ import { AuthContext } from '~/components/AuthContext'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'New React Router App' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { title: 'login | spin-service' },
+    { name: 'login page', content: 'login page' },
   ]
 }
 

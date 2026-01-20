@@ -113,6 +113,7 @@ export const DYNAMIC_CORS = (host: string) => {
     'http://localhost:8080',
     'https://localhost:8080',
     'https://spinmyrecords.com',
+    'https://www.spinmyrecords.com',
     'https://dev.spinmyrecords.com',
     getEnv('CLOUD_DISTRO'),
   ]

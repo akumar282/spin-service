@@ -3,6 +3,7 @@ import { SpinServiceStack } from '../lib/stacks/spin-service-stack'
 import { ComputingNetworkingStack } from '../lib/stacks/computing-networking-stack'
 import { getEnv } from '../lib/shared/utils'
 import { SpinClientStack } from '../lib/stacks/spin-client-stack'
+import { CertificateStack } from '../lib/stacks/certificate-stack'
 
 const app = new cdk.App()
 
@@ -22,6 +23,7 @@ const SES_PUBLIC_KEY = getEnv('SES_PUBLIC_KEY')
 const SSH_IP = getEnv('SSH_IP')
 
 /**
+ * certificateStack === https://github.com/aws/aws-cdk/issues/25343
  * computeStack === networking & compute + api declaration
  * spinStack === business logic lambdas & client used resources + api definition
  * spinClientStack === web interface
@@ -30,8 +32,36 @@ const SSH_IP = getEnv('SSH_IP')
 if (validBuildParams()) {
   const env = { account: ACCOUNT, region: REGION }
 
+  const domain = 'spinmyrecords.com'
+
+  const sub = {
+    dev: `dev.${domain}`,
+    prod: `www.${domain}`,
+  }
+
+  const subDomain = ENV === 'prod' ? sub.prod : sub.dev
+
+  const certificateStack = new CertificateStack(
+    app,
+    `CertificateStack-${ENV}`,
+    {
+      env: {
+        account: ACCOUNT,
+        region: 'us-east-1',
+      },
+      domainName: subDomain,
+      crossRegionReferences: true,
+      zoneId: ZONE_ID,
+      zoneName: ZONE_NAME,
+    }
+  )
+
   const spinClient = new SpinClientStack(app, `SpinClientStack-${ENV}`, {
     env,
+    certificate: certificateStack.certificate,
+    crossRegionReferences: true,
+    sub: subDomain,
+    zone: certificateStack.zone,
   })
 
   const computeStack = new ComputingNetworkingStack(app, `SpinCompute-${ENV}`, {

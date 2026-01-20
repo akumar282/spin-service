@@ -8,8 +8,8 @@ import HomeNavbar from '~/components/HomeNavbar'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'New React Router App' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { title: 'channels | spin-service' },
+    { name: 'spin service notification types', content: 'set how you want to be notified' },
   ]
 }
 

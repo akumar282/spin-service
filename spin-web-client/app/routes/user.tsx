@@ -10,8 +10,7 @@ import { updateUser } from '~/functions'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'New React Router App' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { title: 'user | spin-service' }
   ]
 }
 

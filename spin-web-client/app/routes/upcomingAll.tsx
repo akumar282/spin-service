@@ -1,35 +1,32 @@
-import React, { type ChangeEventHandler, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { Route } from '../+types/root'
 import HomeNavbar from '~/components/HomeNavbar'
-import debounce from 'lodash/debounce'
-import type { Records, RecordsResult } from '~/types'
-import { Card } from '~/components/Card'
+import type { Upcoming, UpcomingResult } from '~/types'
 import { SpinClient } from '~/api/client'
 import spinLogo from '~/assets/spinLogo.png'
 import spinLogoDark from '~/assets/spinLogoDark.png'
+import UpcomingCard from '~/components/UpcomingCard'
 
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'browse | spin-service' },
-    { name: 'spin service browse records and cds', content: 'browse new records and cds' },
+    { title: 'upcoming | spin-service' },
+    { name: 'description', content: 'Welcome to React Router!' },
   ]
 }
 
 export default function Browse() {
 
   const [loading, setLoading] = useState<boolean>(true)
-  const [highlighted, setHighlighted] = useState<Records[]>([])
-  const [data, setData] = useState<Records[]>([])
+  const [results, setResults] = useState<Upcoming[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
 
   const client = new SpinClient()
 
   useEffect(() => {
     const getReleases = async () => {
-      const { data } = await client.getData<RecordsResult>('public?count=20')
-      setData(data.items)
-      setHighlighted(data.items)
+      const { data } = await client.getData<UpcomingResult>('public/upcoming?count=10')
+      setResults(data.items)
       setCursor(data.cursor)
     }
 
@@ -37,21 +34,10 @@ export default function Browse() {
   }, [])
 
   const useRequery = async () => {
-    const { data } = await client.getData<RecordsResult>(`public?count=20&cursor=${cursor}`)
+    const { data } = await client.getData<UpcomingResult>(`public/upcoming?count=20&cursor=${cursor}`)
     setCursor(data.cursor)
-    setData([...data.items, ...data.items])
-    setHighlighted([...highlighted, ...data.items])
+    setResults([...results ,...data.items])
   }
-
-  const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
-    console.log(e.target.value)
-    if (data !== null) {
-      const search = data.filter((record) => record.postTitle.toLowerCase().includes(e.target.value.toLowerCase()))
-      setHighlighted(search)
-    }
-  }
-
-  const debounced = debounce(onChange, 500)
 
   return (
     <main
@@ -59,19 +45,11 @@ export default function Browse() {
       <HomeNavbar/>
       <div className='max-w-[1500px] space-y-2 flex flex-col w-11/12 mt-10 mb-10 dark:text-white'>
         <h1 className='text-2xl'>
-          Latest Releases
+          Upcoming Releases
         </h1>
         <h3>
-          Items here have released in the past 24 hours
+          Releases that have confirmed and rumored release dates
         </h3>
-        <div className='mt-1 mb-4'>
-          <input
-            className='text-start py-1 bg-slate-100 text-black text-base mt-3 rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-600 w-full'
-            placeholder='Search for recent releases'
-            type='text'
-            onChange={debounced}
-          />
-        </div>
         <div className='grid gap-4 grid-cols-[repeat(auto-fit,minmax(17.5rem,1fr))] items-center'>
           {
             loading ? (
@@ -90,10 +68,15 @@ export default function Browse() {
             ) : (
               <>
                 {
-                  highlighted?.map((x, index) => {
-                    return <Card tag={x.releaseType} preOrder={x.preorder} album={x.album} data={x} image={x.thumbnail}
-                                 key={index} artist={x.artist!} title={x.title} color={x.color!} genre={x.genre}
-                                 storeLink={x.link}/>
+                  results?.map((x, index) => {
+                    return <UpcomingCard
+                      date={x.date}
+                      key={index}
+                      artist={x.artist}
+                      title={x.album}
+                      data={x}
+                      upcoming={true}
+                    />
                   })
                 }
               </>

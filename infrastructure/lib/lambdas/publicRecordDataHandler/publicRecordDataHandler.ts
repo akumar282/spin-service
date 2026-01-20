@@ -17,7 +17,7 @@ export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   const response = new ResponseBuilder('').addCors(event.headers.origin)
-  switch (event.path) {
+  switch (event.resource) {
     case '/public': {
       switch (event.httpMethod) {
         case 'GET': {

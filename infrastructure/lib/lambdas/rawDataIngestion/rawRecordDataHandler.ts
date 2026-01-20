@@ -20,7 +20,7 @@ export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   const response = new ResponseBuilder('')
-  switch (event.path) {
+  switch (event.resource) {
     case '/raw': {
       if (event.httpMethod === 'POST') {
         if (event.body) {
@@ -65,7 +65,6 @@ export async function handler(
             if (data.Items) {
               return response
                 .addBody({
-                  meta: data.$metadata,
                   data: data.Items[0],
                 })
                 .addStatus(200)
@@ -73,7 +72,6 @@ export async function handler(
             } else {
               return response
                 .addBody({
-                  meta: data.$metadata,
                   data: `No Item found with id: ${id}`,
                 })
                 .addStatus(404)

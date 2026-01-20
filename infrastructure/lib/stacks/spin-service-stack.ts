@@ -33,13 +33,13 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
-import { CdkExtendedProps } from './cdkExtendedProps'
+import { SpinStackProps } from './stackProps'
 import { Api } from '../apigateway/api'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import { gatewayRole } from '../iam/gatewayRole'
 
 export class SpinServiceStack extends Stack {
-  public constructor(scope: Construct, id: string, props: CdkExtendedProps) {
+  public constructor(scope: Construct, id: string, props: SpinStackProps) {
     super(scope, id, props)
 
     const logRole = new Role(this, 'ApiGwLogsRole', {
@@ -68,6 +68,7 @@ export class SpinServiceStack extends Stack {
             'http://localhost:8080',
             'https://localhost:8080',
             'https://spinmyrecords.com',
+            'https://www.spinmyrecords.com',
             'https://dev.spinmyrecords.com',
             allowedDomain,
           ],

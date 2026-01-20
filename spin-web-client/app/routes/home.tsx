@@ -16,7 +16,7 @@ import CardLoader from '~/components/CardLoader'
 export function meta({}: Route.MetaArgs) {
   return [
     { title: 'home | spin-service' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { name: 'spin-service home page', content: 'set your preferences and look up recent releases or upcoming albums' },
   ]
 }
 

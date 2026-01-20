@@ -7,7 +7,7 @@ import spinLogoDark from '~/assets/spinLogoDark.png'
 export function meta({}: Route.MetaArgs) {
   return [
     { title: 'spin-service' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { name: 'spin-service landing page', content: 'get the records you want today!' },
   ]
 }
 

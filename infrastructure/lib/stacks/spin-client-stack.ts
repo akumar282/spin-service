@@ -15,10 +15,20 @@ import {
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
+import { SpinClientStackProps } from './stackProps'
+import { AaaaRecord, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53'
+import { getEnv } from '../shared/utils'
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 
 export class SpinClientStack extends Stack {
-  public constructor(scope: Construct, id: string, props: StackProps) {
+  public constructor(
+    scope: Construct,
+    id: string,
+    props: SpinClientStackProps
+  ) {
     super(scope, id, props)
+
+    const env = getEnv('ENV')
 
     const deploymentBucket = new Bucket(this, 'DeploymentBucketSpinClient', {
       bucketName: 'deployment-bucket-spin-client',
@@ -56,6 +66,8 @@ export class SpinClientStack extends Stack {
           ttl: Duration.seconds(0),
         },
       ],
+      domainNames: [props.sub],
+      certificate: props.certificate,
     })
 
     new BucketDeployment(this, 'SpinClientDeployment', {
@@ -75,6 +87,18 @@ export class SpinClientStack extends Stack {
       exportName: 'CloudfrontDomain',
       value: cloudfrontDistro.domainName,
       description: 'Cloudfront URL',
+    })
+
+    new ARecord(this, `Arecord-${env}`, {
+      zone: props.zone,
+      recordName: env === 'prod' ? 'www' : 'dev',
+      target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDistro)),
+    })
+
+    new AaaaRecord(this, `AaaaRecord-${env}`, {
+      zone: props.zone,
+      recordName: env === 'prod' ? 'www' : 'dev',
+      target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDistro)),
     })
   }
 }
