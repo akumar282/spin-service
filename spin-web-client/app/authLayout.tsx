@@ -22,7 +22,6 @@ export default function AuthLayout() {
       statusText: 'You must log in.'
     })
   } else {
-    console.log('context:', user)
     return (
       <Outlet />
     )

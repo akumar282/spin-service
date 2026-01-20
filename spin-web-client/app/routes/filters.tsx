@@ -17,6 +17,8 @@ import { SpinClient } from '~/api/client'
 import { AuthContext } from '~/components/AuthContext'
 import spinLogo from '~/assets/spinLogo.png'
 import spinLogoDark from '~/assets/spinLogoDark.png'
+import Alert from '~/components/Alert'
+import { updateUser } from '~/functions'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,12 +32,16 @@ export default function Filters() {
   const client = new SpinClient()
 
   const [loading, setLoading] = useState<boolean>(false)
+  const [submissionState, setSubmissionState] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false)
   const [results, setResults] = useState<(Artist | Release | Master)[]>([])
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
   const [labelFilters, setLabelFilters] = useState<LabelNotification[]>([])
   const [artistFilters, setArtistFilters] = useState<ArtistNotification[]>([])
   const [allTags, setAllTags] = useState<AllNotifications[]>([])
   const [userData, setUserData] = useState<User['data']| null>(null)
+  const [message, setMessage] =
+    useState<{ title: string, message: string, type: string }>({ title: '', message: '', type: '' })
 
   useEffect(() => {
     if (!userContext?.user?.sub) return
@@ -112,13 +118,17 @@ export default function Filters() {
   }
 
   const useSubmitPrefs = async () => {
+    setSubmissionState(true)
     const update = Object.assign({}, userData, { artists: artistFilters, labels: labelFilters, albums: releaseFilters })
-    if (userContext && userContext.user?.data) {
-      console.log(update)
-      const data = unwrap(await client.patchData<UpdateUser>(`public/user/${userContext?.user?.sub}`, update))
-      const result = await client.postData<string>('/public/refresh', { platform: 'web' })
-      userContext.update()
+    const result = await updateUser(userContext, client, update)
+    if (result === 200) {
+      setShow(true)
+      setMessage({ title: 'Success', message: 'Filters have been updated!', type: 'success' })
+    } else {
+      setShow(true)
+      setMessage({ title: 'Error', message: 'Something went wrong :(', type: 'error' })
     }
+    setSubmissionState(false)
   }
 
   return (
@@ -126,8 +136,11 @@ export default function Filters() {
       <div className='flex flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
         <HomeNavbar/>
         <div className='w-full items-center max-w-[116rem] flex flex-col'>
-          <div className='lg:w-8/10 w-[97%] dark:bg-gray-300 dark:text-black rounded-xl border border-orange-400 dark:border-indigo-500 border-3 flex flex-col space-y-4 mt-10 bg-white'>
-            <h1 className='mt-5 text-2xl mx-auto text-center'>Set Notification Filters</h1>
+          <div className='mt-4 w-full flex justify-center'>
+            <Alert show={show} closeAlert={() => setShow(false)} title={message.title} message={message.message} type={message.type} />
+          </div>
+          <div className={`lg:w-8/10 w-[97%] dark:bg-gray-300 dark:text-black rounded-xl border border-orange-400 dark:border-indigo-500 border-3 flex flex-col space-y-4 ${show ? 'mt-2' : 'mt-10'} bg-white`}>
+            <h1 className='mt-5 text-2xl lg:px-0 md:px-0 px-2 mx-auto text-center'>Set Notification Filters</h1>
             <h3 className='mx-auto w-[98%] px-2 text-center'>Manage filters so you can be notified for what you are looking for and what you want</h3>
             <div className='w-full flex flex-col items-center'>
               <div className='w-[97%] space-y-2 my-3'>
@@ -175,8 +188,11 @@ export default function Filters() {
                 />
                 <button
                   onClick={() => useSubmitPrefs()}
-                  className=' w-full dark:hover:bg-indigo-400 hover:bg-orange-300 bg-orange-300 rounded-2xl dark:bg-indigo-300 py-2 text-lgå'>
-                  Submit
+                  disabled={submissionState}
+                  className='w-full bg-orange-300 rounded-2xl py-2 text-lg hover:bg-orange-300 dark:bg-indigo-300 dark:hover:bg-indigo-400 disabled:opacity-50
+                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'
+                >
+                  {submissionState ? 'Submitting...' : 'Submit'}
                 </button>
               </div>
               {

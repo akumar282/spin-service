@@ -24,10 +24,14 @@ export async function SignUp(username: string, password: string, type: 'login' |
 
 export async function updateUser(context: AuthContextType | null, client: SpinClient, payload: object ) {
   if (context && context.user?.data) {
-    unwrap(await client.patchData<UpdateUser>(`public/user/${context?.user?.sub}`, payload))
-    await client.postData<string>('/public/refresh', { platform: 'web' })
+    const data = await client.patchData<UpdateUser>(`public/user/${context?.user?.sub}`, payload)
+    const result = await client.postData<string>('/public/refresh', { platform: 'web' })
     context.update()
+    if (result.status === 200 && data.status === 200) {
+      return 200
+    }
   }
+  return 500
 }
 
 export function cap(inputString: string): string {
