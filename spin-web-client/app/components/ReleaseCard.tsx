@@ -26,7 +26,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
       <div className='flex flex-row'>
         { Notation(props.tag, props.preOrder, 0) }
       </div>
-      <div className='lg:h-32 lg:w-32 h-24 w-24 mx-auto'>
+      <div className='lg:h-34 lg:w-34 overflow-hidden md:h-30 md:w-30 h-27 w-27 mx-auto'>
         <img
           alt='cover'
           className=''

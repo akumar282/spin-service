@@ -43,7 +43,7 @@ export function Card(props: CardProps) {
         <div className='flex flex-row'>
           { Notation(props.tag, props.preOrder, 1) }
         </div>
-        <div className='aspect-square h-35 w-35 md:h-37 md:w-37 lg:h-40 lg:w-40 mb-2 mx-auto rounded'>
+        <div className='aspect-square h-37 w-37 md:h-39 md:w-39 lg:h-41 lg:w-41 mb-2 mx-auto rounded'>
           <img
             alt='cover'
             src={props.image && props.image !== '' ? props.image : alternateImage}
