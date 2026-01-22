@@ -54,7 +54,6 @@ export async function handler(
             const command = new QueryCommand(input)
 
             const item = await client.send(command)
-            console.log(item)
 
             return response
               .addBody({

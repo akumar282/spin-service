@@ -405,6 +405,18 @@ export class SpinServiceStack extends Stack {
       }
     )
 
+    const postSignUpLambda = new lambda.Function(this, 'postSignUpLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('dist/postSignUpLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+    })
+
+    userPool.addTrigger(
+      cognito.UserPoolOperation.POST_CONFIRMATION,
+      postSignUpLambda
+    )
+
     // const robotAuthorizerLambda = new lambda.Function(
     //   this,
     //   'fargateAuthorizerLambda',
@@ -438,6 +450,15 @@ export class SpinServiceStack extends Stack {
     })
 
     processinglambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'SESOptions',
+        effect: Effect.ALLOW,
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      })
+    )
+
+    postSignUpLambda.addToRolePolicy(
       new PolicyStatement({
         sid: 'SESOptions',
         effect: Effect.ALLOW,
