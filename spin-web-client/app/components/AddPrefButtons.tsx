@@ -3,10 +3,13 @@ import type { ArtistNotification, Records, ReleaseNotification, User } from '~/t
 import { AuthContext } from '~/components/AuthContext'
 import { updateUser } from '~/functions'
 import { SpinClient } from '~/api/client'
+import * as _ from 'lodash'
 
 interface ButtonProps {
   data: Records
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setShow: React.Dispatch<React.SetStateAction<boolean>>
+  setMessage: React.Dispatch<React.SetStateAction<{ title: string, message: string, type: string }>>
 }
 
 export default function AddPrefButtons(props: ButtonProps) {
@@ -15,6 +18,7 @@ export default function AddPrefButtons(props: ButtonProps) {
 
   const userContext = useContext(AuthContext)
   const [userData, setUserData] = useState<User['data']| null>(null)
+  const [submissionState, setSubmissionState] = useState<boolean>(false)
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
   const [artistFilters, setArtistFilters] = useState<ArtistNotification[]>([])
   const [albumData, setAlbumData] = useState<ReleaseNotification>({ album: '', type: '' })
@@ -31,62 +35,83 @@ export default function AddPrefButtons(props: ButtonProps) {
         setArtistFilters(user.artists)
         setReleaseFilters(user.albums)
         setArtistData({ artist: data.artist!, type: 'artist' })
-        setAlbumData({ album: data.title, type: 'vinyl' })
+        setAlbumData({ album: data.album, type: 'Vinyl' })
       }
     }
     fetchData().catch()
   }, [userContext])
 
   async function addArtist(item: ArtistNotification) {
+    setSubmissionState(true)
     if (userContext?.user === null) {
       props.setOpen(true)
       return
     }
-    setArtistFilters(prev => {
-      const exists = prev.some(t => JSON.stringify(t) === JSON.stringify(item))
-      const next = exists
-        ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(item))
-        : [...prev, item]
+    const next = (() => {
+      const exists = artistFilters.some(t => _.isEqual(t, item))
+      return exists
+        ? artistFilters.filter(t => !_.isEqual(t, item))
+        : [...artistFilters, item]
+    })()
 
-      updateArtistState(next)
-      return next
-    })
+    setArtistFilters(next)
+    await updateArtistState(next)
+    setSubmissionState(false)
   }
 
   async function updateArtistState(nextArtists: ArtistNotification[]) {
     const update = { ...userData, artists: nextArtists }
-    await updateUser(userContext, client, update)
+    const result = await updateUser(userContext, client, update)
+    if (result === 200) {
+      props.setShow(true)
+      props.setMessage({ title: 'Success', message: 'Information updated!', type: 'success' })
+    } else {
+      props.setShow(true)
+      props.setMessage({ title: 'Error', message: 'Something went wrong :(', type: 'error' })
+    }
   }
 
   async function addAlbum(item: ReleaseNotification) {
+    setSubmissionState(true)
     if (userContext?.user === null) {
       props.setOpen(true)
       return
     }
-    setReleaseFilters(prev => {
-      const exists = prev.some(t => JSON.stringify(t) === JSON.stringify(item))
-      const next = exists
-        ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(item))
-        : [...prev, item]
-
-      updateAlbumState(next)
-      return next
-    })
+    const next = (() => {
+      const exists = releaseFilters.some(t => _.isEqual(t, item))
+      return exists
+        ? releaseFilters.filter(t => !_.isEqual(t, item))
+        : [...releaseFilters, item]
+    })()
+    setReleaseFilters(next)
+    await updateAlbumState(next)
+    setSubmissionState(false)
   }
 
   async function updateAlbumState(nextReleases: ReleaseNotification[]) {
     const update = { ...userData, albums: nextReleases }
-    await updateUser(userContext, client, update)
+    const result = await updateUser(userContext, client, update)
+    if (result === 200) {
+      props.setShow(true)
+      props.setMessage({ title: 'Success', message: 'Information updated!', type: 'success' })
+    } else {
+      props.setShow(true)
+      props.setMessage({ title: 'Error', message: 'Something went wrong :(', type: 'error' })
+    }
   }
 
   return (
     <div className='w-full mx-auto mb-3 flex flex-col space-y-2 pt-2 justify-center'>
       <button onClick={() => addAlbum(albumData)}
-              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
+              disabled={submissionState}
+              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500 disabled:opacity-50
+                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'>
         Notify me for this album
       </button>
       <button onClick={() => addArtist(artistData)}
-              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 lg:px-0 px-1.5 dark:hover:bg-indigo-500'>
+              disabled={submissionState}
+              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 lg:px-0 px-1.5 dark:hover:bg-indigo-500 disabled:opacity-50
+                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'>
         Notify me this artists releases
       </button>
     </div>

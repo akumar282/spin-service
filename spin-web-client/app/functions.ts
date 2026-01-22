@@ -1,5 +1,5 @@
 import { SpinClient } from '~/api/client'
-import { unwrap, type UpdateUser } from '~/types'
+import { type UpdateUser } from '~/types'
 import { AuthContext, type AuthContextType } from '~/components/AuthContext'
 import { useContext } from 'react'
 

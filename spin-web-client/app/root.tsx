@@ -66,16 +66,16 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className='pt-16 p-4 flex bg-gray-800 h-full w-full'>
-      <div className='mx-auto items-center flex flex-col'>
+    <main className='pt-16 p-4 flex text-wrap bg-gray-800 h-full w-full'>
+      <div className='mx-auto items-center overflow-hidden flex flex-col'>
         <h1 className='text-2xl font-primary'>{details}</h1>
-        <img src={shrug} alt={'shrug man'}/>
+        <img src={shrug} className='lg:w-[50rem] lg:h-[50rem] md:w-72 h-72 w-40 h-40' alt={'shrug man'}/>
         {stack && (
           <pre className='w-full p-4 overflow-x-auto'>
           <code>{stack}</code>
         </pre>
         )}
-        <h1 className='font-primary text-center text-xl pt-5'>Back to
+        <h1 className='font-primary text-center text-xl text-wrap pt-5'>Back to
           <button
             type='button'
             onClick={() => navigate('/home')}

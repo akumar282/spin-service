@@ -61,7 +61,6 @@ export default function Filters() {
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     setLoading(true)
     const data = unwrap(await client.getData<SearchResult>(`search/search?q=${e.target.value}`))
-    console.log(data)
     const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
     setResults(filteredResults)
     setLoading(false)

@@ -43,7 +43,7 @@ export function Card(props: CardProps) {
         <div className='flex flex-row'>
           { Notation(props.tag, props.preOrder, 1) }
         </div>
-        <div className='aspect-square h-30 w-30 md:h-33 md:w-33 lg:h-34 lg:w-34 mb-2 mx-auto rounded'>
+        <div className='aspect-square h-35 w-35 md:h-37 md:w-37 lg:h-40 lg:w-40 mb-2 mx-auto rounded'>
           <img
             alt='cover'
             src={props.image && props.image !== '' ? props.image : alternateImage}
@@ -51,7 +51,7 @@ export function Card(props: CardProps) {
           />
         </div>
         <div className='flex flex-col items-center h-full w-full overflow-hidden text-center mx-auto'>
-          <div className='lg:text-lg text-lg/5 max-h-16 my-1 text-wrap overflow-ellipsis truncate'>
+          <div className='lg:text-lg text-lg/5 max-h-16 my-1 mx-2 text-wrap overflow-ellipsis truncate'>
             <h1>
               {props.album}
             </h1>
