@@ -28,23 +28,30 @@ export const links: Route.LinksFunction = () => [
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
-      <head>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <Meta />
-        <Links />
-      </head>
-      <body className='bg-orange-100 h-dvh dark:bg-slate-900'>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
+    <head>
+      <title>SpinMyRecords</title>
+      <meta content='spin-service' property='og:title'/>
+      <meta content='get the records you want today!' property='og:description'/>
+      <meta content='https://www.spinmyrecords.com' property='og:url'/>
+      <meta content='https://www.spinmyrecords.com/assets/spinLogoDark-Bmy-juDG.png' property='og:image'/>
+      <meta content='#6875f5' data-react-helmet='true' name='theme-color'/>
+      <meta charSet='utf-8'/>
+      <meta name='viewport' content='width=device-width, initial-scale=1'/>
+      <meta/>
+      <Meta/>
+      <Links/>
+    </head>
+    <body className='bg-orange-100 h-dvh dark:bg-slate-900'>
+    {children}
+    <ScrollRestoration/>
+    <Scripts/>
+    </body>
     </html>
   )
 }
 
 export default function App() {
-  return <Outlet />
+  return <Outlet/>
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

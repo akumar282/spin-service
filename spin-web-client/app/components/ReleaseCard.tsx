@@ -22,7 +22,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
   return (
     <div
       onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })}
-      className='dark:bg-slate-300 transition ease-in-out mx-3 lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-76 flex-shrink-0 lg:w-54 h-64 w-44'>
+      className='dark:bg-slate-300 transition ease-in-out mx-3 lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-76 flex-shrink-0 lg:w-54 h-64 w-44'>
       <div className='flex flex-row'>
         { Notation(props.tag, props.preOrder, 0) }
       </div>
@@ -37,7 +37,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         <h1 className='text-wrap max-h-13 truncate text-md'>
           {props.title}
         </h1>
-        <h3 className='truncate italic text-sm'>
+        <h3 className='truncate italic lg:mb-0 md:mb-0 mb-1 text-sm'>
           {props.artist}
         </h3>
       </div>

@@ -38,7 +38,7 @@ export function Card(props: CardProps) {
 
   return (
     <div onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })}
-      className=' bg-white/80 dark:text-black transition ease-in-out border-orange-400 hover:-translate-y-1 hover:scale-105 dark:border-indigo-500 w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
+      className=' bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 dark:text-black transition ease-in-out border-orange-400 hover:-translate-y-1 hover:scale-105 dark:border-indigo-500 w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
       <div className='flex flex-col h-full items-start'>
         <div className='flex flex-row'>
           {Notation(props.tag, props.preOrder, 1)}

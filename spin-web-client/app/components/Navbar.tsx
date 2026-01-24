@@ -6,7 +6,7 @@ export default function Navbar() {
   const navigate = useNavigate()
 
   return (
-    <nav className='relative px-4 py-4 w-full flex justify-start items-center dark:bg-indigo-800 bg-orange-300'>
+    <nav className='relative px-4 py-4 w-full text-black flex justify-start items-center dark:text-white dark:bg-indigo-800 bg-orange-300'>
       <button onClick={() => navigate('/')}>
         <h1 className='font-primary text-2xl'>
           spin-service

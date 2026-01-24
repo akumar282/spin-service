@@ -17,7 +17,7 @@ export default function UpcomingCard(props: ReleaseCardProps) {
   return (
     <div
       onClick={() => navigate(`/upcoming/${props.data.id}`, { state: { data: props.data } })}
-      className='dark:bg-slate-300 transition ease-in-out mx-3 text-black lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-66 flex-shrink-0 lg:w-54 h-60 w-44'>
+      className='bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 transition ease-in-out mx-3 text-black lg:my-6 md:my-6 my-4 hover:-translate-y-3 hover:scale-105 bg-slate-100 mx-auto border flex flex-col border-2 dark:border-indigo-600 border-orange-400 overflow-hidden rounded-2xl lg:h-66 flex-shrink-0 lg:w-54 h-60 w-44'>
       <div className='flex flex-row'>
         <button className='dark:bg-indigo-300 bg-orange-300 rounded-full mt-2 ml-2 mb-2 px-2 text-sm'>
           <h1>
