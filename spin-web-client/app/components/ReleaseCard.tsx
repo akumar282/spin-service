@@ -29,7 +29,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
       <div className='lg:h-34 lg:w-34 overflow-hidden md:h-30 md:w-30 h-27 w-27 mx-auto'>
         <img
           alt='cover'
-          className=''
+          className='h-full w-full object-cover'
           src={props.linkTo && props.linkTo !== '' ? props.linkTo : alternateImage}
         />
       </div>
@@ -42,7 +42,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         </h3>
       </div>
       <div className='w-[90%] mt-auto mx-auto mb-3 flex justify-center'>
-        <button onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })} className='dark:bg-indigo-300 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'>
+        <button onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })} className='dark:bg-indigo-300 bg-orange-300 text-md rounded-xl w-full py-0.5 border-2 dark:border-indigo-500 border-orange-400 dark:hover:bg-indigo-500'>
           Get Notified
         </button>
       </div>

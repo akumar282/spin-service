@@ -38,10 +38,10 @@ export function Card(props: CardProps) {
 
   return (
     <div onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })}
-      className=' bg-white/80 dark:text-black border-orange-400 dark:border-indigo-500 w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
+      className=' bg-white/80 dark:text-black transition ease-in-out border-orange-400 hover:-translate-y-1 hover:scale-105 dark:border-indigo-500 w-[18rem] h-[22.5rem] border-2 font-primary m-auto rounded-2xl shadow-2xl'>
       <div className='flex flex-col h-full items-start'>
         <div className='flex flex-row'>
-          { Notation(props.tag, props.preOrder, 1) }
+          {Notation(props.tag, props.preOrder, 1)}
         </div>
         <div className='aspect-square h-37 w-37 md:h-39 md:w-39 lg:h-41 lg:w-41 mb-2 mx-auto rounded'>
           <img
@@ -50,21 +50,17 @@ export function Card(props: CardProps) {
             className='h-full w-full object-cover'
           />
         </div>
-        <div className='flex flex-col items-center h-full w-full overflow-hidden text-center mx-auto'>
-          <div className='lg:text-lg text-lg/5 max-h-16 my-1 mx-2 text-wrap overflow-ellipsis truncate'>
-            <h1>
-              {props.album}
-            </h1>
-          </div>
-          <div className='lg:text-md text-md text-wrap truncate italic mx-2'>
-            <h1>
-              {props.artist}
-            </h1>
-          </div>
-          <div className='flex flex-wrap mt-3 justify-center mx-2 gap-2'>
-            {
-              props.genre !== undefined ? props.genre.map((x, index) => generateTags(x , index)) : <></>
-            }
+        <div className='flex flex-col items-center h-full w-full min-h-0 overflow-hidden text-center mx-auto'>
+          <h1 className='w-full px-2 my-1 text-lg leading-tight line-clamp-2 break-words'>
+            {props.album}
+          </h1>
+          <h2 className='w-full px-2 italic text-md leading-tight mt-1 line-clamp-2 break-words'>
+            {props.artist}
+          </h2>
+          <div className='w-full px-2 mt-3 min-h-0 overflow-hidden'>
+            <div className='flex flex-wrap justify-center gap-2 max-h-full overflow-hidden'>
+              {props.genre?.map((x, index) => generateTags(x, index))}
+            </div>
           </div>
         </div>
       </div>
