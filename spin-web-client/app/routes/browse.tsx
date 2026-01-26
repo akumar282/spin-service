@@ -39,16 +39,22 @@ export default function Browse() {
   const useRequery = async () => {
     const { data } = await client.getData<RecordsResult>(`public?count=20&cursor=${cursor}`)
     setCursor(data.cursor)
-    setData([...data.items, ...data.items])
-    setHighlighted([...highlighted, ...data.items])
+    setData(prev => [...prev, ...data.items])
+    setHighlighted(prev => [...prev, ...data.items])
   }
 
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     console.log(e.target.value)
-    if (data !== null) {
-      const search = data.filter((record) => record.postTitle.toLowerCase().includes(e.target.value.toLowerCase()))
-      setHighlighted(search)
+    if (data === null) {
+      return
     }
+    if (e.target.value.trim() === '') {
+      setHighlighted(data)
+      return
+    }
+
+    const search = data.filter((record) => record.postTitle.toLowerCase().includes(e.target.value.toLowerCase()))
+    setHighlighted(search)
   }
 
   const debounced = debounce(onChange, 500)

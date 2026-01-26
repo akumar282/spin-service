@@ -23,10 +23,10 @@ export default function ReleasePage() {
 
   return (
     <main>
+      <AuthModal open={open} setOpen={setOpen}/>
       <div
         className='flex text-black flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
         <HomeNavbar/>
-        <AuthModal open={open} setOpen={setOpen}/>
         <div className='w-full mt-3 flex justify-center'>
           <Alert show={show} closeAlert={() => setShow(false)} title={message.title} message={message.message}
                  type={message.type}/>

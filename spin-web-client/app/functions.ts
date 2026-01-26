@@ -3,9 +3,9 @@ import { type UpdateUser } from '~/types'
 import { AuthContext, type AuthContextType } from '~/components/AuthContext'
 import { useContext } from 'react'
 
-export async function SignUp(username: string, password: string, type: 'login' | 'new_user'): Promise<200 | 400 | 401> {
+export async function SignUp(username: string, password: string, type: 'login' | 'new_user'): Promise<number> {
   const client = new SpinClient()
-  const result = await client.postData('/public/auth', {
+  const result = await client.postData<string>('/public/auth', {
     type: type,
     platform: 'web',
     credentials: {
@@ -14,12 +14,7 @@ export async function SignUp(username: string, password: string, type: 'login' |
     },
     clientId: import.meta.env.VITE_CLIENT_ID
   })
-
-  if (result.data === 'Login Successful') {
-    return 200
-  } else {
-    return 401
-  }
+  return result.status
 }
 
 export async function updateUser(context: AuthContextType | null, client: SpinClient, payload: object ) {

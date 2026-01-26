@@ -47,7 +47,7 @@ export default function Landing() {
     <main
       className='flex flex-col font-primary dark:text-black items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
       <HomeNavbar/>
-      <div className='max-w-[1500px] w-11/12 mt-10 dark:text-white text-2xl'>
+      <div className='max-w-[1500px] w-11/12 mt-7 dark:text-white text-2xl'>
         <h1>
           Welcome!
         </h1>
@@ -66,19 +66,20 @@ export default function Landing() {
           context?.user !== null ? (
             <>
               <button
-                className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
+                className='group rounded-2xl flex h-full flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
                 onClick={() => navigate('/manage/notifications')}>
-                <h1 className='text-start w-8/12 mt-8 mr-6'>Manage Notifications</h1>
-                <div className='relative mx-auto h-15 w-15'>
+                <h1 className='text-start lg:w-7/12 w-8/12 mt-8 mr-8 lg:mr-16 md:mr-8'>Manage Notifications</h1>
+                <div className='relative mx-auto'>
                   <img
                     className='absolute inset-0 animate-none group-hover:animate-ping1 opacity-75'
                     src={alarm}
+                    height={60} width={60}
                   />
-                  <img className='relative inset-0' src={alarm}/>
+                  <img className='relative inset-0' height={60} width={60}  src={alarm}/>
                 </div>
               </button>
               <button
-                className='group rounded-2xl flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
+                className='group rounded-2xl h-full flex flex-row shrink-0 transition ease-in-out hover:-translate-y-3 hover:scale-105 border-orange-400 dark:border-indigo-600 border-3 px-3 py-3 bg-gradient-to-b from-slate-200 via-white to-slate-200 dark:bg-gradient-to-b dark:from-slate-300 dark:via-white dark:to-slate-300 hover:bg-orange-100 dark:hover:bg-indigo-300'
                 onClick={() => navigate('/manage/user')}>
                 <h1 className='text-start w-8/12 mt-8'>Manage User Information</h1>
                 <div className='mx-auto pl-8 '>

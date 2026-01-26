@@ -45,6 +45,7 @@ export default function AddPrefButtons(props: ButtonProps) {
     setSubmissionState(true)
     if (userContext?.user === null) {
       props.setOpen(true)
+      setSubmissionState(false)
       return
     }
     const next = (() => {
@@ -75,6 +76,7 @@ export default function AddPrefButtons(props: ButtonProps) {
     setSubmissionState(true)
     if (userContext?.user === null) {
       props.setOpen(true)
+      setSubmissionState(false)
       return
     }
     const next = (() => {
