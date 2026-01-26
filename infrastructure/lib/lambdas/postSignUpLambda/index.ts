@@ -42,4 +42,5 @@ export async function handler(event: PostConfirmationTriggerEvent) {
       }
     }
   }
+  return event
 }
