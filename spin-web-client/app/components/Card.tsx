@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router'
 import type { Records } from '~/types'
 import { Notation } from '~/components/Notation'
+import sorry from '../assets/sorry.webp'
 
 interface CardProps {
   artist: string | null | undefined,
@@ -16,17 +17,26 @@ interface CardProps {
   tag: string
 }
 
-const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
-
-function getRandomInt(max: number) {
-  return Math.floor(Math.random() * max)
-}
-
 export function generateTags(x: string, key: number) {
-  const colors = ['bg-indigo-300', 'bg-green-300', 'bg-orange-300', 'bg-red-300', 'bg-emerald-300', 'bg-pink-300', 'bg-blue-300']
-  const color = colors.at(getRandomInt(colors.length))
+  const colorMap =
+    new Map([
+      ['Electronic', 'bg-blue-300'],
+      ['Folk, World, & Country', 'bg-orange-300'],
+      ['Rock', 'bg-red-300'],
+      ['Pop', 'bg-indigo-300'],
+      ['Hip Hop', 'bg-green-300'],
+      ['R&B', 'bg-sky-300'],
+      ['Blues', 'bg-blue-600'],
+      ['Classical', 'bg-rose-300'],
+      ['Funk / Soul', 'bg-yellow-300'],
+      ['Stage & Screen', 'bg-orange-300'],
+      ['Non-Music', 'bg-red-400'],
+      ['Reggae', 'bg-teal-600'],
+
+    ])
+  const colors = ['bg-indigo-300', 'bg-green-300', 'bg-orange-300', 'bg-red-300', 'bg-emerald-300', 'bg-pink-300', 'bg-blue-300', 'bg-purple-300', 'bg-cyan-300', 'bg-sky-300', 'bg-lime-300', 'bg-rose-300']
   return (
-    <div key={key} className={`rounded-4xl text-sm ${color} w-fit px-2 py-1 break-words`}>
+    <div key={key} className={`rounded-4xl text-sm ${colorMap.get(x)} w-fit px-2 py-1 break-words`}>
       {x}
     </div>
   )
@@ -46,7 +56,7 @@ export function Card(props: CardProps) {
         <div className='aspect-square h-37 w-37 md:h-39 md:w-39 lg:h-41 lg:w-41 mb-2 mx-auto rounded'>
           <img
             alt='cover'
-            src={props.image && props.image !== '' ? props.image : alternateImage}
+            src={props.image && props.image !== '' ? props.image : sorry}
             className='h-full w-full object-cover'
           />
         </div>

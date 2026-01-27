@@ -7,6 +7,7 @@ import { Notation } from '~/components/Notation'
 import AddPrefButtons from '~/components/AddPrefButtons'
 import AuthModal from '~/components/AuthModal'
 import Alert from '~/components/Alert'
+import sorry from '../assets/sorry.webp'
 
 export default function ReleasePage() {
   const location = useLocation()
@@ -16,8 +17,6 @@ export default function ReleasePage() {
   const [show, setShow] = useState<boolean>(false)
   const [message, setMessage] =
     useState<{ title: string, message: string, type: string }>({ title: '', message: '', type: '' })
-
-  const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
 
   const notation = Notation(data.releaseType, data.preorder, 2)
 
@@ -45,7 +44,7 @@ export default function ReleasePage() {
                       className='h-[200px] w-[200px] md:h-[200px] md:w-[200px] lg:w-[220px] lg:h-[220px] flex-shrink-0'>
                       <img
                         className='h-full w-full object-cover rounded'
-                        src={data.thumbnail && data.thumbnail !== '' ? data.thumbnail : alternateImage}
+                        src={data.thumbnail && data.thumbnail !== '' ? data.thumbnail : sorry}
                         alt='title'
                       />
                     </div>

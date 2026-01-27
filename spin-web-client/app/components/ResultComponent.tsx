@@ -1,5 +1,6 @@
 import React from 'react'
 import plus from '~/assets/plus.svg'
+import sorry from '../assets/sorry.webp'
 
 export interface ResultComponentProps {
   _typename: 'release' | 'master'
@@ -25,8 +26,6 @@ export interface ArtistResultComponentProps {
   buttonFunction: () => void
 }
 
-const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
-
 export function ResultComponent(props: ResultComponentProps) {
 
   return (
@@ -36,7 +35,7 @@ export function ResultComponent(props: ResultComponentProps) {
           <div className='h-[64px] w-[64px] lg:w-[70px] lg:h-[70px] flex-shrink-0'>
             <img
               className='h-full w-full object-cover rounded'
-              src={props.thumbnail !== '' ? props.thumbnail : alternateImage}
+              src={props.thumbnail !== '' ? props.thumbnail : sorry}
               alt='title'
             />
           </div>
@@ -76,7 +75,7 @@ export function ArtistResultComponent(props: ArtistResultComponentProps) {
           <div className='h-[64px] w-[64px] lg:w-[70px] lg:h-[70px] flex-shrink-0'>
             <img
               className='h-full w-full object-cover rounded'
-              src={props.thumbnail !== '' ? props.thumbnail : alternateImage}
+              src={props.thumbnail !== '' ? props.thumbnail : sorry}
               alt='title'
             />
           </div>

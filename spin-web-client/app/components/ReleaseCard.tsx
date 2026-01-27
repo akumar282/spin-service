@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router'
 import type { Records } from '~/types'
 import { Notation } from '~/components/Notation'
+import sorry from '../assets/sorry.webp'
 
 interface ReleaseCardProps {
   preOrder: boolean
@@ -12,8 +13,6 @@ interface ReleaseCardProps {
   data: Records,
   tag: string
 }
-
-const alternateImage = 'https://media.tenor.com/sovVS54egH0AAAAm/sorry.webp'
 
 export default function ReleaseCard(props: ReleaseCardProps) {
 
@@ -30,7 +29,7 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         <img
           alt='cover'
           className='h-full w-full object-cover'
-          src={props.linkTo && props.linkTo !== '' ? props.linkTo : alternateImage}
+          src={props.linkTo && props.linkTo !== '' ? props.linkTo : sorry}
         />
       </div>
       <div className='w-[90%] mt-1 mx-auto'>

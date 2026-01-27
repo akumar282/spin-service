@@ -199,6 +199,13 @@ export class SpinServiceStack extends Stack {
         role: new cognito.StringAttribute({ mutable: true }),
         version: new cognito.NumberAttribute({ mutable: true }),
       },
+      passwordPolicy: {
+        minLength: 6,
+        requireDigits: true,
+        requireUppercase: false,
+        requireLowercase: false,
+        requireSymbols: false,
+      },
     })
 
     const userPoolClient = userPool.addClient('SpinClient', {

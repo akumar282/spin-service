@@ -66,7 +66,7 @@ export async function sendEmail(
       Body: {
         Html: {
           Charset: 'UTF-8',
-          Data: `The record, ${item.title} by ${item.artist} is now available. 
+          Data: `The record, ${item.album} by ${item.artist} is now available. 
                  Get it now:  <a class="ulink" href="${link}" target="_blank">
                  Record Store Link</a>.`,
         },

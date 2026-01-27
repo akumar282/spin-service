@@ -26,10 +26,10 @@ export default function SignUpForm(props: AuthForm) {
       .matches(/[@]/, 'Must be valid email address'),
     password: yup
       .string()
-      .min(8, 'Password should be of minimum 8 characters')
-      .matches(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/, 'Must contain at least one special character')
-      .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
-      .matches(/[a-z]/, 'Must contain at least one lowercase letter')
+      .min(6, 'Password should be of minimum 6 characters')
+      // .matches(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/, 'Must contain at least one special character')
+      // .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
+      // .matches(/[a-z]/, 'Must contain at least one lowercase letter')
       .matches(/[0-9]/, 'Must contain at least one number')
       .required('Password is required'),
   })
