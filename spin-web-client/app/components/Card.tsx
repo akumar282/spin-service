@@ -32,6 +32,7 @@ export function generateTags(x: string, key: number) {
       ['Stage & Screen', 'bg-orange-300'],
       ['Non-Music', 'bg-red-400'],
       ['Reggae', 'bg-teal-600'],
+      ['Jazz', 'bg-fuchsia-300']
 
     ])
   const colors = ['bg-indigo-300', 'bg-green-300', 'bg-orange-300', 'bg-red-300', 'bg-emerald-300', 'bg-pink-300', 'bg-blue-300', 'bg-purple-300', 'bg-cyan-300', 'bg-sky-300', 'bg-lime-300', 'bg-rose-300']

@@ -20,9 +20,4 @@ Content-Type: application/json
 
 ###
 
-GET https://r0p415t6i6.execute-api.us-west-2.amazonaws.com/os/_cluster/health
-Authorization: Basic "YWRtaW46YWRtaW5BYjEh"
-
-###
-
 GET https://spin-service.execute-api.us-west-2.amazonaws.com/prod/search/search?q=playboi&release_title=whole
