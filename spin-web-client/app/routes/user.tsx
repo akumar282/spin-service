@@ -94,9 +94,14 @@ export default function User() {
                     <h3>Email Address</h3>
                   </div>
                   <div className='flex space-y-2 flex-col-reverse'>
-                    <CountrySelector countryCode={countryCode} setCountryCode={setCountryCode}
-                                     placeholder={userData.phone} value={formik.values.phone || ''}
-                                     onChange={formik.handleChange} countryMap={countryByIso}/>
+                    <CountrySelector
+                      countryCode={countryCode}
+                      setCountryCode={setCountryCode}
+                      placeholder={userData.phone}
+                      value={formik.values.phone || ''}
+                      onChange={formik.handleChange}
+                      countryMap={countryByIso}
+                    />
                     <h3>Phone</h3>
                   </div>
                 </div>

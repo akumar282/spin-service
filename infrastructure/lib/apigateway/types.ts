@@ -72,6 +72,7 @@ export type User = {
   artists: string[]
   albums: Item[]
   deviceId?: string
+  countryCode: string | null
 }
 
 export type UserPreprocess = {

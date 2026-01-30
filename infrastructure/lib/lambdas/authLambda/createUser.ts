@@ -19,6 +19,7 @@ export async function CreateUser(
         labels: [],
         artists: [],
         albums: [],
+        countryCode: null,
       },
     })
     const response = await client.send(command)

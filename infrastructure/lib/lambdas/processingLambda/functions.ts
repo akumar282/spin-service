@@ -73,7 +73,7 @@ export async function sendEmail(
       },
       Subject: {
         Charset: 'UTF-8',
-        Data: `You liked this record: ${item.title} is in stock.`,
+        Data: `You liked this record: ${item.album} - ${item.artist} is in stock.`,
       },
     },
     Source: '"spin-service" <notifications@spinmyrecords.com>',
