@@ -34,7 +34,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <meta content='get the records you want today!' property='og:description'/>
       <meta content='https://www.spinmyrecords.com' property='og:url'/>
       <meta content='https://www.spinmyrecords.com/assets/spinLogoDark-Bmy-juDG.png' property='og:image'/>
-      <meta content='#6875f5' data-react-helmet='true' name='theme-color'/>
+      <meta name='theme-color' content='#ff8904' media='(prefers-color-scheme: light)' data-react-helmet='true'/>
+      <meta name='theme-color' content='#6875f5' media='(prefers-color-scheme: dark)' data-react-helmet='true'/>
       <meta charSet='utf-8'/>
       <meta name='viewport' content='width=device-width, initial-scale=1'/>
       <meta/>

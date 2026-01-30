@@ -175,6 +175,7 @@ export type User = {
     artists: ArtistNotification[]
     albums: ReleaseNotification[]
     deviceId?: string
+    countryCode?: { iso: string, dial: string}
   }
 }
 
@@ -197,6 +198,13 @@ export type UpdateUser = {
     albums: string[]
     deviceId?: string
   }
+}
+
+export type Countries = {
+  name: string,
+  dialCode: string,
+  isoCode: string,
+  flag: string
 }
 
 export function unwrap<T>(data: ResponseData<T>) {

@@ -8,6 +8,8 @@ import LoadingScreen from '~/components/LoadingScreen'
 import { useFormik } from 'formik'
 import { updateUser } from '~/functions'
 import Alert from '~/components/Alert'
+import CountrySelector from '~/components/CountrySelector'
+import countries from '../assets/countries.json'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,9 +21,12 @@ export default function User() {
   const userContext = useContext(AuthContext)
   const [userData, setUserData] = useState<User['data']| null>(null)
   const [submissionState, setSubmissionState] = useState<boolean>(false)
+  const [countryCode, setCountryCode] = useState<{ iso: string, dial: string}>({ iso: '', dial: '' })
   const [show, setShow] = useState<boolean>(false)
   const [message, setMessage] =
     useState<{ title: string, message: string, type: string }>({ title: '', message: '', type: '' })
+
+  const countryByIso = new Map(countries.map((countries) => [countries.isoCode, countries]))
 
   const client = new SpinClient()
   useEffect(() => {
@@ -30,6 +35,7 @@ export default function User() {
       if (userContext?.user?.data) {
         const data = userContext.user.data
         setUserData(data)
+        setCountryCode({ iso: data.countryCode?.iso ?? 'US', dial: data.countryCode?.dial ?? '+1' })
       }
     }
 
@@ -41,6 +47,7 @@ export default function User() {
     initialValues: {
       email: userData?.email,
       phone: userData?.phone,
+      countryCode: userData?.countryCode ?? null
     },
     onSubmit: async (values) => {
       setSubmissionState(true)
@@ -76,7 +83,7 @@ export default function User() {
                 <div className='w-10/12 space-y-4 m-5'>
                   <div className='flex space-y-2 flex-col-reverse'>
                     <input
-                      className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
+                      className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 h-10 dark:focus:outline-2'
                       type='text'
                       name='email'
                       id='email'
@@ -87,15 +94,9 @@ export default function User() {
                     <h3>Email Address</h3>
                   </div>
                   <div className='flex space-y-2 flex-col-reverse'>
-                    <input
-                      className='bg-white my-2 text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
-                      type='text'
-                      name='phone'
-                      id='phone'
-                      placeholder={userData.phone}
-                      value={formik.values.phone || ''}
-                      onChange={formik.handleChange}
-                    />
+                    <CountrySelector countryCode={countryCode} setCountryCode={setCountryCode}
+                                     placeholder={userData.phone} value={formik.values.phone || ''}
+                                     onChange={formik.handleChange} countryMap={countryByIso}/>
                     <h3>Phone</h3>
                   </div>
                 </div>
