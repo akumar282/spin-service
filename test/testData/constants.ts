@@ -121,6 +121,7 @@ export const users = [
     id: '48c113f0-5041-70db-7d2f-2cb7dbc5d0b9',
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
+    countryCode: { iso: 'US', dial: '+1' },
   },
   {
     albums: [],
@@ -132,6 +133,7 @@ export const users = [
     id: '48c113f0-5041-70db-7d2f-2cb7dbc5d0b9',
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
+    countryCode: { iso: 'US', dial: '+1' },
   },
   {
     albums: [],
@@ -143,6 +145,7 @@ export const users = [
     id: '48c113f0-5041-70db-7d2f-2cb7dbc5d0b9',
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
+    countryCode: { iso: 'US', dial: '+1' },
   },
   {
     albums: [],
@@ -154,6 +157,7 @@ export const users = [
     id: '48c113f0-5041-70db-7d2f-2cb7dbc5d0b9',
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
+    countryCode: { iso: 'US', dial: '+1' },
   },
 ]
 
@@ -167,6 +171,7 @@ export const testUser = {
   id: '48c113f0-5041-70db-7d2f-2cb7dbc5d0b9',
   email: 'Jonesy.FromFornite@gmail.com',
   labels: [],
+  countryCode: { iso: 'US', dial: '+1' },
 }
 
 export const record1 = {
@@ -202,6 +207,7 @@ export const userTest: User = {
   id: '48c113f0-5041-70db-7d2f-2cb7dbc5d0b9',
   email: 'Jonesy.FromFornite@gmail.com',
   labels: [],
+  countryCode: { iso: 'US', dial: '+1' },
 }
 
 export const openSearchReturn: OpenSearchUserResult = {

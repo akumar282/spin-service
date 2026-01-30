@@ -40,6 +40,7 @@ export async function handler(
       }
       case 'PATCH': {
         if (event.body) {
+          console.log(JSON.stringify(event.body))
           const body: Partial<UserPreprocess> = JSON.parse(event.body)
           const input: UpdateCommandInput = {
             ExpressionAttributeNames: {
@@ -50,6 +51,7 @@ export async function handler(
               '#al': 'albums',
               '#em': 'email',
               '#pho': 'phone',
+              '#coun': 'countryCode',
             },
             ExpressionAttributeValues: {
               ':no': body.notifyType,
@@ -59,6 +61,7 @@ export async function handler(
               ':al': body.albums,
               ':em': body.email,
               ':pho': body.phone,
+              ':coun': body.countryCode,
             },
             Key: {
               id,
@@ -67,13 +70,17 @@ export async function handler(
             ReturnValues: 'ALL_NEW',
             TableName: getEnv('TABLE_NAME'),
             UpdateExpression:
-              'SET #no = :no, #ge = :ge, #la = :la, #art = :art, #al = :al, #em = :em, #pho = :pho',
+              'SET #no = :no, #ge = :ge, #la = :la, #art = :art, #al = :al, #em = :em, #pho = :pho, #coun = :coun',
+          }
+          let phone
+          if (body.countryCode?.dial && body.phone) {
+            phone = body.countryCode.dial + body.phone
           }
           const attr = await updateAttributes(
             cognitoClient,
             id,
             body.email || '',
-            body.phone || ''
+            phone || ''
           )
           const command = new UpdateCommand(input)
           const data = await docClient.send(command)

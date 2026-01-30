@@ -57,7 +57,7 @@ export default function SignUpForm(props: AuthForm) {
   return (
     <form className='mt-6' onSubmit={formik.handleSubmit}>
       <div className='flex flex-col space-y-3'>
-        <div className='justify-center flex'>
+        <div className='justify-center flex flex-col'>
           <input
             className='my-1 lg:w-[23rem] w-[20rem] bg-white text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
             placeholder='Email or Phone'
@@ -71,7 +71,7 @@ export default function SignUpForm(props: AuthForm) {
               <div className='text-red-500 text-xs text-start ml-3'>{formik.errors.username}</div>) : null
           }
         </div>
-        <div className='justify-center flex'>
+        <div className='justify-center flex flex-col'>
           <input
             className='my-1 lg:w-[23rem] w-[20rem] bg-white text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
             placeholder='Password'

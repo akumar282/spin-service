@@ -47,10 +47,11 @@ export default function User() {
     initialValues: {
       email: userData?.email,
       phone: userData?.phone,
-      countryCode: userData?.countryCode ?? null
+      countryCode: countryCode
     },
     onSubmit: async (values) => {
       setSubmissionState(true)
+      console.log(values)
       const update = Object.assign({}, userData, values)
       const result = await updateUser(userContext, client, update)
       if (result === 200) {

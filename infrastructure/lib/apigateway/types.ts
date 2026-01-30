@@ -72,7 +72,10 @@ export type User = {
   artists: string[]
   albums: Item[]
   deviceId?: string
-  countryCode: string | null
+  countryCode: {
+    iso: string
+    dial: string
+  }
 }
 
 export type UserPreprocess = {
@@ -86,6 +89,10 @@ export type UserPreprocess = {
   artists: Item[]
   albums: Item[]
   deviceId?: string
+  countryCode: {
+    iso: string
+    dial: string
+  }
 }
 
 export type SQSBody = {
