@@ -59,7 +59,7 @@ export default function CountrySelector(props: CountrySelectorProps) {
                 <span className='flex-1 text-start min-w-0 truncate whitespace-nowrap'>
                   {x.dialCode}
                 </span>
-                <span className='flex-1 min-w-0 text-end truncate whitespace-nowrap'>
+                <span className='flex-1 min-w-0 text-end hidden lg:block md:block truncate whitespace-nowrap'>
                   {x.name}
                 </span>
               </DropdownItem>
