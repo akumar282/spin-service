@@ -19,7 +19,10 @@ export async function CreateUser(
         labels: [],
         artists: [],
         albums: [],
-        countryCode: null,
+        countryCode: {
+          iso: 'US',
+          dial: '+1',
+        },
       },
     })
     const response = await client.send(command)

@@ -4,9 +4,7 @@ import { DiscogsClient } from './discogs/client'
 import { ResponseBody, SearchResult } from './discogs/types'
 import { getEnv, requestHttpMethod, requestWithBody } from '../utils'
 import { ulid } from 'ulid'
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import { mapToData } from './secondaryParsing/parse'
-
 
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
@@ -46,6 +44,9 @@ export type PostInfo = {
   edition: string | null,
   releaseDate: string | null,
   format: string | null,
+  moreContent: string | null
+  region: string | null,
+  isAnnouncement: boolean
 }
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
@@ -94,12 +95,28 @@ async function getRawPosts(url: string) {
   }
 }
 
+function getContent(item: HTMLElement): string {
+  let fallback = item.getAttribute('content-href') ?? ''
+  let content = item.getAttribute('content-href')
+  if (content && content.includes('www.reddit.com')) {
+    content = item.querySelector('a[class="relative pointer-events-auto a cursor-pointer\n' +
+      '  \n' +
+      '  \n' +
+      '  \n' +
+      '  \n' +
+      '  underline\n' +
+      '  "]')?.getAttribute('href')
+    return content ?? ''
+  }
+  return content ?? fallback
+}
+
 function mapToAttributes(rawData: HTMLElement[]) {
   const yesterday = new Date(Date.now())
   rawData.map(post => {
     pushPostsQueue.push({
       postTitle: post.getAttribute('post-title'),
-      content: post.getAttribute('content-href'),
+      content: getContent(post),
       link: `https://www.reddit.com${post.getAttribute('permalink')}`,
       created_time: new Date(post.getAttribute('created-timestamp') as string),
       postId: post.getAttribute('id'),
@@ -117,9 +134,37 @@ function mapToAttributes(rawData: HTMLElement[]) {
       dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}`,
       expires: Math.floor((new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000),
       source: 'Reddit (r/VinylReleases)',
-      secondaryId: ulid()
+      secondaryId: ulid(),
+      moreContent: post.querySelector('a[class="relative pointer-events-auto a cursor-pointer\n' +
+        '  \n' +
+        '  \n' +
+        '  \n' +
+        '  \n' +
+        '  underline\n' +
+        '  "]')?.getAttribute('href') ?? null
     })
   })
+}
+
+async function crossCheck(posts: Partial<PostInfo>[]){
+  for (const post of posts) {
+    let content = post.content
+    if (content && content.includes('i.redd')) {
+      const result = await getPage(post.link!)
+      post.content = (result as HTMLElement)
+        .querySelector(
+          'a[class="relative pointer-events-auto a cursor-pointer\n' +
+          '  \n' +
+          '  \n' +
+          '  \n' +
+          '  \n' +
+          '  underline\n' +
+          '  "]'
+        )
+        ?.getAttribute('href')
+      post.thumbnail = content
+    }
+  }
 }
 
 function transformString(title: string | undefined): string {
@@ -157,7 +202,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
   })
   for (const item of postsQueue) {
     if(!item.searchString) {
-      return
+      continue
     }
     const data = await discogsClient.getData<ResponseBody<SearchResult>>(
       'database/search',
@@ -176,7 +221,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
         item.year = first.year
       }
     } else {
-      console.warn(`[DISCOGS_CALL]: ${item.postTitle} not found in Discogs`)
+      console.warn(`[DISCOGS_CALL]: Call failed for: ${item.postTitle}`)
     }
   }
 }
@@ -190,6 +235,7 @@ async function main() {
     await getRawPosts(BASE_URL)
     mapToAttributes(rawPostsQueue)
     await mapToData(pushPostsQueue)
+    await crossCheck(pushPostsQueue)
     await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
       try {
@@ -199,7 +245,7 @@ async function main() {
       }
     }
   } catch (e) {
-    console.error('[MAIN]: Execution failed with message ' + e)
+    console.error('[MAIN]: Execution failed with message ' + JSON.stringify(e))
   }
 }
 

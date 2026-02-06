@@ -22,8 +22,8 @@ export default function SignUpForm(props: AuthForm) {
   const validationSchema = yup.object({
     username: yup
       .string()
-      .required('Email is required')
-      .matches(/[@]/, 'Must be valid email address'),
+      .required('Email is required'),
+      // .matches(/[@]/, 'Must be valid email address'),
     password: yup
       .string()
       .min(6, 'Password should be of minimum 6 characters')
@@ -59,7 +59,7 @@ export default function SignUpForm(props: AuthForm) {
       <div className='flex flex-col space-y-3'>
         <div className='justify-center flex flex-col'>
           <input
-            className='my-1 lg:w-[23rem] w-[20rem] bg-white text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
+            className='my-1 lg:w-[23rem] w-[20rem] mx-auto bg-white text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
             placeholder='Email or Phone'
             name='username'
             type='text'
@@ -73,7 +73,7 @@ export default function SignUpForm(props: AuthForm) {
         </div>
         <div className='justify-center flex flex-col'>
           <input
-            className='my-1 lg:w-[23rem] w-[20rem] bg-white text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
+            className='my-1 lg:w-[23rem] w-[20rem] mx-auto bg-white text-start py-1 text-black text-base rounded-lg border pl-2 border-slate-500 focus:outline-orange-300 dark:focus:outline-indigo-400 dark:focus:outline-2'
             placeholder='Password'
             name='password'
             type='password'

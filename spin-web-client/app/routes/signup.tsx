@@ -49,6 +49,9 @@ export default function SignUpPage() {
                 className='underline text-secondary-blue ml-2 hover:text-indigo-400 '>Log In
               </button>
             </h1>
+            <h1 className='pl-2 font-primary text-sm'>
+              <a onClick={() => navigate('/privacy')}
+                 className='underline text-secondary-blue ml-2 hover:text-indigo-400 cursor-pointer'>Privacy Policy</a> </h1>
           </div>
         </div>
       </div>

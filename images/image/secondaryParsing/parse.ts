@@ -26,11 +26,14 @@ async function getMetadata(data: string) {
           "4. Extract color variants such as \"pink\", \"blue\", \"mauve\", \"clear\", \"magenta\".\n" +
           "5. Extract edition information such as \"limited\", \"exclusive\", \"numbered /500\".\n" +
           "6. Extract release dates if mentioned.\n" +
-          "7. Create a canonical 'searchString' by combining artist and album in the form: \n" +
-          "   \"artist album\", but *exclude* format/color/edition keep it short and also exclude special chars.\n" +
+          "7. Create a canonical and optimized 'searchString' for a query by combining artist and album in the form: \n" +
+          "   \"artist album\", but *exclude* format/color/edition keep it short and also exclude special chars. " +
+          "    Remember that this will be used to query discogs so accuracy and query optimization is valued.\n" +
           "8. If album is self-titled (S/T), use the artist name.\n" +
           "9. You may get longer titles so use data and context clues to avoid errors or hallucinations.\n" +
-          "10. Capitalize the Words.\n" +
+          "10. Use the provided url to get the region/country the site is hosted in and return the iso code.\n" +
+          "11. You should also use and go into the provided url if you have to for accurate data on other requested fields.\n" +
+          "12. Capitalize the Words.\n" +
           "\n" +
           "Respond *only* with valid a JSON object using this structure:\n" +
           "\n" +
@@ -43,6 +46,7 @@ async function getMetadata(data: string) {
           "  \"releaseDate\": \"\",\n" +
           "  \"searchString\": \"\"\n" +
           "  \"preorder\": boolean\n" +
+          "  \"region\": string\n" +
           "}"
       },
       {
@@ -57,7 +61,7 @@ async function getMetadata(data: string) {
 export async function mapToData(list: Partial<PostInfo>[]) {
   for (const post of list) {
     if (post.postTitle && post.artist) {
-      const data = await getMetadata(post.postTitle)
+      const data = await getMetadata(JSON.stringify({ title: post.postTitle, url: post.content}))
       post.artist = data.artist ?? post.artist
       post.color = setColor(data.color, post.color)
       post.searchString = data.searchString ?? post.searchString
@@ -66,6 +70,7 @@ export async function mapToData(list: Partial<PostInfo>[]) {
       post.releaseDate = data.releaseDate ?? ''
       post.album = data.album
       post.format = data.format
+      post.region = data.region
     }
   }
 }

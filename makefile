@@ -5,7 +5,7 @@ else
 endif
 export
 
-STACKS = SpinCompute-prod SpinClientStack-prod SpinServiceStack-prod CertificateStack-prod
+STACKS = CertificateStack-prod SpinCompute-prod SpinClientStack-prod SpinServiceStack-prod
 
 bootstrap:
 	cdk bootstrap
@@ -20,7 +20,7 @@ build-all:
 	npm run build-all
 
 deploy:
-	npm run cdk -- deploy SpinCompute-prod
+	npm run cdk deploy --exclusively SpinClientStack-prod
 
 deploy-all:
 	npm run cdk -- deploy ${STACKS}

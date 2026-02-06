@@ -10,6 +10,8 @@ export interface SpinStackProps extends StackProps {
   opensearch_user: string
   dashpass: string
   vpc: Vpc
+  zone: PublicHostedZone
+  certificate: Certificate
 }
 
 export interface ComputingNetworkStackProps extends StackProps {

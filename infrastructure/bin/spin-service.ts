@@ -85,6 +85,9 @@ if (validBuildParams()) {
     vpc: computeStack.vpc,
     dashpass: DASHPASS,
     env,
+    certificate: certificateStack.certificate,
+    zone: certificateStack.zone,
+    crossRegionReferences: true,
   })
 }
 

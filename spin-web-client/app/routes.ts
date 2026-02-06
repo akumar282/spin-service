@@ -9,6 +9,7 @@ export default [
     route('browse', 'routes/browse.tsx'),
     route('help', 'routes/help.tsx'),
     route('tos', 'routes/tos.tsx'),
+    route('privacy', 'routes/privacy.tsx'),
     route('release/:rid', 'routes/release.tsx'),
     route('upcoming', 'routes/upcomingAll.tsx'),
     route('upcoming/:rid', 'routes/upcoming.tsx'),

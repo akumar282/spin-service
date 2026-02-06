@@ -32,8 +32,9 @@ export class CertificateStack extends Stack {
 
     this.zone = publicZone
 
-    this.certificate = new Certificate(this, `ZoneCert-${env}`, {
-      domainName: props.domainName,
+    this.certificate = new Certificate(this, `ZoneCertNew-${env}`, {
+      domainName: '*.spinmyrecords.com',
+      subjectAlternativeNames: ['spinmyrecords.com'],
       validation: CertificateValidation.fromDns(publicZone),
     })
   }

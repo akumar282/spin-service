@@ -31,7 +31,7 @@ export class SpinClientStack extends Stack {
     const env = getEnv('ENV')
 
     const deploymentBucket = new Bucket(this, 'DeploymentBucketSpinClient', {
-      bucketName: 'deployment-bucket-spin-client',
+      bucketName: `deployment-bucket-spin-client-${env}`,
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,

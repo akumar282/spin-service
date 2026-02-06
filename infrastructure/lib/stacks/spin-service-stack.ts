@@ -15,6 +15,12 @@ import {
   StreamViewType,
 } from 'aws-cdk-lib/aws-dynamodb'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
+import {
+  BasePathMapping,
+  DomainName,
+  EndpointType,
+  SecurityPolicy,
+} from 'aws-cdk-lib/aws-apigateway'
 import { Construct } from 'constructs'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { StartingPosition } from 'aws-cdk-lib/aws-lambda'
@@ -37,6 +43,9 @@ import { SpinStackProps } from './stackProps'
 import { Api } from '../apigateway/api'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import { gatewayRole } from '../iam/gatewayRole'
+import { getEnv } from '../shared/utils'
+import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53'
+import { ApiGatewayDomain } from 'aws-cdk-lib/aws-route53-targets'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: SpinStackProps) {
@@ -85,6 +94,28 @@ export class SpinServiceStack extends Stack {
     })
 
     recordsApi.addLogging(logRole.roleArn)
+
+    const apiDomainName = new DomainName(this, 'SpinApiName', {
+      domainName:
+        getEnv('ENV') === 'prod'
+          ? 'api.spinmyrecords.com'
+          : 'dev-api.spinmyrecords.com',
+      certificate: props.certificate,
+      endpointType: EndpointType.EDGE,
+      securityPolicy: SecurityPolicy.TLS_1_2,
+    })
+
+    new BasePathMapping(this, 'ApiMapping', {
+      domainName: apiDomainName,
+      restApi: recordsApi.api,
+      stage: recordsApi.api.deploymentStage,
+    })
+
+    new ARecord(this, 'ApiAliasRecord', {
+      zone: props.zone,
+      recordName: 'api',
+      target: RecordTarget.fromAlias(new ApiGatewayDomain(apiDomainName)),
+    })
 
     const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
       tableName: 'recordsTableNew',

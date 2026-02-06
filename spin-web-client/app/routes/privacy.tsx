@@ -20,57 +20,6 @@ export default function User() {
       <Navbar/>
       <div className='w-full max-w-3xl flex flex-col justify-center mx-auto px-4'>
         <h1 className='mt-10 text-3xl text-center font-semibold'>
-          Terms of Service
-        </h1>
-
-        <p className='mt-8 text-base leading-relaxed'>
-          Welcome to Spin My Records (“SPIN”)(&#34;spin-service&#34;). By accessing or using our website
-          and services, you agree to these Terms of Service. If you do not agree,
-          please do not use the service.
-        </p>
-
-        <h2 className='mt-8 text-xl font-semibold'>1. Service Description</h2>
-        <p className='mt-2 text-base leading-relaxed'>
-          Spin My Records provides notifications and alerts related to vinyl
-          record availability and releases. Users may choose to receive email or
-          SMS notifications for items they explicitly select or track.
-        </p>
-
-        <h2 className='mt-8 text-xl font-semibold'>2. User Accounts</h2>
-        <p className='mt-2 text-base leading-relaxed'>
-          You must create an account to access certain features. You are
-          responsible for maintaining the confidentiality of your account and
-          for all activity that occurs under it.
-        </p>
-
-        <h2 className='mt-8 text-xl font-semibold'>3. Notifications</h2>
-        <p className='mt-2 text-base leading-relaxed'>
-          Notifications are optional and must be explicitly enabled by the user.
-          Message frequency varies based on item availability. You may opt out
-          of SMS notifications at any time by replying STOP, or disable
-          notifications in your account settings.
-        </p>
-
-        <h2 className='mt-8 text-xl font-semibold'>4. Acceptable Use</h2>
-        <p className='mt-2 text-base leading-relaxed'>
-          You agree not to misuse the service, attempt to gain unauthorized
-          access, or interfere with the normal operation of Spin My Records.
-        </p>
-
-        <h2 className='mt-8 text-xl font-semibold'>5. Disclaimer</h2>
-        <p className='mt-2 text-base leading-relaxed'>
-          The service is provided “as is” without warranties of any kind. We do
-          not guarantee the accuracy, availability, or timeliness of alerts.
-        </p>
-
-        <h2 className='mt-8 text-xl font-semibold'>6. Changes</h2>
-        <p className='mt-2 text-base leading-relaxed'>
-          We may update these Terms from time to time. Continued use of the
-          service after changes constitutes acceptance of the updated Terms.
-        </p>
-      </div>
-      <div className='w-full max-w-3xl flex flex-col justify-center mx-auto px-4'>
-        <h1 className='mt-10 text-3xl text-center font-semibold'>
           Privacy Policy
         </h1>
 

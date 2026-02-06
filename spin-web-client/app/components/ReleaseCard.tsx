@@ -36,11 +36,11 @@ export default function ReleaseCard(props: ReleaseCardProps) {
         <h1 className='text-wrap max-h-13 truncate text-md'>
           {props.title}
         </h1>
-        <h3 className='truncate italic lg:mb-0 md:mb-0 mb-1 text-sm'>
+        <h3 className='truncate italic lg:mb-0 md:mb-1 mb-1 mt-1 text-sm'>
           {props.artist}
         </h3>
       </div>
-      <div className='w-[90%] mt-auto mx-auto mb-3 flex justify-center'>
+      <div className='w-[90%] mt-auto mx-auto mb-3 mt-1 flex justify-center'>
         <button onClick={() => navigate(`/release/${props.data.postId}`, { state: { data: props.data } })} className='dark:bg-indigo-300 bg-orange-300 text-md rounded-xl w-full py-0.5 border-2 dark:border-indigo-500 border-orange-400 dark:hover:bg-indigo-500'>
           Get Notified
         </button>

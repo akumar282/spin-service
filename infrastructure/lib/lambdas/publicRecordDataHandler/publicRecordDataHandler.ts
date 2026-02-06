@@ -37,7 +37,13 @@ export async function handler(
               Limit: !isNaN(Number(count)) ? Number(count) : 20,
               KeyConditionExpression:
                 'dateGroup = :dateGroup AND created_time BETWEEN :yesterday AND :today',
+              FilterExpression: '#rt <> :releaseType',
+              ExpressionAttributeNames: {
+                '#rt': 'releaseType',
+              },
+              ScanIndexForward: false,
               ExpressionAttributeValues: {
+                ':releaseType': 'RELEASE NEWS',
                 ':dateGroup': cutoff,
                 ':yesterday': yesterday.toISOString(),
                 ':today': rightNow,
