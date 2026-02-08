@@ -8,7 +8,7 @@ export
 build:
 
 deploy:
-	esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js
+	esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js --packages=external
 
 run:
 	node dist/index.js

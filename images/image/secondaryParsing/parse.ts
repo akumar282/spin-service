@@ -1,5 +1,5 @@
 import * as OpenAI from 'openai'
-import { getEnv } from '../../utils'
+import { getEnv } from '../util'
 import { PostInfo } from '../index'
 
 const client = new OpenAI.OpenAI({
@@ -9,8 +9,8 @@ const client = new OpenAI.OpenAI({
 
 async function getMetadata(data: string) {
   const response = await client.responses.create({
-    model: "gpt-5-nano",
-    reasoning: { effort: "minimal" },
+    model: "gpt-5-mini",
+    reasoning: { effort: "low" },
     input: [
       {
         role: "system",
@@ -32,8 +32,7 @@ async function getMetadata(data: string) {
           "8. If album is self-titled (S/T), use the artist name.\n" +
           "9. You may get longer titles so use data and context clues to avoid errors or hallucinations.\n" +
           "10. Use the provided url to get the region/country the site is hosted in and return the iso code.\n" +
-          "11. You should also use and go into the provided url if you have to for accurate data on other requested fields.\n" +
-          "12. Capitalize the Words.\n" +
+          "11. Capitalize the Words.\n" +
           "\n" +
           "Respond *only* with valid a JSON object using this structure:\n" +
           "\n" +
@@ -71,6 +70,7 @@ export async function mapToData(list: Partial<PostInfo>[]) {
       post.album = data.album
       post.format = data.format
       post.region = data.region
+      post.productImage = data.productImage
     }
   }
 }
@@ -82,12 +82,3 @@ function setColor(data: string | null | undefined, post: string | null | undefin
     return post
   }
 }
-
-// function mergeData(scraped: Partial<PostInfo>, llm: Partial<PostInfo>, keys: (keyof PostInfo)[]) {
-//   for (const key of keys) {
-//     const value = llm[key]
-//     if (value !== '' && value != null && scraped[key] !== undefined) {
-//       scraped[key] = llm[key]
-//     }
-//   }
-// }

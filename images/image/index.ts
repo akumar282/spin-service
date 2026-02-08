@@ -2,9 +2,10 @@ import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
 import { ResponseBody, SearchResult } from './discogs/types'
-import { getEnv, requestHttpMethod, requestWithBody } from '../utils'
 import { ulid } from 'ulid'
 import { mapToData } from './secondaryParsing/parse'
+import { chromium } from 'playwright'
+import { getEnv } from './util'
 
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
@@ -46,10 +47,11 @@ export type PostInfo = {
   format: string | null,
   moreContent: string | null
   region: string | null,
-  isAnnouncement: boolean
+  isAnnouncement: boolean,
+  productImage: string
 }
 
-async function getPage(endpoint: string): Promise<HTMLElement | number> {
+async function getPage(endpoint: string, headers?: object): Promise<HTMLElement | number> {
   try {
     const data = await axios.get(endpoint, {
       // httpsAgent: proxyAgent,
@@ -60,6 +62,7 @@ async function getPage(endpoint: string): Promise<HTMLElement | number> {
         "accept-encoding": "gzip, deflate, br",
         "cookie": "intl_splash=false"
       },
+      withCredentials: true
     })
     return parseHTML(data.data)
   } catch (error) {
@@ -95,9 +98,32 @@ async function getRawPosts(url: string) {
   }
 }
 
-function getContent(item: HTMLElement): string {
+async function requery(item: HTMLElement) {
+  try {
+    const data = await getPage(`https://www.reddit.com${item.getAttribute('permalink')}`)
+    return (data as HTMLElement)
+      .querySelector(
+        'a[class="relative pointer-events-auto a cursor-pointer\n' +
+          '  \n' +
+          '  \n' +
+          '  \n' +
+          '  \n' +
+          '  underline\n' +
+          '  "]'
+      )
+      ?.getAttribute('href') ?? null
+  } catch (e) {
+    console.log('[REQUERY] requery failed with: ', e)
+  }
+  return null
+}
+
+async function getContent(item: HTMLElement): Promise<string> {
+  let content = item.getAttribute('content-href') ?? null
   let fallback = item.getAttribute('content-href') ?? ''
-  let content = item.getAttribute('content-href')
+  if (item.querySelector('figure[class="h-full w-full m-0 z-10 flex items-center"]')) {
+    content = await requery(item)
+  }
   if (content && content.includes('www.reddit.com')) {
     content = item.querySelector('a[class="relative pointer-events-auto a cursor-pointer\n' +
       '  \n' +
@@ -105,18 +131,80 @@ function getContent(item: HTMLElement): string {
       '  \n' +
       '  \n' +
       '  underline\n' +
-      '  "]')?.getAttribute('href')
+      '  "]')?.getAttribute('href') ?? null
     return content ?? ''
   }
   return content ?? fallback
 }
 
+async function getOgImage(url: string) {
+
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+  })
+
+  const context = await browser.newContext({
+    locale: 'de-DE',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    viewport: { width: 1280, height: 800 },
+    extraHTTPHeaders: {
+      'accept-language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+      'upgrade-insecure-requests': '1',
+    },
+  })
+
+  const page = await context.newPage()
+
+  page.on('response', response => {
+    if (response.url().includes('roughtrade.com') && [403, 429, 503].includes(response.status())) {
+      console.log('blocked response', response.status(), response.url())
+    }
+  })
+
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
+
+  const result = await page.waitForSelector('meta[property="og:image"]', { state: 'attached', timeout: 45000 }).then(() => 'og')
+
+  if (result !== 'og') {
+    const title = await page.title().catch(() => '')
+    const htmlStart = (await page.content().catch(() => '')).slice(0, 400)
+    await browser.close()
+    throw new Error(`Did not reach product HTML (likely challenge). title="${title}" html="${htmlStart}"`)
+  }
+
+  const og = await page.getAttribute('meta[property="og:image"]', 'content')
+  await browser.close()
+  return og
+}
+
+async function getCorrectImage(posts: Partial<PostInfo>[]) {
+  for (const post of posts) {
+    const content = post.content
+    if (content && !content.includes('i.redd')) {
+      try {
+        let siteData
+        if (content.includes('roughtrade.com')) {
+          const image = await getOgImage(content)
+          post.thumbnail = image
+        } else {
+          siteData = await getPage(content)
+          const image = (siteData as HTMLElement).querySelector('meta[property="og:image"], meta[name="og:image"]')?.getAttribute('content') ?? 'no image'
+          post.thumbnail = image !== 'no image' ? image : post.thumbnail
+        }
+      } catch (e) {
+        console.log(`[IMAGE_FETCH] failed for ${post.content}: `, e)
+      }
+    }
+  }
+}
+
 function mapToAttributes(rawData: HTMLElement[]) {
   const yesterday = new Date(Date.now())
-  rawData.map(post => {
+  rawData.map(async post => {
     pushPostsQueue.push({
       postTitle: post.getAttribute('post-title'),
-      content: getContent(post),
+      content: await getContent(post),
       link: `https://www.reddit.com${post.getAttribute('permalink')}`,
       created_time: new Date(post.getAttribute('created-timestamp') as string),
       postId: post.getAttribute('id'),
@@ -216,7 +304,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
         item.resource_url = first.resource_url
         item.genre = first.genre
         item.label = first.label
-        item.thumbnail = first.thumb
+        item.thumbnail = item.thumbnail === null ? item.thumbnail : first.thumb
         item.uri = first.uri
         item.year = first.year
       }
@@ -233,13 +321,15 @@ async function main() {
     // }
     const endpointUrl = getEnv('API_URL')
     await getRawPosts(BASE_URL)
-    mapToAttributes(rawPostsQueue)
-    await mapToData(pushPostsQueue)
+    await mapToAttributes(rawPostsQueue)
+    // await mapToData(pushPostsQueue)
     await crossCheck(pushPostsQueue)
-    await joinWithDiscogs(pushPostsQueue)
+    await getCorrectImage(pushPostsQueue)
+    // await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
       try {
-        await requestWithBody('raw', endpointUrl, item, requestHttpMethod.POST)
+        console.log(item)
+        // await axios.post('raw', item, { baseURL: endpointUrl })
       } catch (e) {
         console.error(`[API_INGESTION_CALL] Post call failed for ${item.postId}`)
       }
