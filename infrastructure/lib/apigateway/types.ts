@@ -22,6 +22,40 @@ export enum NotifyTypes {
   PUSH = 'PUSH',
 }
 
+export type PostInfo = {
+  postTitle: string | null | undefined
+  content: string | null | undefined
+  created_time: Date
+  link: string
+  postId: string | null | undefined
+  pagination: string | null | undefined
+  searchString: string
+  color: string | null
+  thumbnail: string | null
+  genre: string[]
+  title: string
+  year: string
+  artist: string | null
+  label: string[]
+  resource_url: URL
+  uri: string
+  media: 'cd' | 'vinyl'
+  dateGroup: string
+  expires: number
+  preorder: boolean
+  secondaryId: string
+  source: string
+  album: string
+  releaseType: string | null
+  edition: string | null
+  releaseDate: string | null
+  format: string | null
+  moreContent: string | null
+  region: string | null
+  isAnnouncement: boolean
+  productImage: string
+}
+
 export type Records = {
   id: string
   artist: string | null | undefined
@@ -61,6 +95,7 @@ export type Upcoming = {
   note: string
 }
 
+// Data at rest
 export type User = {
   id: string
   email: string
@@ -78,6 +113,7 @@ export type User = {
   }
 }
 
+// Data at service layer
 export type UserPreprocess = {
   id: string
   email: string

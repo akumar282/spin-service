@@ -45,7 +45,7 @@ export default function Landing() {
 
   return (
     <main
-      className='flex flex-col font-primary dark:text-black items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>
+      className='flex flex-col font-primary dark:text-black items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900  dark:to-gray-800 min-h-screen'>
       <HomeNavbar/>
       <div className='max-w-[1500px] w-11/12 mt-7 dark:text-white text-2xl'>
         <h1>

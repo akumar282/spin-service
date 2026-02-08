@@ -26,3 +26,6 @@ GET https://spin-service.execute-api.us-west-2.amazonaws.com/prod/search/search?
 
 GET https://api.discogs.com/database/search?q=The%20Residents%20Randy%20Chuck%20Bob
 Authorization: Discogs token=
+
+###
+GET https://www.roughtrade.com/de/product/djo/decide-2#50485054374219

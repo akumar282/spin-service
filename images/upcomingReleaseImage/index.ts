@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { ulid } from 'ulid'
-import { getEnv, requestHttpMethod, requestWithBody } from '../utils'
 
 const list: Upcoming[] = []
 const BASE_URL = 'https://www.metacritic.com/browse/albums/release-date/coming-soon/date'
@@ -12,6 +11,14 @@ type Upcoming = {
   note: string
   date: string
   id: string
+}
+
+function getEnv(name: string): string {
+  const val = process.env[name]
+  if (!val) {
+    throw new Error(`Error: ${name} not defined`)
+  }
+  return val
 }
 
 async function getPage(endpoint: string): Promise<HTMLElement | number> {
@@ -74,7 +81,7 @@ async function main() {
     const endpointUrl = getEnv('API_URL')
     for (const item of list) {
       try {
-        await requestWithBody('raw/upcoming', endpointUrl, item, requestHttpMethod.POST)
+        await axios.post('raw/upcoming', item, { baseURL: endpointUrl })
       } catch (e) {
         console.error(`[API_INGESTION_CALL] Post call failed for ${item.id}`)
       }

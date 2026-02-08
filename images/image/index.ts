@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { DiscogsClient } from './discogs/client'
 import { ResponseBody, SearchResult } from './discogs/types'
@@ -51,7 +51,54 @@ export type PostInfo = {
   productImage: string
 }
 
-async function getPage(endpoint: string, headers?: object): Promise<HTMLElement | number> {
+/* *******************************************
+ UTILS
+ *********************************************/
+
+function transformString(title: string | undefined): string {
+  if(title === undefined) {
+    return 'Void'
+  }
+  const match = title.match(/^(.+?)(?=\s*[\(\[\|"]|$)/)
+  return match ? match[1].trim() : title.trim()
+}
+
+function getColor(title: string | undefined) {
+  if(title === undefined) {
+    return 'Black'
+  }
+  const match = title.match(/(\w+)\s+Vinyl/i)
+  return match ? match[1] : 'Black'
+}
+
+function getArtist(input: string | undefined): string {
+  const clean = transformString(input)
+  const index = clean.indexOf('-')
+  if (index === -1 ) {
+    return clean
+  }
+  const substring =  clean.substring(0, index).trim()
+  const lowerCase = substring.toLowerCase()
+  return lowerCase.split(' ')
+    .map((x) => x.charAt(0).toUpperCase() + x.substring(1))
+    .join(' ')
+}
+
+const contentAttr =
+  'a[class="relative pointer-events-auto a cursor-pointer\n' +
+  '  \n' +
+  '  \n' +
+  '  \n' +
+  '  \n' +
+  '  underline\n' +
+  '  "]'
+
+/* *******************************************
+  FETCH FUNCTIONS
+ *********************************************/
+
+
+async function getPage(endpoint: string, headers?: object): Promise<HTMLElement | null> {
   try {
     const data = await axios.get(endpoint, {
       // httpsAgent: proxyAgent,
@@ -67,74 +114,52 @@ async function getPage(endpoint: string, headers?: object): Promise<HTMLElement 
     return parseHTML(data.data)
   } catch (error) {
     console.error('[GET_PAGE]: Execution failed with message ' + error)
-    return 400
+    return null
   }
 }
 
-async function getRawPosts(url: string) {
-  let paginationToken: string | null = null
-  for (let i = 0; i < 2; i++) {
-    let urlPage = url
-    if(paginationToken) {
-      if(paginationToken.includes('=DAY')) {
-        urlPage = urlPage.slice(0, 126)
+async function whichContent(item: HTMLElement): Promise<string | null> {
+  const contentAttributes = item.getAttribute('content-href')
+  const requery = !!item.querySelector('figure[class="h-full w-full m-0 z-10 flex items-center"]') || !!contentAttributes?.includes('i.redd') || !!contentAttributes?.includes('reddit.com')
+  if (requery) {
+    const link = item.getAttribute('permalink')
+    try {
+      const result = await getPage(`https://www.reddit.com${link}`)
+      if (result) {
+        return result.querySelector(contentAttr)?.getAttribute('href') ?? null
       }
-      urlPage += `${paginationToken}%3D%3D&t=DAY`
+    } catch (e) {
+      console.log(`[REQUERY] Fetch of content failed with ${e} for `, link)
     }
-    const data = await getPage(urlPage)
-    const posts = (data as HTMLElement)?.querySelectorAll('article[class="w-full m-0"]')
-    for(let post of posts){
-      for(let elements of post.querySelectorAll('shreddit-post[class="' +
-        'block relative cursor-pointer group bg-neutral-background focus-within:bg-neutral-background-hover ' +
-        'hover:bg-neutral-background-hover xs:rounded-4 px-md py-2xs my-2xs nd:visible"]'))
-      {
-        rawPostsQueue.push(elements)
-        let token = elements.getAttribute('more-posts-cursor')
-        if (token !== undefined) {
-          paginationToken = token
-        }
-      }
-    }
+    return null
   }
-}
 
-async function requery(item: HTMLElement) {
-  try {
-    const data = await getPage(`https://www.reddit.com${item.getAttribute('permalink')}`)
-    return (data as HTMLElement)
-      .querySelector(
-        'a[class="relative pointer-events-auto a cursor-pointer\n' +
-          '  \n' +
-          '  \n' +
-          '  \n' +
-          '  \n' +
-          '  underline\n' +
-          '  "]'
-      )
-      ?.getAttribute('href') ?? null
-  } catch (e) {
-    console.log('[REQUERY] requery failed with: ', e)
+  if (contentAttributes) {
+    return contentAttributes ?? null
   }
+
   return null
 }
 
-async function getContent(item: HTMLElement): Promise<string> {
-  let content = item.getAttribute('content-href') ?? null
-  let fallback = item.getAttribute('content-href') ?? ''
-  if (item.querySelector('figure[class="h-full w-full m-0 z-10 flex items-center"]')) {
-    content = await requery(item)
+async function whichPicture(posts: Partial<PostInfo>[]) {
+  for (const post of posts) {
+    let image
+    const content = post.content
+    if (content) {
+      try {
+        const siteData = await getPage(content)
+        image = (siteData as HTMLElement).querySelector('meta[property="og:image"], meta[name="og:image"]')?.getAttribute('content')
+      } catch (e) {
+        console.log(`[IMAGE_FETCH] primary method failed for ${post.content} trying alternative: `, e)
+        try {
+          image = await getOgImage(content)
+        } catch (e) {
+          console.log(`[IMAGE_FETCH] failed for ${post.content}: `, e)
+        }
+      }
+    }
+    post.thumbnail = image ?? null
   }
-  if (content && content.includes('www.reddit.com')) {
-    content = item.querySelector('a[class="relative pointer-events-auto a cursor-pointer\n' +
-      '  \n' +
-      '  \n' +
-      '  \n' +
-      '  \n' +
-      '  underline\n' +
-      '  "]')?.getAttribute('href') ?? null
-    return content ?? ''
-  }
-  return content ?? fallback
 }
 
 async function getOgImage(url: string) {
@@ -178,22 +203,33 @@ async function getOgImage(url: string) {
   return og
 }
 
-async function getCorrectImage(posts: Partial<PostInfo>[]) {
-  for (const post of posts) {
-    const content = post.content
-    if (content && !content.includes('i.redd')) {
-      try {
-        let siteData
-        if (content.includes('roughtrade.com')) {
-          const image = await getOgImage(content)
-          post.thumbnail = image
-        } else {
-          siteData = await getPage(content)
-          const image = (siteData as HTMLElement).querySelector('meta[property="og:image"], meta[name="og:image"]')?.getAttribute('content') ?? 'no image'
-          post.thumbnail = image !== 'no image' ? image : post.thumbnail
+/* *******************************************
+  PARSING
+ *********************************************/
+
+
+async function getRawPosts(url: string) {
+  let paginationToken: string | null = null
+  for (let i = 0; i < 2; i++) {
+    let urlPage = url
+    if(paginationToken) {
+      if(paginationToken.includes('=DAY')) {
+        urlPage = urlPage.slice(0, 126)
+      }
+      urlPage += `${paginationToken}%3D%3D&t=DAY`
+    }
+    const data = await getPage(urlPage)
+    const posts = (data as HTMLElement)?.querySelectorAll('article[class="w-full m-0"]')
+    for(let post of posts){
+      for(let elements of post.querySelectorAll('shreddit-post[class="' +
+        'block relative cursor-pointer group bg-neutral-background focus-within:bg-neutral-background-hover ' +
+        'hover:bg-neutral-background-hover xs:rounded-4 px-md py-2xs my-2xs nd:visible"]'))
+      {
+        rawPostsQueue.push(elements)
+        let token = elements.getAttribute('more-posts-cursor')
+        if (token !== undefined) {
+          paginationToken = token
         }
-      } catch (e) {
-        console.log(`[IMAGE_FETCH] failed for ${post.content}: `, e)
       }
     }
   }
@@ -204,7 +240,7 @@ function mapToAttributes(rawData: HTMLElement[]) {
   rawData.map(async post => {
     pushPostsQueue.push({
       postTitle: post.getAttribute('post-title'),
-      content: await getContent(post),
+      content: await whichContent(post),
       link: `https://www.reddit.com${post.getAttribute('permalink')}`,
       created_time: new Date(post.getAttribute('created-timestamp') as string),
       postId: post.getAttribute('id'),
@@ -234,55 +270,9 @@ function mapToAttributes(rawData: HTMLElement[]) {
   })
 }
 
-async function crossCheck(posts: Partial<PostInfo>[]){
-  for (const post of posts) {
-    let content = post.content
-    if (content && content.includes('i.redd')) {
-      const result = await getPage(post.link!)
-      post.content = (result as HTMLElement)
-        .querySelector(
-          'a[class="relative pointer-events-auto a cursor-pointer\n' +
-          '  \n' +
-          '  \n' +
-          '  \n' +
-          '  \n' +
-          '  underline\n' +
-          '  "]'
-        )
-        ?.getAttribute('href')
-      post.thumbnail = content
-    }
-  }
-}
-
-function transformString(title: string | undefined): string {
-  if(title === undefined) {
-    return 'Void'
-  }
-  const match = title.match(/^(.+?)(?=\s*[\(\[\|"]|$)/)
-  return match ? match[1].trim() : title.trim()
-}
-
-function getColor(title: string | undefined) {
-  if(title === undefined) {
-    return 'Black'
-  }
-  const match = title.match(/(\w+)\s+Vinyl/i)
-  return match ? match[1] : 'Black'
-}
-
-function getArtist(input: string | undefined): string {
-  const clean = transformString(input)
-  const index = clean.indexOf('-')
-  if (index === -1 ) {
-    return clean
-  }
-  const substring =  clean.substring(0, index).trim()
-  const lowerCase = substring.toLowerCase()
-  return lowerCase.split(' ')
-    .map((x) => x.charAt(0).toUpperCase() + x.substring(1))
-    .join(' ')
-}
+/* *******************************************
+  DISCOGS
+ *********************************************/
 
 async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
   const discogsClient = new DiscogsClient({
@@ -304,7 +294,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
         item.resource_url = first.resource_url
         item.genre = first.genre
         item.label = first.label
-        item.thumbnail = item.thumbnail === null ? item.thumbnail : first.thumb
+        item.thumbnail = item.thumbnail === null ? first.thumb : item.thumbnail
         item.uri = first.uri
         item.year = first.year
       }
@@ -314,6 +304,9 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
   }
 }
 
+
+
+
 async function main() {
   try {
     // if(ProxyIp) {
@@ -322,16 +315,21 @@ async function main() {
     const endpointUrl = getEnv('API_URL')
     await getRawPosts(BASE_URL)
     await mapToAttributes(rawPostsQueue)
-    // await mapToData(pushPostsQueue)
-    await crossCheck(pushPostsQueue)
-    await getCorrectImage(pushPostsQueue)
-    // await joinWithDiscogs(pushPostsQueue)
+    await mapToData(pushPostsQueue)
+    await whichPicture(pushPostsQueue)
+    await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
       try {
-        console.log(item)
-        // await axios.post('raw', item, { baseURL: endpointUrl })
+        const result = await axios.post('raw', item, { baseURL: endpointUrl })
+        console.log(result)
       } catch (e) {
-        console.error(`[API_INGESTION_CALL] Post call failed for ${item.postId}`)
+        if (e instanceof AxiosError) {
+          if (e.status === 300) {
+            console.info(`\x1b[33m[API_INGESTION_CALL] duplicate item ${item.postId} \x1b[0m`)
+          }
+        } else {
+          console.error(`[API_INGESTION_CALL] Post call failed for ${item.postId} `)
+        }
       }
     }
   } catch (e) {

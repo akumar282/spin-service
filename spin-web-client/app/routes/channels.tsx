@@ -7,6 +7,7 @@ import LoadingScreen from '~/components/LoadingScreen'
 import HomeNavbar from '~/components/HomeNavbar'
 import { updateUser } from '~/functions'
 import Alert from '~/components/Alert'
+import { useNavigate } from 'react-router'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,6 +18,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Channels() {
   const userContext = useContext(AuthContext)
+  const navigate = useNavigate()
   const [userData, setUserData] = useState<User['data']| null>(null)
   const [notification, setNotifications] = useState<string[]>([])
   const [submissionState, setSubmissionState] = useState<boolean>(false)
@@ -90,7 +92,7 @@ export default function Channels() {
                     type='checkbox'
                   />
                   <h3>
-                    Text/SMS
+                    Text/SMS (Message and data rates may apply)
                   </h3>
                 </div>
                 <div className='flex space-x-3 flex-row'>
@@ -117,11 +119,19 @@ export default function Channels() {
                     Push Notifications (App Required)
                   </h3>
                 </div>
+                <div className='text-sm text-center'>
+                  By enabling SMS/Text alerts you consent to the
+                  <a
+                    onClick={() => navigate('/privacy')}
+                    className='underline text-secondary-blue ml-2 hover:text-indigo-400 cursor-pointer'>
+                    Privacy Policy
+                  </a> and can opt out anytime through this console or replying STOP
               </div>
-              <button
-                onClick={() => useSubmitNotifcation()}
-                disabled={submissionState}
-                className=' w-1/2 bg-orange-300 rounded-2xl hover:bg-orange-300 dark:bg-indigo-400 dark:hover:bg-indigo-500 disabled:opacity-50
+            </div>
+            <button
+              onClick={() => useSubmitNotifcation()}
+              disabled={submissionState}
+              className=' w-1/2 bg-orange-300 rounded-2xl hover:bg-orange-300 dark:bg-indigo-400 dark:hover:bg-indigo-500 disabled:opacity-50
                   disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300 py-3 text-lg px-4 m-4'
               >
                 {submissionState ? 'Submitting' : 'Submit'}
