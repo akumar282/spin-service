@@ -320,8 +320,7 @@ async function main() {
     await joinWithDiscogs(pushPostsQueue)
     for (const item of pushPostsQueue) {
       try {
-        const result = await axios.post('raw', item, { baseURL: endpointUrl })
-        console.log(result)
+        await axios.post('raw', item, { baseURL: endpointUrl })
       } catch (e) {
         if (e instanceof AxiosError) {
           if (e.status === 300) {

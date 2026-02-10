@@ -1,24 +1,19 @@
-# Build stage, includings NPM and tools necessary for the build
-FROM --platform=linux/amd64 public.ecr.aws/docker/library/node:20 as build
+# Build stage
+FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.58.2-jammy AS build
 WORKDIR /app
 
-# Install dependencies based on the `package.json` and `package-lock.json`
-# files in the host folder
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
 
+COPY . .
+CMD ["npm", "run", "build"]
 
-# Production stage, only includes what is needed for production
-FROM --platform=linux/amd64 public.ecr.aws/docker/library/node:20-slim
+# Runtime stage
+FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.58.2-jammy
+WORKDIR /app
+ENV NODE_ENV=production
 
-ENV NODE_ENV production
-USER node
+COPY --from=build /app /app
 
-COPY --from=build /app .
-ADD . .
-
-# Specify the command to run when launching the container
 EXPOSE 3000
 CMD ["npm", "start"]

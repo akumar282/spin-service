@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { ulid } from 'ulid'
 
@@ -83,7 +83,13 @@ async function main() {
       try {
         await axios.post('raw/upcoming', item, { baseURL: endpointUrl })
       } catch (e) {
-        console.error(`[API_INGESTION_CALL] Post call failed for ${item.id}`)
+        if (e instanceof AxiosError) {
+          if (e.status === 300) {
+            console.info(`\x1b[33m[API_INGESTION_CALL] duplicate item ${item.id} \x1b[0m`)
+          }
+        } else {
+          console.error(`[API_INGESTION_CALL] Post call failed for ${item.id} `)
+        }
       }
     }
   } catch (e) {

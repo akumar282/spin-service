@@ -24,6 +24,8 @@ export interface ComputingNetworkStackProps extends StackProps {
   ses_private_key: string
   discogs_token: string
   proxy_ip: string
+  open_ai_org: string
+  open_ai_key: string
 }
 
 export interface SpinClientStackProps extends StackProps {

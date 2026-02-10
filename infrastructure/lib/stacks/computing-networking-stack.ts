@@ -92,6 +92,8 @@ export class ComputingNetworkingStack extends Stack {
           API_URL: apiUrl,
           DISCOGS_TOKEN: props.discogs_token,
           PROXY_IP: props.proxy_ip,
+          OPEN_AI_ORG_ID: props.open_ai_org,
+          OPEN_AI_KEY: props.open_ai_key,
         },
         logs: logGroup,
       }

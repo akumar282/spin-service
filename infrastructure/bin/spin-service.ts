@@ -21,6 +21,8 @@ const ZONE_ID = getEnv('ZONE_ID')
 const SES_PRIVATE_KEY = getEnv('SES_PRIVATE_KEY')
 const SES_PUBLIC_KEY = getEnv('SES_PUBLIC_KEY')
 const SSH_IP = getEnv('SSH_IP')
+const OPEN_AI_KEY = getEnv('OPEN_AI_KEY')
+const OPEN_AI_ORG_ID = getEnv('OPEN_AI_ORG_ID')
 
 /**
  * certificateStack === https://github.com/aws/aws-cdk/issues/25343
@@ -74,6 +76,8 @@ if (validBuildParams()) {
     ssh_ip: SSH_IP,
     opensearch_user: USER,
     dashpass: DASHPASS,
+    open_ai_org: OPEN_AI_ORG_ID,
+    open_ai_key: OPEN_AI_KEY,
     env,
   })
 
@@ -106,5 +110,7 @@ function validBuildParams() {
     SES_PRIVATE_KEY,
     SES_PUBLIC_KEY,
     ENV,
+    OPEN_AI_KEY,
+    OPEN_AI_ORG_ID,
   ].every((value) => value !== undefined || null)
 }
