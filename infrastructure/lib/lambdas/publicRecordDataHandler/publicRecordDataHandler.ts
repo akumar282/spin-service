@@ -123,12 +123,7 @@ export async function handler(
                 .addStatus(404)
                 .build()
             }
-            return response
-              .addBody({
-                data: item,
-              })
-              .addStatus(200)
-              .build()
+            return response.addBody(item).addStatus(200).build()
           }
           default: {
             return response.addBody('Invalid Method').addStatus(400).build()

@@ -72,8 +72,8 @@ async function parseData() {
 
   }
   clean(list)
-  console.log(list)
 }
+
 async function main() {
 
   await parseData()

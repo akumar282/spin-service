@@ -30,7 +30,7 @@ export default function UpcomingCard(props: ReleaseCardProps) {
           <h1 className='text-wrap text-lg max-h-13 truncate'>
             {props.title}
           </h1>
-          <h3 className='text-wrap mt-1 italic text-md'>
+          <h3 className='truncate italic lg:mb-0 md:mb-1 mb-1 mt-1'>
             {props.artist}
           </h3>
         </div>

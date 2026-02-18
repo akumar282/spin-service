@@ -97,14 +97,14 @@ export type Records = {
   year: string | null | undefined
   media: 'cd' | 'vinyl'
   postTitle: string
-  content: string | null | undefined
+  content: string
   created_time: string
   link: string
   postId: string
   pagination: string | null | undefined
   searchString: string
-  color: string | null
-  thumbnail: string | null
+  color: string
+  thumbnail: string
   genre: string[]
   title: string
   label: string[]

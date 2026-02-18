@@ -58,8 +58,7 @@ export default function User() {
 
         <h2 className='mt-8 text-xl font-semibold'>5. Data Security</h2>
         <p className='mt-2 text-base leading-relaxed'>
-          We take reasonable measures to protect your information, but no system
-          is completely secure. You use the service at your own risk.
+          All the above categories exclude text messaging originator opt-in data and consent; this information won’t be shared with any third parties.
         </p>
 
         <h2 className='mt-8 text-xl font-semibold'>6. Changes to This Policy</h2>
