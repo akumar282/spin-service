@@ -37,7 +37,7 @@ export default function ReleasePage() {
     if (!info && rid) {
       useShare().catch(() => setLoading(false))
     }
-  }, [rid, info])
+  }, [rid])
 
   const notation = info ?  Notation(info.releaseType, info.preorder, 2) : null
 

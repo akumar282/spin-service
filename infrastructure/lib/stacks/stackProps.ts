@@ -12,6 +12,11 @@ export interface SpinStackProps extends StackProps {
   vpc: Vpc
   zone: PublicHostedZone
   certificate: Certificate
+  twilio_key: string
+  twilio_sid: string
+  account_sid: string
+  twilio_token: string
+  message_sid: string
 }
 
 export interface ComputingNetworkStackProps extends StackProps {

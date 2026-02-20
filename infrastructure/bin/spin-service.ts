@@ -23,6 +23,11 @@ const SES_PUBLIC_KEY = getEnv('SES_PUBLIC_KEY')
 const SSH_IP = getEnv('SSH_IP')
 const OPEN_AI_KEY = getEnv('OPEN_AI_KEY')
 const OPEN_AI_ORG_ID = getEnv('OPEN_AI_ORG_ID')
+const TWILIO_SID = getEnv('TWILIO_SID')
+const TWILIO_KEY = getEnv('TWILIO_KEY')
+const MESSAGE_SID = getEnv('MESSAGE_SID')
+const TWILIO_AUTH_TOKEN = getEnv('TWILIO_AUTH_TOKEN')
+const TWILIO_ACCOUNT_SID = getEnv('TWILIO_ACCOUNT_SID')
 
 /**
  * certificateStack === https://github.com/aws/aws-cdk/issues/25343
@@ -88,6 +93,11 @@ if (validBuildParams()) {
     domainEndpoint: computeStack.domainEndpoint,
     vpc: computeStack.vpc,
     dashpass: DASHPASS,
+    twilio_key: TWILIO_KEY,
+    twilio_sid: TWILIO_SID,
+    twilio_token: TWILIO_AUTH_TOKEN,
+    account_sid: TWILIO_ACCOUNT_SID,
+    message_sid: MESSAGE_SID,
     env,
     certificate: certificateStack.certificate,
     zone: certificateStack.zone,
@@ -112,5 +122,10 @@ function validBuildParams() {
     ENV,
     OPEN_AI_KEY,
     OPEN_AI_ORG_ID,
+    TWILIO_KEY,
+    TWILIO_SID,
+    MESSAGE_SID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_ACCOUNT_SID,
   ].every((value) => value !== undefined || null)
 }

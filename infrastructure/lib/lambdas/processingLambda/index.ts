@@ -20,11 +20,22 @@ import {
 } from './functions'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { SSMClient } from '@aws-sdk/client-ssm'
+import twilio from 'twilio'
 
 const ssmClient = new SSMClient()
 const ses = new SESClient({})
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
+
+const twilioSid = getEnv('TWILIO_SID')
+const twilioApiKeySid = getEnv('TWILIO_API_SID')
+const twilioApiSecret = getEnv('TWILIO_API_KEY')
+const messagingSid = getEnv('MESSAGE_SID')
+
+const twilioClient = twilio(twilioApiKeySid, twilioApiSecret, {
+  accountSid: twilioSid,
+  maxRetries: 2,
+})
 
 /*
   TODO: Pinpoint for push notifications
@@ -138,7 +149,24 @@ export async function handler(event: SQSEvent) {
         continue
       }
 
-      // TODO: Add sms capabilities when twilio approves campaign. Contingent on client creation
+      for (const user of phone) {
+        const number = `${user.countryCode.dial}${user.phone}`
+        try {
+          const message = await twilioClient.messages.create({
+            messagingServiceSid: messagingSid,
+            to: number,
+            body: `SpinMyRecords: The record, ${item.album} by ${item.artist} is now available. Get it now: https://www.spinmyrecords.com/release/${item.postId} . Reply STOP to stop.`,
+          })
+        } catch (e) {
+          console.error(
+            'Error sending text for record ',
+            item.postId,
+            'Failed with error ',
+            e
+          )
+          continue
+        }
+      }
 
       try {
         const ids = usersToProcess.map((x) => x.id)

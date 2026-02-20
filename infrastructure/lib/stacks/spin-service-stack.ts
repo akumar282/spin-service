@@ -352,6 +352,10 @@ export class SpinServiceStack extends Stack {
         LEDGER_TABLE: ledgerTable.tableName,
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
+        TWILIO_API_SID: props.twilio_sid,
+        TWILIO_API_KEY: props.twilio_key,
+        MESSAGE_SID: props.message_sid,
+        TWILIO_SID: props.account_sid,
       },
     })
 
@@ -423,6 +427,20 @@ export class SpinServiceStack extends Stack {
       },
     })
 
+    const smsLambda = new lambda.Function(this, 'SmsLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('dist/smsLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+      environment: {
+        TWILIO_TOKEN: props.twilio_token,
+        TWILIO_SID: props.account_sid,
+        MESSAGE_SID: props.message_sid,
+        USER_POOL_ID: userPool.userPoolId,
+        TABLE_NAME: usersTable.tableName,
+      },
+    })
+
     const publicAuthorizerLambda = new lambda.Function(
       this,
       'authorizerLambda',
@@ -479,6 +497,7 @@ export class SpinServiceStack extends Stack {
     recordsTable.grantStreamRead(processinglambda)
     upcomingTable.grantReadWriteData(publicHandler)
     upcomingTable.grantReadWriteData(rawDataHandler)
+    recordsTable.grantReadWriteData(smsLambda)
 
     const ssmPolicy = new PolicyStatement({
       sid: 'SSMGetParam',
@@ -523,6 +542,15 @@ export class SpinServiceStack extends Stack {
       })
     )
 
+    smsLambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'ListUsers',
+        effect: Effect.ALLOW,
+        actions: ['cognito-idp:ListUsers'],
+        resources: ['*'],
+      })
+    )
+
     streamLambda.addToRolePolicy(ssmPolicy)
     processinglambda.addToRolePolicy(ssmPolicy)
 
@@ -552,6 +580,7 @@ export class SpinServiceStack extends Stack {
     const userIntegration = new apigateway.LambdaIntegration(userLambda)
     const refreshIntegration = new apigateway.LambdaIntegration(refreshLambda)
     const rawDataIntegration = new apigateway.LambdaIntegration(rawDataHandler)
+    const smsIntegration = new apigateway.LambdaIntegration(smsLambda)
     const searchProxyIntegration = new apigateway.LambdaIntegration(
       searchProxyLambda
     )
@@ -707,6 +736,15 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'GET',
                 integration: publicDataIntegration,
+              },
+            ],
+          },
+          {
+            pathPart: 'sms',
+            methods: [
+              {
+                method: 'POST',
+                integration: smsIntegration,
               },
             ],
           },

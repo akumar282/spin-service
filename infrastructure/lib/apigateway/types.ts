@@ -18,7 +18,7 @@ export type HttpMethod = z.infer<typeof HttpMethod>
 
 export enum NotifyTypes {
   EMAIL = 'EMAIL',
-  SMS = 'SMS',
+  TEXT = 'TEXT',
   PUSH = 'PUSH',
 }
 
