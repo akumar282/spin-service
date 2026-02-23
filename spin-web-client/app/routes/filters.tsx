@@ -8,7 +8,7 @@ import {
   type Artist,
   type ArtistNotification,
   type LabelNotification,
-  type Master,
+  type Master, type RecordsResult,
   type Release,
   type ReleaseNotification, type SearchResult, unwrap, type UpdateUser, type User
 } from '~/types'
@@ -39,6 +39,8 @@ export default function Filters() {
   const [labelFilters, setLabelFilters] = useState<LabelNotification[]>([])
   const [artistFilters, setArtistFilters] = useState<ArtistNotification[]>([])
   const [allTags, setAllTags] = useState<AllNotifications[]>([])
+  const [searchTerm, setSearchTerm] = useState<string | null>(null)
+  const [cursor, setCursor] = useState<string | null>(null)
   const [userData, setUserData] = useState<User['data']| null>(null)
   const [message, setMessage] =
     useState<{ title: string, message: string, type: string }>({ title: '', message: '', type: '' })
@@ -63,7 +65,16 @@ export default function Filters() {
     const data = unwrap(await client.getData<SearchResult>(`search/search?q=${e.target.value}`))
     const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
     setResults(filteredResults)
+    setCursor(data.cursor)
+    setSearchTerm(e.target.value)
     setLoading(false)
+  }
+
+  const useRequery = async () => {
+    const { data } = await client.getData<SearchResult>(`search/search?q=${searchTerm}&cursor=${cursor}`)
+    const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
+    setResults(prev => [...prev, ...filteredResults])
+    setCursor(data.cursor)
   }
 
   const debounced = debounce(onChange, 700)
@@ -241,6 +252,14 @@ export default function Filters() {
                           />
                         }
                       })
+                    }
+                    {cursor !== null ?
+                      <button
+                        className='dark:bg-blue-700 dark:hover:bg-blue-500 bg-orange-500 hover:bg-orange-300 mx-auto mt-3 mb-2 w-[99%] rounded-lg px-1 py-3 text-white' onClick={() => useRequery()}>
+                        See More
+                      </button>
+                      :
+                      <></>
                     }
                   </>
                 )
