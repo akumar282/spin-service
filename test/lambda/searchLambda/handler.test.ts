@@ -15,11 +15,12 @@ test('[IT] Lambda Test', async () => {
     resource: '/search/{proxy+}',
     httpMethod: 'GET',
     queryStringParameters: {
-      q: 'Wii',
+      q: 'PinkPantheress – To Hell With It',
       // cursor: 'eyJxIjoiV2lpIiwicGFnZSI6IjIiLCJwZXJfcGFnZSI6IjUwIn0=',
     },
     headers: {
-      origin: 'https://www.spinmyrecords.com',
+      origin: 'https://localhost:5173',
+      Host: 'api.spinmyrecords.com',
     },
   }
 

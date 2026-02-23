@@ -144,7 +144,13 @@ export async function handler(
 
           const input = {
             TableName: getEnv('UPCOMING_TABLE'),
+            IndexName: 'sortTime',
             Limit: !isNaN(Number(count)) ? Number(count) : 20,
+            KeyConditionExpression: 'upcoming = :up',
+            ScanIndexForward: true,
+            ExpressionAttributeValues: {
+              ':up': 'UPCOMING',
+            },
           }
 
           if (nextToken) {
@@ -154,7 +160,7 @@ export async function handler(
             Object.assign(input, { ExclusiveStartKey: cursor })
           }
 
-          const command = new ScanCommand(input)
+          const command = new QueryCommand(input)
 
           const query = await client.send(command)
           console.log(response)

@@ -63,7 +63,7 @@ export default function Filters() {
   const onChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     setLoading(true)
     const data = unwrap(await client.getData<SearchResult>(`search/search?q=${e.target.value}`))
-    const filteredResults = data.results.filter((x: (Artist | Release | Master)) => x.type != 'master')
+    const filteredResults = data.results
     setResults(filteredResults)
     setCursor(data.cursor)
     setSearchTerm(e.target.value)
@@ -236,7 +236,7 @@ export default function Filters() {
                             buttonFunction={() => handleClick({ artist: x.title, type: 'artist' }, artistFilters)}
                           />
                         }
-                        if(x.type === 'release' && x.country === 'US') {
+                        if((x.type === 'release' || x.type === 'master') && (x.format[0] === 'CD' || x.format[0] === 'Vinyl')) {
                           return <ResultComponent
                             key={index}
                             _typename={x.type}

@@ -44,6 +44,8 @@ export async function handler(event: APIGatewayProxyEvent) {
     const params = new URLSearchParams(body)
     const parsedBody = Object.fromEntries(params)
 
+    console.log(parsedBody)
+
     const requestSignature =
       event.headers['X-Twilio-Signature'] || event.headers['x-twilio-signature']
 
@@ -64,6 +66,8 @@ export async function handler(event: APIGatewayProxyEvent) {
 
     const from = parsedBody.From
 
+    console.log(from)
+
     const command = new ListUsersCommand({
       AttributesToGet: undefined,
       Filter: `phone_number = "${from}"`,
@@ -76,6 +80,8 @@ export async function handler(event: APIGatewayProxyEvent) {
     try {
       const result = await cognitoClient.send(command)
       cognitoUsers = result.Users
+
+      console.log(cognitoUsers)
     } catch (e) {
       console.log(e)
       return response.addStatus(500).build()
@@ -88,6 +94,8 @@ export async function handler(event: APIGatewayProxyEvent) {
           return response.addStatus(500).build()
         }
         try {
+          console.log(id)
+          console.log(entry)
           const item = await getItem(docClient, 'id = :id', {
             ':id': id,
           })
@@ -98,6 +106,7 @@ export async function handler(event: APIGatewayProxyEvent) {
         }
       }
     }
+    console.log(users)
 
     const optOutType = parsedBody.OptOutType.toLowerCase()
     if (optOutWords.indexOf(optOutType) !== -1) {
@@ -113,11 +122,12 @@ export async function handler(event: APIGatewayProxyEvent) {
         user.notifyType = notify
 
         try {
-          await docClient.send(
+          const result = await docClient.send(
             new UpdateCommand(
-              updateVals(user.notifyType, user.id, user.user_name)
+              updateVals(user.notifyType, user.id, user.user_name, true)
             )
           )
+          console.log(result)
         } catch (e) {
           console.log(e)
           return response.addStatus(500).build()
@@ -138,11 +148,12 @@ export async function handler(event: APIGatewayProxyEvent) {
         user.notifyType = notify
 
         try {
-          await docClient.send(
+          const result = await docClient.send(
             new UpdateCommand(
-              updateVals(user.notifyType, user.id, user.user_name)
+              updateVals(user.notifyType, user.id, user.user_name, false)
             )
           )
+          console.log(result)
         } catch (e) {
           console.log(e)
           return response.addStatus(500).build()

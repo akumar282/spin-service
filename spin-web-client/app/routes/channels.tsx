@@ -22,6 +22,7 @@ export default function Channels() {
   const [userData, setUserData] = useState<User['data']| null>(null)
   const [notification, setNotifications] = useState<string[]>([])
   const [submissionState, setSubmissionState] = useState<boolean>(false)
+  const [prevOptOut, setPrevOptOut] = useState<boolean>(false)
   const [show, setShow] = useState<boolean>(false)
   const [message, setMessage] =
     useState<{ title: string, message: string, type: string }>({ title: '', message: '', type: '' })
@@ -34,6 +35,7 @@ export default function Channels() {
         const data = userContext.user.data
         setUserData(data)
         setNotifications(data.notifyType)
+        setPrevOptOut(!!data.prevOptedOut)
       }
     }
 
@@ -77,8 +79,27 @@ export default function Channels() {
               <Alert show={show} closeAlert={() => setShow(false)} title={message.title} message={message.message}
                      type={message.type}/>
             </div>
+            {
+              prevOptOut ? (
+                <div className='lg:w-[62.5%] w-11/12 mx-auto flex justify-center'>
+                  <div className={'flex items-center text-center p-4 mb-4 lg:w-8/10 w-[97%] text-sm border  text-yellow-800 border-yellow-400 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300'} role='alert'>
+                    <svg className='flex-shrink-0 inline w-4 h-4 mr-3' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 20 20'>
+                      <path d='M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z' />
+                    </svg>
+                    <span className='sr-only'>Info</span>
+                    <div>
+                      <span className='font-medium'>NOTE:</span>
+                      <span className='font-medium mx-1'></span>Not getting SMS alerts? You may have opted out by text. To turn them back on, text START to +1-440-737-2110.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                </>
+              )
+            }
             <div
-              className='flex lg:w-6/12 w-11/12 mx-auto bg-white/75 items-center flex-col border dark:border-indigo-600 border-2 border-orange-400 rounded-2xl'>
+              className='flex lg:w-6/12 w-11/12 mx-auto bg-white/75 items-center flex-col dark:border-indigo-600 border-2 border-orange-400 rounded-2xl'>
               <h1 className='text-xl m-3'>
                 Notification Methods
               </h1>

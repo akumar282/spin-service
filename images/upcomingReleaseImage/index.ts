@@ -11,6 +11,9 @@ type Upcoming = {
   note: string
   date: string
   id: string
+  upcoming: 'UPCOMING'
+  dateTime: string
+  expires: number
 }
 
 function getEnv(name: string): string {
@@ -48,6 +51,15 @@ function clean(list: Upcoming[]) {
   })
 }
 
+function getDate(data: string) {
+  try {
+    return new Date(data)
+  } catch (e) {
+    console.log(e)
+    return new Date(2026, 11, 1)
+  }
+}
+
 async function parseData() {
   const data = await getPage(BASE_URL)
   const posts = (data as HTMLElement)?.querySelectorAll('table[class="musicTable"]')
@@ -58,13 +70,27 @@ async function parseData() {
       if (x.attrs.class === 'module') {
         currentDate = x.text.replace(/(\r\n|\n|\r)/gm, "").trim()
       }
+      const date = getDate(currentDate ? currentDate : '1 December 2026')
+      const expires = Math.floor(date.getTime() / 1000) + 3 * 24 * 60 * 60
+
       const note = x.querySelector('td[class="dataComment"]')?.text.replace(/(\r\n|\n|\r)/gm, "").trim()
       const item: Upcoming = {
-        artist: x.querySelector('td[class="artistName"]')?.text.replace(/(\r\n|\n|\r)/gm, "").trim() ?? '',
-        album: x.querySelector('td[class="albumTitle"]')?.text.replace(/(\r\n|\n|\r)/gm, "").trim() ?? '',
+        artist:
+          x
+            .querySelector('td[class="artistName"]')
+            ?.text.replace(/(\r\n|\n|\r)/gm, '')
+            .trim() ?? '',
+        album:
+          x
+            .querySelector('td[class="albumTitle"]')
+            ?.text.replace(/(\r\n|\n|\r)/gm, '')
+            .trim() ?? '',
         note: note ?? '',
-        date: currentDate !== '' && currentDate ? currentDate : (note ?? ''),
-        id: ''
+        date: currentDate !== '' && currentDate ? currentDate : note ?? '',
+        id: '',
+        upcoming: 'UPCOMING',
+        dateTime: date.toISOString(),
+        expires: expires,
       }
       item.id = Buffer.from(`${item.artist + item.album + item.note}`, 'utf-8').toString('base64')
       list.push(item)
@@ -81,6 +107,7 @@ async function main() {
     const endpointUrl = getEnv('API_URL')
     for (const item of list) {
       try {
+        console.log(item)
         await axios.post('raw/upcoming', item, { baseURL: endpointUrl })
       } catch (e) {
         if (e instanceof AxiosError) {

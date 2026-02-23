@@ -213,6 +213,19 @@ export class SpinServiceStack extends Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     })
 
+    upcomingTable.addGlobalSecondaryIndex({
+      indexName: 'sortTime',
+      partitionKey: {
+        name: 'upcoming',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'dateTime',
+        type: AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    })
+
     const userPool = new cognito.UserPool(this, 'SpinUsers', {
       userPoolName: 'SpinUsers',
       signInAliases: {
@@ -497,7 +510,7 @@ export class SpinServiceStack extends Stack {
     recordsTable.grantStreamRead(processinglambda)
     upcomingTable.grantReadWriteData(publicHandler)
     upcomingTable.grantReadWriteData(rawDataHandler)
-    recordsTable.grantReadWriteData(smsLambda)
+    usersTable.grantReadWriteData(smsLambda)
 
     const ssmPolicy = new PolicyStatement({
       sid: 'SSMGetParam',

@@ -34,3 +34,7 @@ GET https://www.roughtrade.com/de/product/djo/decide-2#50485054374219
 
 POST http://api.spinmyrecords.com/raw
 Content-Type: application/json
+
+
+###
+GET https://api.discogs.com/database/search?q=PinkPantheress%20%E2%80%93%20To%20Hell%20With%20It

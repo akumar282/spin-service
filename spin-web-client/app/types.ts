@@ -174,6 +174,7 @@ export type User = {
     labels: string[]
     artists: ArtistNotification[]
     albums: ReleaseNotification[]
+    prevOptedOut?: boolean
     deviceId?: string
     countryCode?: { iso: string, dial: string}
   }

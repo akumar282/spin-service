@@ -30,17 +30,23 @@ export async function handler(event: APIGatewayProxyEvent) {
 
     const discogsResponse = await fetch(requestUrl)
     const data = await discogsResponse.json()
-    const discogParams = new URLSearchParams(
-      data.pagination.urls.next.split('?')[1]
-    )
-    const toObject = Object.fromEntries(discogParams)
 
-    delete toObject.key
-    delete toObject.secret
+    let discogParams
 
-    data.cursor = Buffer.from(JSON.stringify(toObject), 'utf-8').toString(
-      'base64'
-    )
+    if (data.pagination.urls.next) {
+      discogParams = new URLSearchParams(
+        data.pagination.urls.next.split('?')[1]
+      )
+
+      const toObject = Object.fromEntries(discogParams)
+
+      delete toObject.key
+      delete toObject.secret
+
+      data.cursor = Buffer.from(JSON.stringify(toObject), 'utf-8').toString(
+        'base64'
+      )
+    }
 
     delete data.pagination
 
