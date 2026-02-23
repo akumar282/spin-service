@@ -168,6 +168,8 @@ export async function handler(event: SQSEvent) {
         }
       }
 
+      console.log(`Texted for: ${item.postId}`)
+
       try {
         const ids = usersToProcess.map((x) => x.id)
         await updateLedgerItem(docClient, ids, item.postId)

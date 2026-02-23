@@ -29,3 +29,8 @@ Authorization: Discogs token=
 
 ###
 GET https://www.roughtrade.com/de/product/djo/decide-2#50485054374219
+
+###
+
+POST http://api.spinmyrecords.com/raw
+Content-Type: application/json
