@@ -61,8 +61,21 @@ export default function Landing() {
             </button>
           </div>
         </div>
-        <footer className='w-full mt-auto flex flex-col items-center dark:bg-indigo-500 bg-orange-300 pb-5'>
-          <h3 className='mt-4 text-sm'>Made with 🧡 in Seattle</h3>
+        <footer className='w-full mt-auto flex flex-col items-center dark:bg-indigo-500 bg-orange-300 pb-4'>
+          <h3 className='mt-3 text-sm inline-flex items-center gap-1'>
+            Made with
+            <img
+              src={spinLogo}
+              className='h-6 w-6 mx-1 inline dark:hidden'
+              alt='spin-service logo'
+            />
+            <img
+              src={spinLogoDark}
+              className='h-6 w-6 mx-1 hidden dark:inline'
+              alt='spin-service logo'
+            />
+            in Seattle
+          </h3>
         </footer>
       </div>
     </main>

@@ -21,7 +21,7 @@ export function Tags(props: TagButton) {
             strokeWidth='2'
             viewBox='0 0 22 22'
             stroke='currentColor'
-            className='flex-shrink-0 inline w-8 h-8 m-2'
+            className='flex-shrink-0 inline w-7.5 h-7.5 m-2'
           >
             <path d='M6 18L18 6M6 6l12 12'></path>
           </svg>

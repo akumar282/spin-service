@@ -29,7 +29,7 @@ export interface ArtistResultComponentProps {
 export function ResultComponent(props: ResultComponentProps) {
 
   return (
-    <div className='w-[99%] justify-between my-0.5 rounded dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-row border border-slate-400 items-stretch'>
+    <div className='w-[99%] justify-between my-0.5 dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-row border border-slate-400 items-stretch'>
       <div className='flex flex-row'>
         <div className='flex items-center justify-center lg:m-3 m-3'>
           <div className='h-[64px] w-[64px] lg:w-[70px] lg:h-[70px] flex-shrink-0'>

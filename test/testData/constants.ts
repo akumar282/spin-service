@@ -122,10 +122,11 @@ export const users = [
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
     countryCode: { iso: 'US', dial: '+1' },
+    custom: [],
   },
   {
     albums: [],
-    notifyType: ['SMS', 'EMAIL'], // Need to make sure this isn't possible
+    notifyType: ['SMS', 'EMAIL'], // Need to make sure this isn't possible (6/18/25)  <- what? (2/24/26)
     artists: ['PinkPantheress'],
     phone: '',
     genres: ['Jazz', 'Pop', 'Hip Hop', 'Rock'],
@@ -134,6 +135,7 @@ export const users = [
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
     countryCode: { iso: 'US', dial: '+1' },
+    custom: [],
   },
   {
     albums: [],
@@ -146,6 +148,7 @@ export const users = [
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
     countryCode: { iso: 'US', dial: '+1' },
+    custom: [],
   },
   {
     albums: [],
@@ -158,6 +161,7 @@ export const users = [
     email: 'Jonesy.FromFornite@gmail.com',
     labels: [],
     countryCode: { iso: 'US', dial: '+1' },
+    custom: [],
   },
 ]
 
@@ -172,6 +176,7 @@ export const testUser = {
   email: 'Jonesy.FromFornite@gmail.com',
   labels: [],
   countryCode: { iso: 'US', dial: '+1' },
+  custom: [],
 }
 
 export const record1 = {
@@ -208,6 +213,7 @@ export const userTest: User = {
   email: 'Jonesy.FromFornite@gmail.com',
   labels: [],
   countryCode: { iso: 'US', dial: '+1' },
+  custom: [],
 }
 
 export const openSearchReturn: OpenSearchUserResult = {

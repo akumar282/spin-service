@@ -36,6 +36,7 @@ export async function handler(
         item.genres = nestData(item.genres, 'genre')
         item.artists = nestData(item.artists, 'artist')
         item.labels = nestData(item.labels, 'label')
+        item.custom = nestData(item.custom, 'custom')
         return response.addBody({ data: item }).addStatus(200).build()
       }
       case 'PATCH': {
@@ -51,6 +52,7 @@ export async function handler(
               '#al': 'albums',
               '#em': 'email',
               '#pho': 'phone',
+              '#cus': 'custom',
               '#coun': 'countryCode',
             },
             ExpressionAttributeValues: {
@@ -61,6 +63,7 @@ export async function handler(
               ':al': body.albums,
               ':em': body.email,
               ':pho': body.phone,
+              ':cus': unnestData(body.custom),
               ':coun': body.countryCode,
             },
             Key: {
@@ -70,7 +73,7 @@ export async function handler(
             ReturnValues: 'ALL_NEW',
             TableName: getEnv('TABLE_NAME'),
             UpdateExpression:
-              'SET #no = :no, #ge = :ge, #la = :la, #art = :art, #al = :al, #em = :em, #pho = :pho, #coun = :coun',
+              'SET #no = :no, #ge = :ge, #la = :la, #art = :art, #al = :al, #em = :em, #pho = :pho, #coun = :coun, #cus = :cus',
           }
           let phone
           if (body.countryCode?.dial && body.phone) {

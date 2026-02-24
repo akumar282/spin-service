@@ -105,6 +105,7 @@ export type User = {
   genres: string[]
   labels: string[]
   artists: string[]
+  custom: string[]
   albums: Item[]
   deviceId?: string
   countryCode: {
@@ -124,6 +125,7 @@ export type UserPreprocess = {
   labels: Item[]
   artists: Item[]
   albums: Item[]
+  custom: Item[]
   deviceId?: string
   countryCode: {
     iso: string

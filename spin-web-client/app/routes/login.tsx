@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import Navbar from '~/components/Navbar'
 import SignUpForm from '~/components/SignUpForm'
 import Alert from '~/components/Alert'
+import Footer from '~/components/Footer'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,8 +22,8 @@ export default function Login() {
     useState<{ title: string, message: string, type: string }>({ title: '', message: '', type: '' })
 
   return (
-    <main>
-      <div className='font-primary flex flex-col bg-orange-100 h-dvh w-full flex dark:bg-slate-900'>
+    <main className='min-h-screen font-primary flex-col bg-orange-100 w-full flex dark:bg-slate-900'>
+      <div>
         <Navbar />
         <div className='flex-1 flex flex-col items-center text-center lg:flex-col'>
           <div className='mt-4 w-full flex justify-center'>
@@ -51,6 +52,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <Footer/>
     </main>
   )
 }

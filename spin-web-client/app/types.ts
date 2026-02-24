@@ -86,7 +86,12 @@ export type LabelNotification = {
   type: string,
 }
 
-export type AllNotifications = LabelNotification | ArtistNotification | GenreNotification | ReleaseNotification
+export type CustomNotification = {
+  custom: string,
+  type: string
+}
+
+export type AllNotifications = LabelNotification | ArtistNotification | GenreNotification | ReleaseNotification | CustomNotification
 
 export type Records = {
   releaseType: string
@@ -170,10 +175,11 @@ export type User = {
     phone?: string
     user_name: string
     notifyType: string[]
-    genres: string[]
-    labels: string[]
+    genres: GenreNotification[]
+    labels: LabelNotification[]
     artists: ArtistNotification[]
     albums: ReleaseNotification[]
+    custom: CustomNotification[]
     prevOptedOut?: boolean
     deviceId?: string
     countryCode?: { iso: string, dial: string}
