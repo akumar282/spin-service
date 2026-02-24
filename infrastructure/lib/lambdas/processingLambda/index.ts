@@ -103,6 +103,7 @@ export async function handler(event: SQSEvent) {
         artistName,
         item.album,
         item.media,
+        item.title,
         item.genre
       )
       console.log(JSON.stringify(userQueryBody))

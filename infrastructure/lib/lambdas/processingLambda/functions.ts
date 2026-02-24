@@ -21,6 +21,7 @@ export function createQuery(
   artist: string,
   album: string,
   media: string,
+  title: string,
   genres: string[]
 ) {
   const shouldList = []
@@ -34,6 +35,15 @@ export function createQuery(
   })
   shouldList.push({
     term: { 'artists.keyword': { value: artist, case_insensitive: true } },
+  })
+  shouldList.push({
+    match: {
+      custom: {
+        query: title,
+        fuzziness: 2,
+        prefix_length: 2,
+      },
+    },
   })
   if (genres && genres.length > 0) {
     for (const genre of genres) {

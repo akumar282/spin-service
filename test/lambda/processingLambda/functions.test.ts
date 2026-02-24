@@ -34,10 +34,13 @@ describe('Assorted test for functions', () => {
   })
 
   test('Will generate correct open search query', async () => {
-    const result = createQuery('PinkPantheress', 'Fancy That', 'vinyl', [
-      'R&B',
-      'Pop',
-    ])
+    const result = createQuery(
+      'PinkPantheress',
+      'Fancy That',
+      'vinyl',
+      'PinkPantheress - Fancy That',
+      ['R&B', 'Pop']
+    )
     expect(result).toEqual({
       query: {
         bool: {
@@ -55,6 +58,15 @@ describe('Assorted test for functions', () => {
                 'artists.keyword': {
                   value: 'PinkPantheress',
                   case_insensitive: true,
+                },
+              },
+            },
+            {
+              match: {
+                custom: {
+                  query: 'PinkPantheress - Fancy That',
+                  fuzziness: 2,
+                  prefix_length: 2,
                 },
               },
             },
@@ -76,7 +88,13 @@ describe('Assorted test for functions', () => {
   })
 
   test('Will make no list', async () => {
-    const result = createQuery('PinkPantheress', 'Fancy That', 'vinyl', [])
+    const result = createQuery(
+      'PinkPantheress',
+      'Fancy That',
+      'vinyl',
+      'PinkPantheress - Fancy That',
+      []
+    )
     expect(result).toEqual({
       query: {
         bool: {
@@ -97,6 +115,15 @@ describe('Assorted test for functions', () => {
                 },
               },
             },
+            {
+              match: {
+                custom: {
+                  query: 'PinkPantheress - Fancy That',
+                  fuzziness: 2,
+                  prefix_length: 2,
+                },
+              },
+            },
           ],
           minimum_should_match: 1,
         },
@@ -114,6 +141,7 @@ describe('Assorted test for functions', () => {
       'PinkPantheress',
       'Fancy That',
       'vinyl',
+      'PinkPantheress - Fancy That',
       []
     )
     const data = await requestWithBody(
