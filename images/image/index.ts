@@ -317,6 +317,7 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
 
 async function main() {
   try {
+    console.log('Version 1.0.0')
     if(ProxyIp) {
       console.info('Proxy Loaded: ' + ProxyIp)
     }
