@@ -10,7 +10,7 @@ import {
   requestWithBody,
 } from '../../../infrastructure/lib/shared/utils'
 import process from 'node:process'
-import { User } from '../../../infrastructure/lib/apigateway/types'
+import { User, Records } from '../../../infrastructure/lib/apigateway/types'
 import { mockClient } from 'aws-sdk-client-mock'
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb'
@@ -18,7 +18,6 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { record1, users } from '../../testData/constants'
 import 'aws-sdk-client-mock-jest'
-import { Records } from '../../../spin-web-client/app/types'
 
 describe('Assorted test for functions', () => {
   const sesMock = mockClient(SESClient)
@@ -48,8 +47,41 @@ describe('Assorted test for functions', () => {
             {
               bool: {
                 must: [
-                  { match: { 'albums.album': 'Fancy That' } },
-                  { term: { 'albums.type.keyword': 'vinyl' } },
+                  {
+                    bool: {
+                      filter: [{ term: { 'albums.type.keyword': 'vinyl' } }],
+                      must: [
+                        {
+                          bool: {
+                            should: [
+                              {
+                                match_phrase: {
+                                  'albums.album': {
+                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
+                                    slop: 2,
+                                    boost: 6,
+                                  },
+                                },
+                              },
+                              {
+                                match: {
+                                  'albums.album': {
+                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
+                                    fuzziness: 'AUTO',
+                                    prefix_length: 2,
+                                    max_expansions: 50,
+                                    minimum_should_match: '4<75%',
+                                    boost: 2,
+                                  },
+                                },
+                              },
+                            ],
+                            minimum_should_match: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
                 ],
               },
             },
@@ -102,8 +134,41 @@ describe('Assorted test for functions', () => {
             {
               bool: {
                 must: [
-                  { match: { 'albums.album': 'Fancy That' } },
-                  { term: { 'albums.type.keyword': 'vinyl' } },
+                  {
+                    bool: {
+                      filter: [{ term: { 'albums.type.keyword': 'vinyl' } }],
+                      must: [
+                        {
+                          bool: {
+                            should: [
+                              {
+                                match_phrase: {
+                                  'albums.album': {
+                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
+                                    slop: 2,
+                                    boost: 6,
+                                  },
+                                },
+                              },
+                              {
+                                match: {
+                                  'albums.album': {
+                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
+                                    fuzziness: 'AUTO',
+                                    prefix_length: 2,
+                                    max_expansions: 50,
+                                    minimum_should_match: '4<75%',
+                                    boost: 2,
+                                  },
+                                },
+                              },
+                            ],
+                            minimum_should_match: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
                 ],
               },
             },

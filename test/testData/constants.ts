@@ -200,6 +200,7 @@ export const record1 = {
   color: 'Black',
   title:
     "Various - The Planet That You're On (A Journey Into New Irish Music Curated By Lankum)",
+  customTitle: 'Creature',
 }
 
 export const userTest: User = {

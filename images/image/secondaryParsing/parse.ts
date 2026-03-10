@@ -71,6 +71,7 @@ export async function mapToData(list: Partial<PostInfo>[]) {
       post.format = data.format
       post.region = data.region
       post.productImage = data.productImage
+      post.customTitle = `${data.artist} ${data.album}`
     }
   }
 }

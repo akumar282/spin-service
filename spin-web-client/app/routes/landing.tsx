@@ -16,9 +16,9 @@ export default function Landing() {
   const navigate = useNavigate()
 
   return (
-    <main className='font-primary bg-orange-100 min-h-dvh w-full flex dark:bg-slate-900'>
+    <main className='font-primary min-h-screen bg-orange-100 w-full flex dark:bg-slate-900'>
       <div className='flex-1 flex flex-col items-center'>
-        <div className='max-w-[300px] lg:max-w-[300px] w-full space-y-6 my-8 px-4'>
+        <div className='max-w-[300px] lg:max-w-[300px] w-full mt-3 mb-2 px-4'>
           <img
             src={spinLogo}
             className='animate-spin1 block dark:hidden'
@@ -33,8 +33,8 @@ export default function Landing() {
         <div className='max-w-[300px] lg:max-w-[300px] w-full mb-6 px-4'>
           <h1 className='text-4xl text-center'>spin-service</h1>
         </div>
-        <div className='md:w-8/12 w-10/12 max-w-[2000px] rounded-3xl lg:mb-0 mb-8 shadow-xl'>
-          <div className='rounded-3xl border dark:border-indigo-900 flex flex-col items-center border-orange-200 border-4 p-6 dark:border-gray-700 space-y-4'>
+        <div className='md:w-8/12 w-10/12 max-w-[2000px] max-h-[500px] rounded-3xl lg:mb-0 mb-8 shadow-xl'>
+          <div className='rounded-3xl dark:border-indigo-900 flex flex-col items-center border-orange-200 border-4 p-6 space-y-4'>
             <h1 className='leading-6 text-2xl text-gray-700 dark:text-gray-200 text-center'>
               Welcome!
             </h1>
@@ -54,7 +54,7 @@ export default function Landing() {
               Push notification (app required)!
             </h3>
             <button
-              className='shadow-xl my-5 bg-orange-300 dark:bg-indigo-400 p-3 rounded-xl transition ease-in-out hover:-translate-y-3 hover:scale-110 hover:bg-orange-400 dark:hover:bg-indigo-800'
+              className='shadow-xl bg-orange-300 dark:bg-indigo-400 p-3 rounded-xl transition ease-in-out hover:-translate-y-3 hover:scale-110 hover:bg-orange-400 dark:hover:bg-indigo-800'
               onClick={() => navigate({ pathname: '/home' })}
             >
               Get Started

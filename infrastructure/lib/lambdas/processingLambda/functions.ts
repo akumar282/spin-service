@@ -25,11 +25,51 @@ export function createQuery(
   genres: string[]
 ) {
   const shouldList = []
+  const tokenCount = `${artist} - ${album}`
+    .split(/\s+/)
+    .filter((token) => token.length > 2)
+
+  // if (tokenCount.length > 3) {
+  // }
+
   shouldList.push({
     bool: {
       must: [
-        { match: { 'albums.album': album } },
-        { term: { 'albums.type.keyword': media } },
+        {
+          bool: {
+            filter: [{ term: { 'albums.type.keyword': media } }],
+            must: [
+              {
+                bool: {
+                  should: [
+                    {
+                      match_phrase: {
+                        'albums.album': {
+                          query: `${artist} - ${album}`,
+                          slop: 2,
+                          boost: 6,
+                        },
+                      },
+                    },
+                    {
+                      match: {
+                        'albums.album': {
+                          query: `${artist} - ${album}`,
+                          fuzziness: 'AUTO',
+                          prefix_length: 2,
+                          max_expansions: 50,
+                          minimum_should_match: '4<75%',
+                          boost: 2,
+                        },
+                      },
+                    },
+                  ],
+                  minimum_should_match: 1,
+                },
+              },
+            ],
+          },
+        },
       ],
     },
   })

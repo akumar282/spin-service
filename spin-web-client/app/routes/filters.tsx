@@ -72,7 +72,6 @@ export default function Filters() {
   }, [userContext])
 
   const handleClickClear = () => {
-    console.log('click')
     if (currentTerm.current) {
       currentTerm.current.value = ''
     }
@@ -231,7 +230,6 @@ export default function Filters() {
                         />
                       }
                       if ('custom' in tag) {
-                        console.log('true')
                         return <Tags
                           className='dark:bg-orange-300 bg-indigo-300 p-1 m-1 rounded-2xl shadow-xl'
                           key={index}

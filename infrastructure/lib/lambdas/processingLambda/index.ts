@@ -103,7 +103,7 @@ export async function handler(event: SQSEvent) {
         artistName,
         item.album,
         item.media,
-        item.title,
+        item.customTitle,
         item.genre
       )
       console.log(JSON.stringify(userQueryBody))
@@ -124,6 +124,8 @@ export async function handler(event: SQSEvent) {
         batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
         continue
       }
+
+      console.log(JSON.stringify(users.hits))
 
       users.hits.hits.forEach((x) => usersToProcess.push(x._source))
 

@@ -75,6 +75,7 @@ export type Records = {
   label: string[]
   resource_url: string
   album: string
+  customTitle: string
 }
 
 export type Ledger = {

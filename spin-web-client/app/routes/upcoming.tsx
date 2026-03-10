@@ -28,7 +28,7 @@ export default function ReleasePage() {
         </div>
         <div className='w-full items-center max-w-[116rem] pt-3 flex flex-col'>
           <div
-            className='w-[98%] justify-between my-0.5 rounded dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-col border border-slate-400 items-stretch'>
+            className='w-[98%] justify-between my-0.5 dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-col border border-slate-400 items-stretch'>
             <div>
 
             </div>

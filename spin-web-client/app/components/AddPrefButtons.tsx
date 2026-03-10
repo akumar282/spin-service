@@ -35,7 +35,7 @@ export default function AddPrefButtons(props: ButtonProps) {
         setArtistFilters(user.artists)
         setReleaseFilters(user.albums)
         setArtistData({ artist: data.artist!, type: 'artist' })
-        setAlbumData({ album: data.album, type: 'Vinyl' })
+        setAlbumData({ album: `${data.artist!} - ${data.album}`, type: 'Vinyl' })
       }
     }
     fetchData().catch()

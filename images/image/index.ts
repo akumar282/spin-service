@@ -6,6 +6,7 @@ import { ulid } from 'ulid'
 import { mapToData } from './secondaryParsing/parse'
 import { chromium } from 'playwright'
 import { getEnv } from './util'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const BASE_URL =
   'https://www.reddit.com/svc/shreddit/community-more-posts/new/?name=VinylReleases&adDistance=2&ad_posts_served=1&feedLength=4&after='
@@ -13,9 +14,9 @@ const BASE_URL =
 const rawPostsQueue: HTMLElement[] = []
 const pushPostsQueue: Partial<PostInfo>[] = []
 
-// const ProxyIp = getEnv('PROXY_IP')
-//
-// const proxyAgent = new HttpsProxyAgent(ProxyIp)
+const ProxyIp = getEnv('PROXY_IP')
+
+const proxyAgent = new HttpsProxyAgent(ProxyIp)
 
 export type PostInfo = {
   postTitle: string | null | undefined,
@@ -48,7 +49,8 @@ export type PostInfo = {
   moreContent: string | null
   region: string | null,
   isAnnouncement: boolean,
-  productImage: string
+  productImage: string,
+  customTitle: string,
 }
 
 /* *******************************************
@@ -101,7 +103,7 @@ const contentAttr =
 async function getPage(endpoint: string, headers?: object): Promise<HTMLElement | null> {
   try {
     const data = await axios.get(endpoint, {
-      // httpsAgent: proxyAgent,
+      httpsAgent: proxyAgent,
       headers: {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -109,7 +111,8 @@ async function getPage(endpoint: string, headers?: object): Promise<HTMLElement 
         "accept-encoding": "gzip, deflate, br",
         "cookie": "intl_splash=false"
       },
-      withCredentials: true
+      withCredentials: true,
+      timeout: 7000
     })
     return parseHTML(data.data)
   } catch (error) {
@@ -166,12 +169,14 @@ async function getOgImage(url: string) {
 
   const browser = await chromium.launch({
     headless: true,
+    channel: 'chrome',
     args: ['--no-sandbox', '--disable-dev-shm-usage'],
   })
 
   const context = await browser.newContext({
-    locale: 'de-DE',
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    locale: 'en-US',
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
     viewport: { width: 1280, height: 800 },
     extraHTTPHeaders: {
       'accept-language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -186,6 +191,9 @@ async function getOgImage(url: string) {
       console.log('blocked response', response.status(), response.url())
     }
   })
+
+  page.setDefaultTimeout(45000)
+  page.setDefaultNavigationTimeout(60000)
 
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
 
@@ -309,9 +317,9 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
 
 async function main() {
   try {
-    // if(ProxyIp) {
-    //   console.info('Proxy Loaded: ' + ProxyIp)
-    // }
+    if(ProxyIp) {
+      console.info('Proxy Loaded: ' + ProxyIp)
+    }
     const endpointUrl = getEnv('API_URL')
     await getRawPosts(BASE_URL)
     await mapToAttributes(rawPostsQueue)

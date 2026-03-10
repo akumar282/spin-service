@@ -35,6 +35,39 @@ GET https://www.roughtrade.com/de/product/djo/decide-2#50485054374219
 POST http://api.spinmyrecords.com/raw
 Content-Type: application/json
 
+{
+  "album": "Nothing’s About To Happen To Me",
+  "artist": "who?",
+  "color": "Black",
+  "content": "https://www.banquetrecords.com/pinkpantheress/fancy-some-more%3F-%5Bpersonally-signed%5D/5026854251493PS",
+  "created_time": "2026-02-09T22:50:59.184Z",
+  "dateGroup": "DATE#2",
+  "edition": "Personally Signed Copies",
+  "expires": 1772407877,
+  "format": "",
+  "genre": ["Electronic", "Pop"],
+  "label": ["Warner Records", "Warner Records UK", "PinkPantheress"],
+  "link": "https://www.reddit.com/r/VinylReleases/comments/1r0jddl/pinkpantheress_fancy_some_more_personally_signed/",
+  "media": "Vinyl",
+  "moreContent": null,
+  "pagination": null,
+  "postId": "testG67",
+  "postTitle": "PinkPantheress - Fancy Some More? [Personally Signed Copies]",
+  "preorder": false,
+  "region": "GB",
+  "releaseDate": "",
+  "releaseType": "RESTOCK",
+  "resource_url": "https://api.discogs.com/releases/35350957",
+  "searchString": "PinkPantheress Fancy Some More",
+  "secondaryId": "01KH2BXFTJYA0WR672KKK4EYEC",
+  "source": "Reddit (r/VinylReleases)",
+  "thumbnail": "https://www.banquetrecords.com/item.png?5026854251493PS",
+  "title": "PinkPantheress - Fancy Some More?",
+  "uri": "/release/35350957-PinkPantheress-Fancy-Some-More",
+  "year": "2025",
+  "customTitle": "PinkPantheress - Fancy Some More?"
+}
+
 
 ###
 GET https://api.discogs.com/database/search?q=PinkPantheress%20%E2%80%93%20To%20Hell%20With%20It

@@ -1,0 +1,71 @@
+{
+  "track_total_hits": true,
+  "explain": true,
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "bool": {
+            "filter": [{ "term": { "albums.type.keyword": "Vinyl" } }],
+            "must": [
+              {
+                "bool": {
+                  "filter": [{ "term": { "albums.type.keyword": "Vinyl" } }],
+                  "must": [
+                    {
+                      "bool": {
+                        "should": [
+                          {
+                            "match_phrase": {
+                              "albums.album": {
+                                "query": "mit - nothings about to happen",
+                                "slop": 2,
+                                "boost": 6
+                              }
+                            }
+                          },
+                          {
+                            "match": {
+                              "albums.album": {
+                                "query": "mit - nothings about to happen",
+                                "fuzziness": "AUTO",
+                                "prefix_length": 2,
+                                "max_expansions": 50,
+                                "minimum_should_match": "4<75%",
+                                "boost": 2
+                              }
+                            }
+                          }
+                        ],
+                        "minimum_should_match": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "match": {
+            "custom": {
+              "query": "Mitski Nothings About To Happen To Me",
+              "fuzziness": "AUTO"
+            }
+          }
+        },
+        {
+          "term": {
+            "artists.keyword": {
+              "value": "playboi carti",
+              "case_insensitive": true
+            }
+          }
+        },
+        { "match": { "genres": "Funk / Soul" } },
+        { "match": { "genres": "Pop" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
