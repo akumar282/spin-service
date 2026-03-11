@@ -3,6 +3,7 @@ import React, { type ButtonHTMLAttributes } from 'react'
 interface TagButton extends ButtonHTMLAttributes<HTMLButtonElement> {
   checked: boolean
   title: string
+  value?: string
   format?: string
 }
 

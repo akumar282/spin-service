@@ -103,6 +103,10 @@ export default function Filters() {
     }
   }
 
+  function cleanArtist(str: string): string {
+    return str.replace(/\s*\(\d+\)\s*-\s*/, ' - ')
+  }
+
   const debounced = useMemo(() => debounce(onChange, 700), [])
 
   function removeFromAll<T>(tag: T) {
@@ -120,15 +124,15 @@ export default function Filters() {
     switch (list) {
       case releaseFilters:
         setReleaseFilters(prev =>
-          prev.some(t => JSON.stringify(t) === JSON.stringify(data))
-            ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+          prev.some(t => _.isEqual(t, data))
+            ? prev.filter(t => !_.isEqual(t, data))
             : [...prev, data as ReleaseNotification]
         )
         break
       case artistFilters:
         setArtistFilters(prev =>
-          prev.some(t => JSON.stringify(t) === JSON.stringify(data))
-            ? prev.filter(t => JSON.stringify(t) !== JSON.stringify(data))
+          prev.some(t => _.isEqual(t, data))
+            ? prev.filter(t => !_.isEqual(t, data))
             : [...prev, data as ArtistNotification]
         )
         break
@@ -207,7 +211,8 @@ export default function Filters() {
                           className='dark:bg-indigo-300 bg-orange-200 p-1 m-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
-                          title={tag.album + ' ' + tag.type}
+                          title={cleanArtist(tag.album) + ' ' + tag.type}
+                          value={tag.album}
                           onClick={() => handleClick(tag, releaseFilters)}
                         />
                       }
@@ -216,7 +221,8 @@ export default function Filters() {
                           className='dark:bg-green-300 bg-green-200 p-1 m-1 rounded-2xl shadow-xl'
                           key={index}
                           checked={true}
-                          title={tag.artist}
+                          title={cleanArtist(tag.artist)}
+                          value={tag.artist}
                           onClick={() => handleClick(tag, artistFilters)}
                         />
                       }
@@ -226,6 +232,7 @@ export default function Filters() {
                           key={index}
                           checked={true}
                           title={tag.label}
+                          value={tag.label}
                           onClick={() => handleClick(tag, labelFilters)}
                         />
                       }
@@ -300,28 +307,28 @@ export default function Filters() {
                           return <ArtistResultComponent
                             key={index}
                             _typename={x.type}
-                            title={x.title}
+                            title={cleanArtist(x.title)}
                             subtitle={x.title}
                             thumbnail={x.thumb}
                             data={x}
                             linkTo={x.uri}
-                            checked={artistFilters.some(t => t.artist === x.title && t.type === 'artist')}
-                            buttonFunction={() => handleClick({ artist: x.title, type: 'artist' }, artistFilters)}
+                            checked={artistFilters.some(t => t.value === x.title && t.type === 'artist')}
+                            buttonFunction={() => handleClick({ artist: cleanArtist(x.title), value: x.title, type: 'artist' }, artistFilters)}
                           />
                         }
                         if((x.type === 'release' || x.type === 'master') && (x.format[0] === 'CD' || x.format[0] === 'Vinyl')) {
                           return <ResultComponent
                             key={index}
                             _typename={x.type}
-                            title={x.title}
+                            title={cleanArtist(x.title)}
                             subtitle={x.title}
                             thumbnail={x.thumb}
                             data={x}
                             year={x.year}
                             format={x.format}
                             linkTo={x.uri}
-                            checked={releaseFilters.some(t => t.album === x.title && t.type === x.format[0])}
-                            buttonFunction={() => handleClick({ album: x.title, type: x.format[0] }, releaseFilters)}
+                            checked={releaseFilters.some(t => t.value === x.title && t.type === x.format[0])}
+                            buttonFunction={() => handleClick({ album: cleanArtist(x.title), value: x.title, type: x.format[0] }, releaseFilters)}
                           />
                         }
                       })

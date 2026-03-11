@@ -67,7 +67,8 @@ export type Artist =   {
 }
 
 export type ReleaseNotification = {
-  album: string,
+  album: string
+  value: string
   type: string
 }
 
@@ -78,11 +79,13 @@ export type GenreNotification = {
 
 export type ArtistNotification = {
   artist: string,
+  value: string
   type: string,
 }
 
 export type LabelNotification = {
   label: string,
+  value: string
   type: string,
 }
 
