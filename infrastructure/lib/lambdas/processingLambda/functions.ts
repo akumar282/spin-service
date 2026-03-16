@@ -74,7 +74,9 @@ export function createQuery(
     },
   })
   shouldList.push({
-    term: { 'artists.keyword': { value: artist, case_insensitive: true } },
+    wildcard: {
+      'artists.keyword': { value: `${artist}*`, case_insensitive: true },
+    },
   })
   shouldList.push({
     match: {
