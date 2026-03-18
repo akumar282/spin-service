@@ -143,7 +143,7 @@ export class ComputingNetworkingStack extends Stack {
       },
       removalPolicy: RemovalPolicy.DESTROY,
       fineGrainedAccessControl: {
-        masterUserName: 'admin',
+        masterUserName: props.opensearch_user,
         masterUserPassword: SecretValue.unsafePlainText(props.dashpass),
       },
       capacity: {

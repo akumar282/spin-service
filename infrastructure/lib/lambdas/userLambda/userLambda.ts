@@ -10,7 +10,12 @@ import { UserPreprocess } from '../../apigateway/types'
 import { ResponseBuilder } from '../../apigateway/response'
 import { updateAttributes } from './attributes'
 import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
-import { nestData, unnestData } from './functions'
+import {
+  nestData,
+  nestDataBasic,
+  unnestData,
+  unnestDataBasic,
+} from './functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -36,7 +41,7 @@ export async function handler(
         item.genres = nestData(item.genres, 'genre')
         item.artists = nestData(item.artists, 'artist')
         item.labels = nestData(item.labels, 'label')
-        item.custom = nestData(item.custom, 'custom')
+        item.custom = nestDataBasic(item.custom, 'custom')
         return response.addBody({ data: item }).addStatus(200).build()
       }
       case 'PATCH': {
@@ -63,7 +68,7 @@ export async function handler(
               ':al': body.albums,
               ':em': body.email,
               ':pho': body.phone,
-              ':cus': unnestData(body.custom),
+              ':cus': unnestDataBasic(body.custom),
               ':coun': body.countryCode,
             },
             Key: {

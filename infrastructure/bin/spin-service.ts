@@ -46,6 +46,8 @@ if (validBuildParams()) {
     prod: `www.${domain}`,
   }
 
+  console.log('DASHPASS:', DASHPASS)
+
   const subDomain = ENV === 'prod' ? sub.prod : sub.dev
 
   const certificateStack = new CertificateStack(

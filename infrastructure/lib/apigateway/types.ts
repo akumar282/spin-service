@@ -88,6 +88,12 @@ export type Ledger = {
 export type Item = {
   [p: string]: string
   type: string
+  value: string
+}
+
+export type ItemStore = {
+  [p: string]: string
+  value: string
 }
 
 export type Upcoming = {

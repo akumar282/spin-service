@@ -104,7 +104,7 @@ export default function Filters() {
   }
 
   function cleanArtist(str: string): string {
-    return str.replace(/\s*\(\d+\)\s*-\s*/, ' - ')
+    return str.replace(/\s*\(\d+\)(?=\s*-|$)/, '').replace(/\s+-\s+/, ' - ')
   }
 
   const debounced = useMemo(() => debounce(onChange, 700), [])
@@ -187,6 +187,7 @@ export default function Filters() {
     setSubmissionState(false)
   }
 
+  console.log('hello')
   return (
     <main>
       <div className='flex flex-col font-primary items-center bg-gradient-to-b from-orange-300 to-white dark:from-indigo-900 dark:to-gray-800 min-h-screen'>

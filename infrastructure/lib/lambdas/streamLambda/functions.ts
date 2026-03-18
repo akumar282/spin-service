@@ -41,6 +41,7 @@ const postItems = async (
       doc: {
         ...item,
       },
+      doc_as_upsert: true,
     }
 
     const queryString = update
