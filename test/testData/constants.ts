@@ -126,7 +126,7 @@ export const users = [
   },
   {
     albums: [],
-    notifyType: ['SMS', 'EMAIL'], // Need to make sure this isn't possible (6/18/25)  <- what? (2/24/26)
+    notifyType: ['TEXT', 'EMAIL'], // Need to make sure this isn't possible (6/18/25)  <- what? (2/24/26)
     artists: ['PinkPantheress'],
     phone: '',
     genres: ['Jazz', 'Pop', 'Hip Hop', 'Rock'],
@@ -139,7 +139,7 @@ export const users = [
   },
   {
     albums: [],
-    notifyType: ['SMS'],
+    notifyType: ['TEXT'],
     artists: ['PinkPantheress'],
     phone: '+14257372110',
     genres: ['Hip Hop', 'Rock', 'Electronic', 'Hip Pop', 'R&B'],
@@ -152,7 +152,7 @@ export const users = [
   },
   {
     albums: [],
-    notifyType: ['SMS', 'EMAIL', 'PUSH'],
+    notifyType: ['TEXT', 'EMAIL', 'PUSH'],
     artists: ['PinkPantheress'],
     phone: '+14257372110',
     genres: ['Jazz', 'Pop', 'Hip Hop', 'Rock', 'Electronic', 'Hip Pop', 'R&B'],

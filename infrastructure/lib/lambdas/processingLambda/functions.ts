@@ -25,73 +25,79 @@ export function createQuery(
   genres: string[]
 ) {
   const shouldList = []
-  const tokenCount = `${artist} - ${album}`
-    .split(/\s+/)
-    .filter((token) => token.length > 2)
-
-  // if (tokenCount.length > 3) {
-  // }
 
   shouldList.push({
-    bool: {
-      must: [
-        {
-          bool: {
-            filter: [{ term: { 'albums.type.keyword': media } }],
-            must: [
-              {
-                bool: {
-                  should: [
-                    {
-                      match_phrase: {
-                        'albums.album': {
-                          query: `${artist} - ${album}`,
-                          slop: 2,
-                          boost: 6,
-                        },
+    nested: {
+      path: 'albums',
+      query: {
+        bool: {
+          filter: [{ term: { 'albums.type': media } }],
+          must: [
+            {
+              bool: {
+                should: [
+                  {
+                    match_phrase: {
+                      'albums.album': {
+                        query: `${artist} - ${album}`,
+                        slop: 2,
+                        boost: 6,
                       },
                     },
-                    {
-                      match: {
-                        'albums.album': {
-                          query: `${artist} - ${album}`,
-                          fuzziness: 'AUTO',
-                          prefix_length: 2,
-                          max_expansions: 50,
-                          minimum_should_match: '4<75%',
-                          boost: 2,
-                        },
+                  },
+                  {
+                    match: {
+                      'albums.album': {
+                        query: `${artist} - ${album}`,
+                        fuzziness: 'AUTO',
+                        prefix_length: 2,
+                        max_expansions: 50,
+                        minimum_should_match: '3<75%',
+                        boost: 2,
                       },
                     },
-                  ],
-                  minimum_should_match: 1,
-                },
+                  },
+                ],
+                minimum_should_match: 1,
               },
-            ],
+            },
+          ],
+        },
+      },
+    },
+  })
+
+  shouldList.push({
+    nested: {
+      path: 'artists',
+      query: {
+        match: {
+          'artists.artist': {
+            query: artist,
+            fuzziness: 'AUTO',
+            prefix_length: 1,
           },
         },
-      ],
+      },
     },
   })
-  shouldList.push({
-    wildcard: {
-      'artists.keyword': { value: `${artist}*`, case_insensitive: true },
-    },
-  })
+
   shouldList.push({
     match: {
       custom: {
         query: title,
-        fuzziness: 2,
-        prefix_length: 2,
+        fuzziness: 'AUTO',
+        minimum_should_match: '2<75%',
       },
     },
   })
+
   if (genres && genres.length > 0) {
     for (const genre of genres) {
-      shouldList.push({ match: { genres: genre } })
+      shouldList.push({ term: { genres: genre } })
     }
   }
+
   return {
     query: {
       bool: {

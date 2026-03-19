@@ -1,71 +1,90 @@
 {
-  "track_total_hits": true,
-  "explain": true,
   "query": {
     "bool": {
+      "minimum_should_match": 1,
       "should": [
         {
-          "bool": {
-            "filter": [{ "term": { "albums.type.keyword": "Vinyl" } }],
-            "must": [
-              {
-                "bool": {
-                  "filter": [{ "term": { "albums.type.keyword": "Vinyl" } }],
-                  "must": [
-                    {
-                      "bool": {
-                        "should": [
-                          {
-                            "match_phrase": {
-                              "albums.album": {
-                                "query": "mit - nothings about to happen",
-                                "slop": 2,
-                                "boost": 6
-                              }
-                            }
-                          },
-                          {
-                            "match": {
-                              "albums.album": {
-                                "query": "mit - nothings about to happen",
-                                "fuzziness": "AUTO",
-                                "prefix_length": 2,
-                                "max_expansions": 50,
-                                "minimum_should_match": "4<75%",
-                                "boost": 2
-                              }
+          "nested": {
+            "path": "albums",
+            "query": {
+              "bool": {
+                "filter": [
+                  {
+                    "term": {
+                      "albums.type": "Vinyl"
+                    }
+                  }
+                ],
+                "must": [
+                  {
+                    "bool": {
+                      "minimum_should_match": 1,
+                      "should": [
+                        {
+                          "match_phrase": {
+                            "albums.album": {
+                              "query": "poop",
+                              "slop": 2,
+                              "boost": 6
                             }
                           }
-                        ],
-                        "minimum_should_match": 1
-                      }
+                        },
+                        {
+                          "match": {
+                            "albums.album": {
+                              "query": "poop",
+                              "fuzziness": "AUTO",
+                              "prefix_length": 2,
+                              "max_expansions": 50,
+                              "minimum_should_match": "3<75%",
+                              "boost": 2
+                            }
+                          }
+                        }
+                      ]
                     }
-                  ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "nested": {
+            "path": "artists",
+            "query": {
+              "match": {
+                "artists.artist": {
+                  "query": "d",
+                  "fuzziness": "AUTO",
+                  "prefix_length": 1
                 }
               }
-            ]
+            }
           }
         },
         {
           "match": {
             "custom": {
-              "query": "Mitski Nothings About To Happen To Me",
-              "fuzziness": "AUTO"
+              "query": "pinpanteress heavn",
+              "fuzziness": "AUTO",
+              "minimum_should_match": "2<75%"
             }
           }
         },
+
         {
           "term": {
-            "artists.keyword": {
-              "value": "playboi carti",
-              "case_insensitive": true
-            }
+            "genres": "R&B"
           }
         },
-        { "match": { "genres": "Funk / Soul" } },
-        { "match": { "genres": "Pop" } }
-      ],
-      "minimum_should_match": 1
+
+        {
+          "term": {
+            "genres": "Pop"
+          }
+        }
+      ]
     }
   }
 }

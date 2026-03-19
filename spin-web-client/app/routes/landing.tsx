@@ -33,7 +33,7 @@ export default function Landing() {
         <div className='max-w-[300px] lg:max-w-[300px] w-full mb-6 px-4'>
           <h1 className='text-4xl text-center'>spin-service</h1>
         </div>
-        <div className='md:w-8/12 w-10/12 max-w-[2000px] max-h-[500px] rounded-3xl lg:mb-0 mb-8 shadow-xl'>
+        <div className='w-11/12 sm:w-10/12 md:w-8/12 max-w-3xl rounded-3xl mb-8 shadow-xl'>
           <div className='rounded-3xl dark:border-indigo-900 flex flex-col items-center border-orange-200 border-4 p-6 space-y-4'>
             <h1 className='leading-6 text-2xl text-gray-700 dark:text-gray-200 text-center'>
               Welcome!

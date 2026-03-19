@@ -21,8 +21,8 @@ export default function AddPrefButtons(props: ButtonProps) {
   const [submissionState, setSubmissionState] = useState<boolean>(false)
   const [releaseFilters, setReleaseFilters] = useState<ReleaseNotification[]>([])
   const [artistFilters, setArtistFilters] = useState<ArtistNotification[]>([])
-  const [albumData, setAlbumData] = useState<ReleaseNotification>({ album: '', type: '' })
-  const [artistData, setArtistData] = useState<ArtistNotification>({ artist: '', type: '' })
+  const [albumData, setAlbumData] = useState<ReleaseNotification>({ value: '', album: '', type: '' })
+  const [artistData, setArtistData] = useState<ArtistNotification>({ value: '', artist: '', type: '' })
 
   const client = new SpinClient()
 
@@ -34,8 +34,8 @@ export default function AddPrefButtons(props: ButtonProps) {
         setUserData(user)
         setArtistFilters(user.artists)
         setReleaseFilters(user.albums)
-        setArtistData({ artist: data.artist!, type: 'artist' })
-        setAlbumData({ album: `${data.artist!} - ${data.album}`, type: 'Vinyl' })
+        setArtistData({ value: data.artist!, artist: data.artist!, type: 'artist' })
+        setAlbumData({ value: `${data.artist!} - ${data.album}`, album: `${data.artist!} - ${data.album}`, type: 'Vinyl' })
       }
     }
     fetchData().catch()

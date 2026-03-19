@@ -173,42 +173,44 @@ async function getOgImage(url: string) {
     args: ['--no-sandbox', '--disable-dev-shm-usage'],
   })
 
-  const context = await browser.newContext({
-    locale: 'en-US',
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
-    viewport: { width: 1280, height: 800 },
-    extraHTTPHeaders: {
-      'accept-language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
-      'upgrade-insecure-requests': '1',
-    },
-  })
+  try {
+    const context = await browser.newContext({
+      locale: 'en-US',
+      userAgent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+      viewport: { width: 1280, height: 800 },
+      extraHTTPHeaders: {
+        'accept-language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+        'upgrade-insecure-requests': '1',
+      },
+    })
 
-  const page = await context.newPage()
+    const page = await context.newPage()
 
-  page.on('response', response => {
-    if (response.url().includes('roughtrade.com') && [403, 429, 503].includes(response.status())) {
-      console.log('blocked response', response.status(), response.url())
+    page.setDefaultTimeout(45000)
+    page.setDefaultNavigationTimeout(60000)
+
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
+
+    const result = await page
+      .waitForSelector('meta[property="og:image"]', {
+        state: 'attached',
+        timeout: 45000,
+      })
+      .then(() => 'og')
+
+    if (result !== 'og') {
+      const title = await page.title().catch(() => '')
+      const htmlStart = (await page.content().catch(() => '')).slice(0, 400)
+      throw new Error(
+        `Did not reach product HTML (likely challenge). title="${title}" html="${htmlStart}"`
+      )
     }
-  })
 
-  page.setDefaultTimeout(45000)
-  page.setDefaultNavigationTimeout(60000)
-
-  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
-
-  const result = await page.waitForSelector('meta[property="og:image"]', { state: 'attached', timeout: 45000 }).then(() => 'og')
-
-  if (result !== 'og') {
-    const title = await page.title().catch(() => '')
-    const htmlStart = (await page.content().catch(() => '')).slice(0, 400)
+    return await page.getAttribute('meta[property="og:image"]', 'content')
+  } finally {
     await browser.close()
-    throw new Error(`Did not reach product HTML (likely challenge). title="${title}" html="${htmlStart}"`)
   }
-
-  const og = await page.getAttribute('meta[property="og:image"]', 'content')
-  await browser.close()
-  return og
 }
 
 /* *******************************************
@@ -318,9 +320,9 @@ async function joinWithDiscogs(postsQueue: Partial<PostInfo>[]) {
 async function main() {
   try {
     console.log('Version 1.0.0')
-    // if(ProxyIp) {
-    //   console.info('Proxy Loaded: ' + ProxyIp)
-    // }
+    if(ProxyIp) {
+      console.info('Proxy Loaded: ' + ProxyIp)
+    }
     const endpointUrl = getEnv('API_URL')
     await getRawPosts(BASE_URL)
     await mapToAttributes(rawPostsQueue)

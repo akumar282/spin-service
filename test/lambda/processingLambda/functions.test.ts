@@ -36,60 +36,72 @@ describe('Assorted test for functions', () => {
     const result = createQuery(
       'PinkPantheress',
       'Fancy That',
-      'vinyl',
+      'Vinyl',
       'PinkPantheress - Fancy That',
       ['R&B', 'Pop']
     )
     expect(result).toEqual({
       query: {
         bool: {
+          minimum_should_match: 1,
           should: [
             {
-              bool: {
-                must: [
-                  {
-                    bool: {
-                      filter: [{ term: { 'albums.type.keyword': 'vinyl' } }],
-                      must: [
-                        {
-                          bool: {
-                            should: [
-                              {
-                                match_phrase: {
-                                  'albums.album': {
-                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
-                                    slop: 2,
-                                    boost: 6,
-                                  },
-                                },
-                              },
-                              {
-                                match: {
-                                  'albums.album': {
-                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
-                                    fuzziness: 'AUTO',
-                                    prefix_length: 2,
-                                    max_expansions: 50,
-                                    minimum_should_match: '4<75%',
-                                    boost: 2,
-                                  },
-                                },
-                              },
-                            ],
-                            minimum_should_match: 1,
-                          },
+              nested: {
+                path: 'albums',
+                query: {
+                  bool: {
+                    filter: [
+                      {
+                        term: {
+                          'albums.type': 'Vinyl',
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    must: [
+                      {
+                        bool: {
+                          minimum_should_match: 1,
+                          should: [
+                            {
+                              match_phrase: {
+                                'albums.album': {
+                                  query: 'PinkPantheress - Fancy That',
+                                  slop: 2,
+                                  boost: 6,
+                                },
+                              },
+                            },
+                            {
+                              match: {
+                                'albums.album': {
+                                  query: 'PinkPantheress - Fancy That',
+                                  fuzziness: 'AUTO',
+                                  prefix_length: 2,
+                                  max_expansions: 50,
+                                  minimum_should_match: '3<75%',
+                                  boost: 2,
+                                },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
                   },
-                ],
+                },
               },
             },
             {
-              term: {
-                'artists.keyword': {
-                  value: 'PinkPantheress',
-                  case_insensitive: true,
+              nested: {
+                path: 'artists',
+                query: {
+                  match: {
+                    'artists.artist': {
+                      query: 'PinkPantheress',
+                      fuzziness: 'AUTO',
+                      prefix_length: 1,
+                    },
+                  },
                 },
               },
             },
@@ -97,23 +109,24 @@ describe('Assorted test for functions', () => {
               match: {
                 custom: {
                   query: 'PinkPantheress - Fancy That',
-                  fuzziness: 2,
-                  prefix_length: 2,
+                  fuzziness: 'AUTO',
+                  minimum_should_match: '2<75%',
                 },
               },
             },
+
             {
-              match: {
+              term: {
                 genres: 'R&B',
               },
             },
+
             {
-              match: {
+              term: {
                 genres: 'Pop',
               },
             },
           ],
-          minimum_should_match: 1,
         },
       },
     })
@@ -123,60 +136,72 @@ describe('Assorted test for functions', () => {
     const result = createQuery(
       'PinkPantheress',
       'Fancy That',
-      'vinyl',
+      'Vinyl',
       'PinkPantheress - Fancy That',
       []
     )
     expect(result).toEqual({
       query: {
         bool: {
+          minimum_should_match: 1,
           should: [
             {
-              bool: {
-                must: [
-                  {
-                    bool: {
-                      filter: [{ term: { 'albums.type.keyword': 'vinyl' } }],
-                      must: [
-                        {
-                          bool: {
-                            should: [
-                              {
-                                match_phrase: {
-                                  'albums.album': {
-                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
-                                    slop: 2,
-                                    boost: 6,
-                                  },
-                                },
-                              },
-                              {
-                                match: {
-                                  'albums.album': {
-                                    query: `${'PinkPantheress'} - ${'Fancy That'}`,
-                                    fuzziness: 'AUTO',
-                                    prefix_length: 2,
-                                    max_expansions: 50,
-                                    minimum_should_match: '4<75%',
-                                    boost: 2,
-                                  },
-                                },
-                              },
-                            ],
-                            minimum_should_match: 1,
-                          },
+              nested: {
+                path: 'albums',
+                query: {
+                  bool: {
+                    filter: [
+                      {
+                        term: {
+                          'albums.type': 'Vinyl',
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    must: [
+                      {
+                        bool: {
+                          minimum_should_match: 1,
+                          should: [
+                            {
+                              match_phrase: {
+                                'albums.album': {
+                                  query: 'PinkPantheress - Fancy That',
+                                  slop: 2,
+                                  boost: 6,
+                                },
+                              },
+                            },
+                            {
+                              match: {
+                                'albums.album': {
+                                  query: 'PinkPantheress - Fancy That',
+                                  fuzziness: 'AUTO',
+                                  prefix_length: 2,
+                                  max_expansions: 50,
+                                  minimum_should_match: '3<75%',
+                                  boost: 2,
+                                },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
                   },
-                ],
+                },
               },
             },
             {
-              term: {
-                'artists.keyword': {
-                  value: 'PinkPantheress',
-                  case_insensitive: true,
+              nested: {
+                path: 'artists',
+                query: {
+                  match: {
+                    'artists.artist': {
+                      query: 'PinkPantheress',
+                      fuzziness: 'AUTO',
+                      prefix_length: 1,
+                    },
+                  },
                 },
               },
             },
@@ -184,13 +209,12 @@ describe('Assorted test for functions', () => {
               match: {
                 custom: {
                   query: 'PinkPantheress - Fancy That',
-                  fuzziness: 2,
-                  prefix_length: 2,
+                  fuzziness: 'AUTO',
+                  minimum_should_match: '2<75%',
                 },
               },
             },
           ],
-          minimum_should_match: 1,
         },
       },
     })
