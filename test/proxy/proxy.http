@@ -32,12 +32,12 @@ GET https://www.roughtrade.com/de/product/djo/decide-2#50485054374219
 
 ###
 
-POST http://api.spinmyrecords.com/raw
+POST http://abcdefg.spinmyrecords.com/raw
 Content-Type: application/json
 
 {
   "album": "Nothing’s About To Happen To Me",
-  "artist": "who?",
+  "artist": "Clairo",
   "color": "Black",
   "content": "https://www.banquetrecords.com/pinkpantheress/fancy-some-more%3F-%5Bpersonally-signed%5D/5026854251493PS",
   "created_time": "2026-02-09T22:50:59.184Z",
@@ -51,7 +51,7 @@ Content-Type: application/json
   "media": "Vinyl",
   "moreContent": null,
   "pagination": null,
-  "postId": "testG67",
+  "postId": "testG676767",
   "postTitle": "PinkPantheress - Fancy Some More? [Personally Signed Copies]",
   "preorder": false,
   "region": "GB",

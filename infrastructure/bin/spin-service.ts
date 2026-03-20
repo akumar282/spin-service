@@ -99,6 +99,7 @@ if (validBuildParams()) {
     account_sid: TWILIO_ACCOUNT_SID,
     message_sid: MESSAGE_SID,
     env,
+    securityGroup: computeStack.securityGroup,
     certificate: certificateStack.certificate,
     zone: certificateStack.zone,
     crossRegionReferences: true,

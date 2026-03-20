@@ -1,4 +1,4 @@
-import { Fn, RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
+import { CfnOutput, Fn, RemovalPolicy, SecretValue, Stack } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
@@ -6,15 +6,25 @@ import { FargateTask } from '../fargate/fargateTask'
 import { SESConstruct } from '../ses/ses'
 import { ComputingNetworkStackProps } from './stackProps'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
-import { EbsDeviceVolumeType, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
+import {
+  EbsDeviceVolumeType,
+  SecurityGroup,
+  SubnetType,
+} from 'aws-cdk-lib/aws-ec2'
 import { Domain, EngineVersion } from 'aws-cdk-lib/aws-opensearchservice'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
-import { AnyPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import {
+  AnyPrincipal,
+  Effect,
+  ManagedPolicy,
+  PolicyStatement,
+} from 'aws-cdk-lib/aws-iam'
 import { schedulerRole } from '../iam/schedulerRole'
 
 export class ComputingNetworkingStack extends Stack {
   public readonly vpc: ec2.Vpc
   public readonly domainEndpoint: string
+  public readonly securityGroup: SecurityGroup
 
   public constructor(
     scope: Construct,
@@ -87,6 +97,7 @@ export class ComputingNetworkingStack extends Stack {
       cluster,
       schedulePerms,
       securityGroup,
+      SubnetType.PUBLIC,
       {
         environment: {
           API_URL: apiUrl,
@@ -115,6 +126,7 @@ export class ComputingNetworkingStack extends Stack {
       cluster,
       schedulePerms,
       securityGroup,
+      SubnetType.PUBLIC,
       {
         environment: {
           API_URL: apiUrl,
@@ -123,11 +135,112 @@ export class ComputingNetworkingStack extends Stack {
       }
     )
 
+    const bastionSG = new SecurityGroup(this, 'BastionSG', {
+      vpc,
+      description: 'Security group for bastion host',
+      allowAllOutbound: true,
+    })
+
     const openSearchSecurityGroup = new SecurityGroup(this, 'OSGroup', {
       vpc,
       allowAllOutbound: true,
       securityGroupName: 'OSAccessGroup',
     })
+
+    openSearchSecurityGroup.addIngressRule(securityGroup, ec2.Port.tcp(443))
+
+    openSearchSecurityGroup.addIngressRule(
+      bastionSG,
+      ec2.Port.tcp(443),
+      'Allow bastion access to OpenSearch'
+    )
+
+    const endpointSG = new ec2.SecurityGroup(this, 'EndpointSG', {
+      vpc,
+      allowAllOutbound: true,
+    })
+
+    endpointSG.addIngressRule(
+      securityGroup,
+      ec2.Port.tcp(443),
+      'Allow ECS to reach VPC endpoints'
+    )
+
+    endpointSG.addEgressRule(
+      securityGroup,
+      ec2.Port.tcp(443),
+      'Allow response traffic back to ECS'
+    )
+
+    vpc.addGatewayEndpoint('DynamoDbEndpoint', {
+      service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+    })
+
+    vpc.addGatewayEndpoint('S3Endpoint', {
+      service: ec2.GatewayVpcEndpointAwsService.S3,
+    })
+
+    vpc.addInterfaceEndpoint('SQSEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.SQS,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('LogsEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('SESEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.SES,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('EcrDockerEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('EcrApiEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.ECR,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('SSMEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('SSMMessagesEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    vpc.addInterfaceEndpoint('EC2MessagesEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
+      privateDnsEnabled: true,
+      securityGroups: [endpointSG],
+    })
+
+    this.securityGroup = securityGroup
+
+    const bastion = new ec2.Instance(this, 'BastionHost', {
+      vpc,
+      instanceType: new ec2.InstanceType('t2.micro'),
+      machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+      securityGroup: bastionSG,
+    })
+
+    bastion.role.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
+    )
 
     const openSearchLogs = new LogGroup(this, 'IngestionLogGroup', {
       logGroupName: '/aws/vendedlogs/ingestionPipeline',
@@ -137,7 +250,13 @@ export class ComputingNetworkingStack extends Stack {
 
     const dataIndexingDomain = new Domain(this, 'SpinDataDomain', {
       version: EngineVersion.OPENSEARCH_2_17,
-      domainName: 'spin-data',
+      domainName: 'spin-data-vpc',
+      vpc,
+      vpcSubnets: [
+        {
+          subnets: [vpc.privateSubnets[0]],
+        },
+      ],
       logging: {
         appLogGroup: openSearchLogs,
       },
@@ -179,6 +298,10 @@ export class ComputingNetworkingStack extends Stack {
     new StringParameter(this, 'OpenSearchEndpoint', {
       parameterName: '/os/endpoint',
       stringValue: `https://${dataIndexingDomain.domainEndpoint}/`,
+    })
+
+    new CfnOutput(this, 'BastionInstanceId', {
+      value: bastion.instanceId,
     })
   }
 }

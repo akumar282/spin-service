@@ -15,6 +15,7 @@ export class FargateTask extends Construct {
     cluster: ecs.Cluster,
     role: Role,
     securityGroup: SecurityGroup,
+    subnetType: ec2.SubnetType,
     passthroughProps?: ContainerEnvVars
   ) {
     super(scope, `FargateScraperConstruct-${id}`)
@@ -48,7 +49,7 @@ export class FargateTask extends Construct {
           networkConfiguration: {
             awsvpcConfiguration: {
               subnets: vpc.selectSubnets({
-                subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                subnetType,
               }).subnetIds,
               securityGroups: [securityGroup.securityGroupId],
             },

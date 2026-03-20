@@ -1,5 +1,5 @@
 import { StackProps } from 'aws-cdk-lib'
-import { Vpc } from 'aws-cdk-lib/aws-ec2'
+import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2'
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
 import { PublicHostedZone } from 'aws-cdk-lib/aws-route53'
 
@@ -17,6 +17,7 @@ export interface SpinStackProps extends StackProps {
   account_sid: string
   twilio_token: string
   message_sid: string
+  securityGroup: SecurityGroup
 }
 
 export interface ComputingNetworkStackProps extends StackProps {

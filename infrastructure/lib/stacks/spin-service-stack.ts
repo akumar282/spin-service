@@ -46,6 +46,7 @@ import { gatewayRole } from '../iam/gatewayRole'
 import { getEnv } from '../shared/utils'
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { ApiGatewayDomain } from 'aws-cdk-lib/aws-route53-targets'
+import { Port, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: SpinStackProps) {
@@ -347,6 +348,8 @@ export class SpinServiceStack extends Stack {
       code: lambda.Code.fromAsset('dist/streamLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
+      vpc: props.vpc,
+      securityGroups: [props.securityGroup],
       environment: {
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
@@ -360,6 +363,8 @@ export class SpinServiceStack extends Stack {
       code: lambda.Code.fromAsset('dist/processingLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(20),
+      vpc: props.vpc,
+      securityGroups: [props.securityGroup],
       environment: {
         SQS_URL: processingQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
