@@ -1,10 +1,10 @@
 import { Construct } from 'constructs'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
+import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
 import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import { ContainerEnvVars, FargateScheduleProps } from './types'
 import { Role } from 'aws-cdk-lib/aws-iam'
-import { SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 
 export class FargateTask extends Construct {
   constructor(
@@ -52,6 +52,11 @@ export class FargateTask extends Construct {
                 subnetType,
               }).subnetIds,
               securityGroups: [securityGroup.securityGroupId],
+              ...(subnetType === SubnetType.PUBLIC
+                ? {
+                    assignPublicIp: 'ENABLED',
+                  }
+                : {}),
             },
           },
         },
