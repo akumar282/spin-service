@@ -56,7 +56,7 @@ export default function ReleasePage() {
           </div>
           <div className='w-full items-center max-w-[116rem] mx-auto pt-2 flex flex-col'>
             <div
-              className='w-[98%] justify-between my-0.5 dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-col border border-slate-400 items-stretch'>
+              className='w-[98%] mb-3 justify-between my-0.5 dark:bg-slate-300 dark:text-black dark:border-indigo-600 rounded-xl bg-white flex flex-col border border-slate-400 items-stretch'>
               <div>
                 {notation}
               </div>
@@ -93,9 +93,14 @@ export default function ReleasePage() {
                         Color: {cap(info.color)}
                       </h3>
                       <h3 className='lg:text-md text-sm text-blue-700 mt-2'>
-                        <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + info.uri}
-                           rel='noreferrer'>View full information
-                          on Discogs</a>
+                        { info.uri === undefined ? (
+                          <></>
+                          ) : (
+                          <a target='_blank' title={'View on Discogs'} href={'https://discogs.com' + info.uri}
+                             rel='noreferrer'>View full information
+                            on Discogs</a>
+                          )
+                        }
                       </h3>
                     </div>
                   </div>
