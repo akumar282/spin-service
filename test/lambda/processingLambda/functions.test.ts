@@ -1,13 +1,9 @@
+import { createQuery } from '../../../infrastructure/lib/lambdas/processingLambda/functions'
 import {
-  createQuery,
   deleteSQSMessage,
-  determineNotificationMethods,
-  sendEmail,
-  updateLedgerItem,
-} from '../../../infrastructure/lib/lambdas/processingLambda/functions'
-import {
   getEnv,
   requestWithBody,
+  updateLedgerItem,
 } from '../../../infrastructure/lib/shared/utils'
 import process from 'node:process'
 import { User, Records } from '../../../infrastructure/lib/apigateway/types'
@@ -18,6 +14,10 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import { record1, users } from '../../testData/constants'
 import 'aws-sdk-client-mock-jest'
+import {
+  determineNotificationMethods,
+  sendEmail,
+} from '../../../infrastructure/lib/lambdas/notificationLambda/functions'
 
 describe('Assorted test for functions', () => {
   const sesMock = mockClient(SESClient)

@@ -286,7 +286,12 @@ export class SpinServiceStack extends Stack {
     const processingQueue = new sqs.Queue(this, 'processing_queue', {
       retentionPeriod: Duration.days(14),
     })
-    const processingRole = queueRole(this)
+    const processingRole = queueRole(this, 'processing_queue')
+
+    const notificationQueue = new sqs.Queue(this, 'notification_queue', {
+      retentionPeriod: Duration.days(14),
+    })
+    const notificationRole = queueRole(this, 'notification_queue')
 
     new pipes.CfnPipe(this, 'processing-pipe', <CfnPipeProps>{
       roleArn: processingRole.roleArn,
@@ -313,10 +318,10 @@ export class SpinServiceStack extends Stack {
       },
     })
 
-    new StringParameter(this, 'OpenSearchEndpoint', {
-      parameterName: '/machineKey',
-      stringValue: 'poopyMcButts',
-    })
+    const osEndpoint = StringParameter.valueForStringParameter(
+      this,
+      '/os/endpoint'
+    )
 
     const rawDataHandler = new lambda.Function(this, 'RawRecordDataHandler', {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -351,6 +356,7 @@ export class SpinServiceStack extends Stack {
       vpc: props.vpc,
       securityGroups: [props.securityGroup],
       environment: {
+        OPENSEARCH_ENDPOINT: osEndpoint,
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
         TABLE_NAME: recordsTable.tableName,
@@ -366,7 +372,22 @@ export class SpinServiceStack extends Stack {
       vpc: props.vpc,
       securityGroups: [props.securityGroup],
       environment: {
+        OPENSEARCH_ENDPOINT: osEndpoint,
         SQS_URL: processingQueue.queueUrl,
+        DOWNSTREAM_QUEUE_URL: notificationQueue.queueUrl,
+        LEDGER_TABLE: ledgerTable.tableName,
+        DASHPASS: props.dashpass,
+        USER: props.opensearch_user,
+      },
+    })
+
+    const notificationlambda = new lambda.Function(this, 'NotificationLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('dist/notificationLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(20),
+      environment: {
+        SQS_URL: notificationQueue.queueUrl,
         LEDGER_TABLE: ledgerTable.tableName,
         DASHPASS: props.dashpass,
         USER: props.opensearch_user,
@@ -512,10 +533,14 @@ export class SpinServiceStack extends Stack {
     recordsTable.grantReadWriteData(publicHandler)
     usersTable.grantReadWriteData(authLambda)
     ledgerTable.grantReadWriteData(processinglambda)
+    ledgerTable.grantReadWriteData(notificationlambda)
     recordsTable.grantStreamRead(processinglambda)
     upcomingTable.grantReadWriteData(publicHandler)
     upcomingTable.grantReadWriteData(rawDataHandler)
     usersTable.grantReadWriteData(smsLambda)
+    processingQueue.grantConsumeMessages(processinglambda)
+    notificationQueue.grantSendMessages(processinglambda)
+    notificationQueue.grantConsumeMessages(notificationlambda)
 
     const ssmPolicy = new PolicyStatement({
       sid: 'SSMGetParam',
@@ -524,7 +549,7 @@ export class SpinServiceStack extends Stack {
       resources: ['*'],
     })
 
-    processinglambda.addToRolePolicy(
+    notificationlambda.addToRolePolicy(
       new PolicyStatement({
         sid: 'SESOptions',
         effect: Effect.ALLOW,
@@ -571,6 +596,7 @@ export class SpinServiceStack extends Stack {
 
     streamLambda.addToRolePolicy(ssmPolicy)
     processinglambda.addToRolePolicy(ssmPolicy)
+    notificationlambda.addToRolePolicy(ssmPolicy)
 
     streamLambda.addEventSource(
       new DynamoEventSource(recordsTable, {
@@ -588,7 +614,15 @@ export class SpinServiceStack extends Stack {
       new SqsEventSource(processingQueue, {
         batchSize: 50,
         maxBatchingWindow: Duration.minutes(1),
-        maxConcurrency: 10,
+        maxConcurrency: 2,
+        reportBatchItemFailures: true,
+      })
+    )
+
+    notificationlambda.addEventSource(
+      new SqsEventSource(notificationQueue, {
+        batchSize: 50,
+        maxBatchingWindow: Duration.minutes(1),
         reportBatchItemFailures: true,
       })
     )

@@ -27,7 +27,9 @@ export default function Browse() {
 
   useEffect(() => {
     const getReleases = async () => {
-      const { data } = await client.getData<RecordsResult>('public?count=20')
+      const { data } = await client.getData<RecordsResult>(
+        'public?count=20&interval=36',
+      )
       setData(data.items)
       setHighlighted(data.items)
       setCursor(data.cursor)
@@ -37,7 +39,7 @@ export default function Browse() {
   }, [])
 
   const useRequery = async () => {
-    const { data } = await client.getData<RecordsResult>(`public?count=20&cursor=${cursor}`)
+    const { data } = await client.getData<RecordsResult>(`public?interval=36&count=20&cursor=${cursor}`)
     setCursor(data.cursor)
     setData(prev => [...prev, ...data.items])
     setHighlighted(prev => [...prev, ...data.items])

@@ -176,54 +176,8 @@ export class ComputingNetworkingStack extends Stack {
       service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
     })
 
-    vpc.addGatewayEndpoint('S3Endpoint', {
-      service: ec2.GatewayVpcEndpointAwsService.S3,
-    })
-
     vpc.addInterfaceEndpoint('SQSEndpoint', {
       service: ec2.InterfaceVpcEndpointAwsService.SQS,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('LogsEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('SESEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.SES,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('EcrDockerEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('EcrApiEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.ECR,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('SSMEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.SSM,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('SSMMessagesEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
-      privateDnsEnabled: true,
-      securityGroups: [endpointSG],
-    })
-
-    vpc.addInterfaceEndpoint('EC2MessagesEndpoint', {
-      service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
       privateDnsEnabled: true,
       securityGroups: [endpointSG],
     })

@@ -4,50 +4,28 @@ import {
   DynamoDBClient,
 } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
-import { SESClient } from '@aws-sdk/client-ses'
-import { getEnv, getSsmParam, requestWithBody } from '../../shared/utils'
+import { getEnv, requestWithBody, updateLedgerItem } from '../../shared/utils'
 import {
   SQSBody,
   OpenSearchUserResult,
   User,
   Records,
 } from '../../apigateway/types'
-import {
-  createQuery,
-  determineNotificationMethods,
-  sendEmail,
-  updateLedgerItem,
-} from './functions'
+import { createQuery, sendSQSMessage } from './functions'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
-import { SSMClient } from '@aws-sdk/client-ssm'
-import twilio from 'twilio'
+import { SQSClient } from '@aws-sdk/client-sqs'
 
-const ssmClient = new SSMClient()
-const ses = new SESClient({})
+const sqsClent = new SQSClient()
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
-
-const twilioSid = getEnv('TWILIO_SID')
-const twilioApiKeySid = getEnv('TWILIO_API_SID')
-const twilioApiSecret = getEnv('TWILIO_API_KEY')
-const messagingSid = getEnv('MESSAGE_SID')
-
-const twilioClient = twilio(twilioApiKeySid, twilioApiSecret, {
-  accountSid: twilioSid,
-  maxRetries: 2,
-})
-
-/*
-  TODO: Pinpoint for push notifications
-*/
 
 export async function handler(event: SQSEvent) {
   const authHeader = `Basic ${Buffer.from(
     `${getEnv('USER')}:${getEnv('DASHPASS')}`
   ).toString('base64')}`
   const ledgerTableName = getEnv('LEDGER_TABLE')
-  const ssmParam = await getSsmParam(ssmClient, '/os/endpoint')
-  const endpoint = ssmParam ? ssmParam.Value : null
+  const publishQueue = getEnv('DOWNSTREAM_QUEUE_URL')
+  const endpoint = getEnv('OPENSEARCH_ENDPOINT')
   const batchItemFailures = []
 
   if (!endpoint) {
@@ -129,65 +107,48 @@ export async function handler(event: SQSEvent) {
 
       users.hits.hits.forEach((x) => usersToProcess.push(x._source))
 
+      const strippedUsers = usersToProcess.map(
+        ({ id, email, phone, notifyType, countryCode }) =>
+          ({
+            id,
+            email,
+            phone,
+            notifyType,
+            countryCode,
+          } as Partial<User>)
+      )
+
+      const partialItem = {
+        id: item.id,
+        postId: item.postId,
+        artist: item.artist,
+        media: item.media,
+        album: item.album,
+        content: item.content,
+        link: item.link,
+      } as Partial<Records>
+
       if (usersToProcess.length === 0) {
         await updateLedgerItem(docClient, [], item.postId, 'NO_RECIPIENTS')
         continue
-      }
-
-      const { email, phone, inapp } =
-        determineNotificationMethods(usersToProcess)
-
-      try {
-        await sendEmail(ses, email, item)
-        console.log(`Emailed for: ${item.postId}`)
-      } catch (e) {
-        await updateLedgerItem(docClient, [], item.postId, 'FAILED_EMAIL')
-        batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
-        console.error(
-          'Error sending emails for record ',
-          item.postId,
-          'Failed with error ',
-          e
-        )
-        continue
-      }
-
-      for (const user of phone) {
-        const number = `${user.countryCode.dial}${user.phone}`
+      } else {
         try {
-          const message = await twilioClient.messages.create({
-            messagingServiceSid: messagingSid,
-            to: number,
-            body: `SpinMyRecords: The record, ${item.album} by ${item.artist} is now available. Get it now: https://www.spinmyrecords.com/release/${item.postId} . Reply STOP to stop.`,
-          })
+          const messageBody = {
+            data: {
+              item: partialItem,
+              recipients: strippedUsers,
+            },
+          }
+
+          await sendSQSMessage(messageBody, sqsClent, publishQueue)
+
+          await updateLedgerItem(docClient, [], item.postId, 'PUBLISHED_USERS')
         } catch (e) {
-          console.error(
-            'Error sending text for record ',
-            item.postId,
-            'Failed with error ',
-            e
-          )
+          console.log(`SQS Publish Failure: ${e}`)
+          batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
           continue
         }
       }
-
-      console.log(`Texted for: ${item.postId}`)
-
-      try {
-        const ids = usersToProcess.map((x) => x.id)
-        await updateLedgerItem(docClient, ids, item.postId)
-        console.log(`Finished for: ${item.postId}`)
-      } catch (e) {
-        console.error(
-          'Error updating ledger for ',
-          item.postId,
-          'Failed with error ',
-          e
-        )
-        batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
-      }
-    } else {
-      await updateLedgerItem(docClient, [], item.postId, 'MISSING_INFO')
     }
   }
   return { batchItemFailures }

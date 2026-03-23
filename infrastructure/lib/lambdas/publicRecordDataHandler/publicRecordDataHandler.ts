@@ -4,7 +4,6 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
-  ScanCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
@@ -24,8 +23,15 @@ export async function handler(
           try {
             const nextToken = event.queryStringParameters?.cursor
             const count = event.queryStringParameters?.count
+            const interval = parseInt(
+              event.queryStringParameters?.interval ?? '24'
+            )
 
-            const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+            const yesterday = new Date(
+              Date.now() -
+                (!isNaN(interval) && interval ? interval : 24) * 60 * 60 * 1000
+            )
+
             const rightNow = new Date().toISOString()
             const monthString = `DATE#${(yesterday.getMonth() + 1).toString()}`
             const cutoff = monthString

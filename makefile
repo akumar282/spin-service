@@ -44,9 +44,19 @@ meta:
 bootstrap:
 	cdk bootstrap
 
+deploy-api:
+	npm run cdk deploy --exclusively SpinServiceStack-prod
+
+deploy-client:
+	npm run cdk deploy --exclusively SpinClientStack-prod
+
 buildDiff: build diff
 
 buildDeploy: build deploy-all
+
+buildDeployApi: build deploy-api
+
+buildDeployClient: build deploy-client
 
 buildDeployAll: build-all deploy-all
 

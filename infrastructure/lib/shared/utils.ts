@@ -1,5 +1,15 @@
 import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  UpdateCommand,
+  UpdateCommandInput,
+} from '@aws-sdk/lib-dynamodb'
+import {
+  DeleteMessageCommand,
+  DeleteMessageCommandOutput,
+  SQSClient,
+} from '@aws-sdk/client-sqs'
 
 export function getEnv(name: string): string {
   const val = process.env[name]
@@ -129,4 +139,43 @@ export const DYNAMIC_CORS = (host: string) => {
     'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,PATCH,DELETE',
     'Access-Control-Allow-Credentials': 'true',
   }
+}
+
+export async function deleteSQSMessage(
+  ReceiptHandle: string,
+  client: SQSClient
+): Promise<DeleteMessageCommandOutput> {
+  const command = new DeleteMessageCommand({
+    QueueUrl: getEnv('SQS_URL'),
+    ReceiptHandle,
+  })
+  return await client.send(command)
+}
+
+export async function updateLedgerItem(
+  client: DynamoDBDocumentClient,
+  to: string[],
+  id: string,
+  status?: string
+) {
+  const input: UpdateCommandInput = {
+    ExpressionAttributeNames: {
+      '#st': 'status',
+      '#pr': 'processed',
+      '#to': 'to',
+    },
+    ExpressionAttributeValues: {
+      ':st': status ?? 'COMPLETED',
+      ':pr': true,
+      ':to': to,
+    },
+    Key: {
+      postId: id,
+    },
+    ReturnValues: 'ALL_NEW',
+    TableName: getEnv('LEDGER_TABLE'),
+    UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
+  }
+  const command = new UpdateCommand(input)
+  return await client.send(command)
 }

@@ -158,6 +158,14 @@ export type SQSBody = {
   receiptHandle: string
 }
 
+export type NotificationQueueBody = {
+  data: {
+    item: Records
+    recipients: User[]
+  }
+  messageId: string
+}
+
 export type AuthRequest = {
   type: 'login' | 'new_user'
   platform: 'mobile' | 'web'

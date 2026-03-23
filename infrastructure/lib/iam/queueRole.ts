@@ -7,9 +7,9 @@ import {
 } from 'aws-cdk-lib/aws-iam'
 import { Construct } from 'constructs'
 
-export const queueRole = (scope: Construct): Role => {
-  return new Role(scope, 'sqs-queue-role', {
-    roleName: 'ProcessingQueueRole',
+export const queueRole = (scope: Construct, name: string): Role => {
+  return new Role(scope, `sqs-queue-role-${name}`, {
+    roleName: name,
     assumedBy: new ServicePrincipal('pipes.amazonaws.com'),
     inlinePolicies: {
       ProcessingQueuePolicies: new PolicyDocument({

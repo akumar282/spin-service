@@ -1,17 +1,13 @@
 import { APIGatewayProxyResult, Context, DynamoDBStreamEvent } from 'aws-lambda'
 import { apiResponse } from '../../apigateway/responses'
 import { transformAndPost } from './functions'
-import { SSMClient } from '@aws-sdk/client-ssm'
-import { getSsmParam } from '../../shared/utils'
-
-const ssmClient = new SSMClient()
+import { getEnv } from '../../shared/utils'
 
 export async function handler(
   event: DynamoDBStreamEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> {
-  const ssmParam = await getSsmParam(ssmClient, '/os/endpoint')
-  const endpoint = ssmParam ? ssmParam.Value : null
+  const endpoint = getEnv('OPENSEARCH_ENDPOINT')
 
   try {
     if (endpoint) {
