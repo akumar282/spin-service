@@ -1,0 +1,24 @@
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Handler: index.handler
+    Timeout: 20
+
+Resources:
+  RawRecordDataHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/rawDataIngestion
+      Environment:
+        Variables:
+          TABLE_NAME: recordsTableNew
+          UPCOMING_TABLE: upcomingTable
+          NODE_OPTIONS: --enable-source-maps
+      Events:
+        RawById:
+          Type: Api
+          Properties:
+            Path: /raw/{id}
+            Method: get

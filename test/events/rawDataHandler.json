@@ -1,8 +1,16 @@
 {
-  "body": "JSON.stringify(item)",
+  "resource": "/raw/{id}",
   "path": "/raw/{id}",
   "httpMethod": "GET",
+  "headers": {},
+  "multiValueHeaders": {},
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "stageVariables": null,
+  "isBase64Encoded": false,
   "pathParameters": {
-    "id": "item.postId"
-  }
+    "id": "test-post-id-123"
+  },
+  "body": null,
+  "requestContext": {}
 }

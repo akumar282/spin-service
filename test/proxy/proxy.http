@@ -71,3 +71,7 @@ Content-Type: application/json
 
 ###
 GET https://api.discogs.com/database/search?q=PinkPantheress%20%E2%80%93%20To%20Hell%20With%20It
+
+###
+
+GET http://127.0.0.1:3000/raw/test-post-id-123
