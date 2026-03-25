@@ -7,7 +7,6 @@ import { Api } from '../../infrastructure/lib/apigateway/api'
 
 describe('generation test', () => {
   test('test generation', async () => {
-    // Set the variables
     const testApp = new App()
     const stack = new Stack(testApp, 'TestStack')
 

@@ -28,8 +28,14 @@ export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
   const id = event.pathParameters?.id
+  const principal = event.requestContext.authorizer?.principalId as string
   const response = new ResponseBuilder('').addCors(event.headers.origin)
-  if (id !== undefined) {
+
+  if (!principal) {
+    return response.addStatus(401).build()
+  }
+
+  if (id !== undefined && id === principal) {
     switch (event.httpMethod) {
       case 'GET': {
         const item = await getItem(docClient, 'id = :id', {
@@ -102,6 +108,6 @@ export async function handler(
       }
     }
   } else {
-    return response.addBody('Missing path parameters').addStatus(500).build()
+    return response.addStatus(403).build()
   }
 }

@@ -1,10 +1,9 @@
 import { Records, SQSBody } from '../../../infrastructure/lib/apigateway/types'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/processingLambda'
-import { Context } from 'aws-lambda'
 import process from 'node:process'
 import 'aws-sdk-client-mock-jest'
-import { sqsEvent, userTest, wrappedReturn } from '../../testData/constants'
+import { sqsEvent } from '../../testData/constants'
 
 describe('Test for procesing handler', () => {
   test('Handler mock test', async () => {

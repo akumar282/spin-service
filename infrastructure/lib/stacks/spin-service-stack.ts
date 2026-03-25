@@ -46,7 +46,6 @@ import { gatewayRole } from '../iam/gatewayRole'
 import { getEnv } from '../shared/utils'
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { ApiGatewayDomain } from 'aws-cdk-lib/aws-route53-targets'
-import { Port, SecurityGroup } from 'aws-cdk-lib/aws-ec2'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: SpinStackProps) {
@@ -806,9 +805,9 @@ export class SpinServiceStack extends Stack {
               {
                 method: 'POST',
                 integration: userIntegration,
-                // options: {
-                //   authorizer: publicAuthorizer,
-                // },
+                options: {
+                  authorizer: publicAuthorizer,
+                },
               },
             ],
             resources: [

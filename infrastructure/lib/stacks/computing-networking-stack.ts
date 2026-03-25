@@ -37,7 +37,7 @@ export class ComputingNetworkingStack extends Stack {
       enableDnsHostnames: true,
       enableDnsSupport: true,
       maxAzs: 2,
-      natGateways: 1,
+      natGateways: 0,
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -47,7 +47,7 @@ export class ComputingNetworkingStack extends Stack {
         {
           cidrMask: 24,
           name: 'PrivateSubnet',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
         },
       ],
     })
@@ -105,6 +105,7 @@ export class ComputingNetworkingStack extends Stack {
           PROXY_IP: props.proxy_ip,
           OPEN_AI_ORG_ID: props.open_ai_org,
           OPEN_AI_KEY: props.open_ai_key,
+          PROXY_AUTH_TOKEN: props.proxy_auth_token,
         },
         logs: logGroup,
       }
@@ -208,7 +209,7 @@ export class ComputingNetworkingStack extends Stack {
       vpc,
       vpcSubnets: [
         {
-          subnets: [vpc.privateSubnets[0]],
+          subnets: [vpc.isolatedSubnets[0]],
         },
       ],
       logging: {

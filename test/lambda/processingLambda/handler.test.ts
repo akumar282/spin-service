@@ -1,121 +1,167 @@
 import { mockClient } from 'aws-sdk-client-mock'
-import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
+import {
+  ConditionalCheckFailedException,
+  DynamoDBClient,
+} from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
   PutCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DeleteMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import * as Utils from '../../../infrastructure/lib/shared/utils'
-import { Records, SQSBody } from '../../../infrastructure/lib/apigateway/types'
-import { unmarshall } from '@aws-sdk/util-dynamodb'
 import { handler } from '../../../infrastructure/lib/lambdas/processingLambda'
-import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
-import process from 'node:process'
+import { sqsEvent, userTest } from '../../testData/constants'
 import 'aws-sdk-client-mock-jest'
-import { sqsEvent, userTest, wrappedReturn } from '../../testData/constants'
 
-describe('Test for procesing handler', () => {
-  const sesMock = mockClient(SESClient)
+describe('processingLambda handler', () => {
   const dynamoDocumentMock = mockClient(DynamoDBDocumentClient)
   const dynamoClient = mockClient(DynamoDBClient)
   const sqsClient = mockClient(SQSClient)
-  const ssmMock = mockClient(SSMClient)
+  const OLD_ENV = process.env
 
   beforeEach(() => {
-    sesMock.reset()
-    dynamoDocumentMock.reset()
-    dynamoClient.reset()
-    sqsClient.reset()
-    ssmMock.reset()
-  })
-
-  test('Handler mock test', async () => {
+    process.env = { ...OLD_ENV }
     process.env.LEDGER_TABLE = 'ledgerTable'
     process.env.USER = 'admin'
     process.env.DASHPASS = 'testpass'
-    process.env.SQS_URL = 'testurl'
-    jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(wrappedReturn)
-    dynamoDocumentMock
-      .on(PutCommand, {
-        TableName: 'ledgerTable',
-      })
-      .resolves({
-        Attributes: {
-          postId: 't3_1jtink0',
-          status: 'STARTED',
-          processed: false,
-          to: [],
-          ttl: Math.floor(Date.now() / 1000) + 86400,
-        },
-      })
-      .on(UpdateCommand, {
-        TableName: 'ledgerTable',
-      })
-      .resolves({
-        Attributes: {
-          postId: 't3_1jtink0',
-          status: 'COMPLETED',
-          processed: true,
-          to: [userTest],
-          ttl: Date.now(),
-        },
-      })
+    process.env.DOWNSTREAM_QUEUE_URL = 'https://sqs.example/downstream'
+    process.env.OPENSEARCH_ENDPOINT = 'https://opensearch.example/'
 
-    ssmMock.on(GetParameterCommand).resolves({
-      Parameter: {
-        Name: '/os/endpoint',
-        Value:
-          'https://r0v2604715.execute-api.us-west-2.amazonaws.com/prod/os/',
-      },
-    })
+    dynamoDocumentMock.reset()
+    dynamoClient.reset()
+    sqsClient.reset()
 
-    sesMock.on(SendEmailCommand).resolves({
-      MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
-    })
-
-    sqsClient.on(DeleteMessageCommand).resolves({
-      $metadata: {
-        httpStatusCode: 200,
-      },
-    })
-
-    const result = await handler(sqsEvent)
-    expect(ssmMock).toHaveReceivedCommand(GetParameterCommand)
-    expect(dynamoDocumentMock).toHaveReceivedCommand(PutCommand)
-    expect(sesMock).toHaveReceivedCommand(SendEmailCommand)
-    expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
-
-    expect(dynamoDocumentMock).toHaveReceivedCommandWith(UpdateCommand, {
-      ExpressionAttributeNames: {
-        '#pr': 'processed',
-        '#st': 'status',
-        '#to': 'to',
-      },
-      ExpressionAttributeValues: {
-        ':pr': true,
-        ':st': 'COMPLETED',
-        ':to': ['48c113f0-5041-70db-7d2f-2cb7dbc5d0b9'],
-      },
-      Key: { postId: 't3_1jtink0' },
-      ReturnValues: 'ALL_NEW',
-      TableName: 'ledgerTable',
-      UpdateExpression: 'SET #st = :st, #pr = :pr, #to = :to',
-    })
+    jest.restoreAllMocks()
   })
 
-  test('Deserialize logic test', () => {
-    const eventRecords: SQSBody[] = sqsEvent.Records.map((record) => {
-      const data = JSON.parse(record.body) as SQSBody
-      data.receiptHandle = record.receiptHandle
-      return data
+  afterAll(() => {
+    process.env = OLD_ENV
+  })
+
+  test('publishes users and marks ledger as PUBLISHED_USERS', async () => {
+    dynamoDocumentMock.on(PutCommand).resolves({})
+    dynamoDocumentMock.on(UpdateCommand).resolves({})
+
+    sqsClient.on(SendMessageCommand).resolves({
+      MessageId: 'message-1',
     })
 
-    for (const eventRecord of eventRecords) {
-      const item = eventRecord.dynamodb.NewImage
-      const unmarshalled = unmarshall(item) as Records
-      console.info(unmarshalled)
-    }
+    jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          hits: {
+            hits: [{ _source: userTest }],
+          },
+        })
+      )
+    )
+
+    const result = await handler(sqsEvent)
+
+    expect(result).toEqual({ batchItemFailures: [] })
+    expect(dynamoDocumentMock).toHaveReceivedCommand(PutCommand)
+    expect(dynamoDocumentMock).toHaveReceivedCommand(UpdateCommand)
+    expect(sqsClient).toHaveReceivedCommand(SendMessageCommand)
+
+    const updateInput =
+      dynamoDocumentMock.commandCalls(UpdateCommand)[0].args[0].input
+    expect(updateInput).toEqual(
+      expect.objectContaining({
+        TableName: 'ledgerTable',
+        ExpressionAttributeValues: expect.objectContaining({
+          ':st': 'PUBLISHED_USERS',
+          ':to': [],
+        }),
+      })
+    )
+
+    const sqsInput = sqsClient.commandCalls(SendMessageCommand)[0].args[0].input
+    expect(sqsInput.QueueUrl).toBe('https://sqs.example/downstream')
+
+    const parsedBody = JSON.parse(sqsInput.MessageBody ?? '{}')
+    expect(parsedBody.data.recipients).toEqual([
+      {
+        id: userTest.id,
+        email: userTest.email,
+        phone: userTest.phone,
+        notifyType: userTest.notifyType,
+        countryCode: userTest.countryCode,
+      },
+    ])
+  })
+
+  test('marks ledger as NO_RECIPIENTS when OpenSearch returns no users', async () => {
+    dynamoDocumentMock.on(PutCommand).resolves({})
+    dynamoDocumentMock.on(UpdateCommand).resolves({})
+
+    jest.spyOn(Utils, 'requestWithBody').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          hits: {
+            hits: [],
+          },
+        })
+      )
+    )
+
+    const result = await handler(sqsEvent)
+
+    expect(result).toEqual({ batchItemFailures: [] })
+    expect(sqsClient).not.toHaveReceivedCommand(SendMessageCommand)
+
+    const updateInput =
+      dynamoDocumentMock.commandCalls(UpdateCommand)[0].args[0].input
+    expect(updateInput).toEqual(
+      expect.objectContaining({
+        ExpressionAttributeValues: expect.objectContaining({
+          ':st': 'NO_RECIPIENTS',
+          ':to': [],
+        }),
+      })
+    )
+  })
+
+  test('returns batch failure when OpenSearch query fails', async () => {
+    dynamoDocumentMock.on(PutCommand).resolves({})
+
+    jest
+      .spyOn(Utils, 'requestWithBody')
+      .mockRejectedValue(new Error('OpenSearch down'))
+
+    const result = await handler(sqsEvent)
+
+    expect(result.batchItemFailures).toEqual([
+      { itemIdentifier: sqsEvent.Records[0].messageId },
+    ])
+    expect(sqsClient).not.toHaveReceivedCommand(SendMessageCommand)
+    expect(dynamoDocumentMock).not.toHaveReceivedCommand(UpdateCommand)
+  })
+
+  test('Skips duplicate items when ledger put condition fails', async () => {
+    dynamoDocumentMock.on(PutCommand).rejects(
+      new ConditionalCheckFailedException({
+        message: 'duplicate item',
+        $metadata: {},
+      })
+    )
+
+    const requestSpy = jest.spyOn(Utils, 'requestWithBody')
+
+    const result = await handler(sqsEvent)
+
+    expect(result).toEqual({ batchItemFailures: [] })
+    expect(requestSpy).not.toHaveBeenCalled()
+    expect(sqsClient).not.toHaveReceivedCommand(SendMessageCommand)
+  })
+
+  test('Returns batch failure when ledger put fails with non-conditional error', async () => {
+    dynamoDocumentMock.on(PutCommand).rejects(new Error('dynamo unavailable'))
+
+    const result = await handler(sqsEvent)
+
+    expect(result.batchItemFailures).toEqual([
+      { itemIdentifier: sqsEvent.Records[0].messageId },
+    ])
   })
 })

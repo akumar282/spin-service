@@ -32,6 +32,7 @@ export interface ComputingNetworkStackProps extends StackProps {
   proxy_ip: string
   open_ai_org: string
   open_ai_key: string
+  proxy_auth_token: string
 }
 
 export interface SpinClientStackProps extends StackProps {

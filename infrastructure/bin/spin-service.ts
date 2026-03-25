@@ -28,6 +28,7 @@ const TWILIO_KEY = getEnv('TWILIO_KEY')
 const MESSAGE_SID = getEnv('MESSAGE_SID')
 const TWILIO_AUTH_TOKEN = getEnv('TWILIO_AUTH_TOKEN')
 const TWILIO_ACCOUNT_SID = getEnv('TWILIO_ACCOUNT_SID')
+const PROXY_AUTH_TOKEN = getEnv('PROXY_AUTH_TOKEN')
 
 /**
  * certificateStack === https://github.com/aws/aws-cdk/issues/25343
@@ -83,6 +84,7 @@ if (validBuildParams()) {
     dashpass: DASHPASS,
     open_ai_org: OPEN_AI_ORG_ID,
     open_ai_key: OPEN_AI_KEY,
+    proxy_auth_token: PROXY_AUTH_TOKEN,
     env,
   })
 
@@ -128,5 +130,6 @@ function validBuildParams() {
     MESSAGE_SID,
     TWILIO_AUTH_TOKEN,
     TWILIO_ACCOUNT_SID,
+    PROXY_AUTH_TOKEN,
   ].every((value) => value !== undefined || null)
 }
