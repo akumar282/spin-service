@@ -14,7 +14,6 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
-    "allowImportingTsExtensions": true,
     "inlineSourceMap": true,
     "inlineSources": true,
     "experimentalDecorators": true,

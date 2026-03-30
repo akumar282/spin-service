@@ -24,7 +24,10 @@
     "url": "https://github.com/akumar282/node-project-template/issues"
   },
   "private": true,
-  "workspaces": ["packages/*", "images/*"],
+  "workspaces": [
+    "packages/*",
+    "images/*"
+  ],
   "homepage": "https://github.com/akumar282/node-project-template#readme",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.130",
@@ -82,7 +85,7 @@
     "@aws-sdk/signature-v4": "^3.374.0",
     "@aws-sdk/util-create-request": "^3.468.0",
     "@aws-sdk/util-dynamodb": "^3.788.0",
-    "aws-cdk-lib": "^2.114.1",
+    "aws-cdk-lib": "2.177.0",
     "aws-jwt-verify": "^5.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
     "axios": "1.12.0",
