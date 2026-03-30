@@ -22,7 +22,9 @@ export class FargateTask extends Construct {
     const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
 
     taskDefinition.addContainer(props.container.id, {
-      image: ecs.ContainerImage.fromAsset(props.container.assetPath),
+      image: ecs.ContainerImage.fromAsset('.', {
+        file: props.container.assetPath,
+      }),
       environment: {
         ...passthroughProps?.environment,
       },

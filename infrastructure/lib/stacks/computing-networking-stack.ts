@@ -89,7 +89,7 @@ export class ComputingNetworkingStack extends Stack {
         taskDefId: 'spinServiceTaskDiscogs',
         container: {
           id: 'spinServiceContainer',
-          assetPath: './images/image',
+          assetPath: 'images/image/Dockerfile',
         },
         enableDlq: true,
       },
@@ -118,10 +118,35 @@ export class ComputingNetworkingStack extends Stack {
         taskDefId: 'upcomingReleasesTask',
         container: {
           id: 'upcomingReleaseContainer',
-          assetPath: './images/upcomingReleaseImage',
+          assetPath: 'images/upcomingReleaseImage/Dockerfile',
         },
         enableDlq: true,
         scheduleExpression: 'rate(12 hours)',
+      },
+      vpc,
+      cluster,
+      schedulePerms,
+      securityGroup,
+      SubnetType.PUBLIC,
+      {
+        environment: {
+          API_URL: apiUrl,
+        },
+        logs: logGroup,
+      }
+    )
+
+    new FargateTask(
+      this,
+      'getOnTask',
+      {
+        taskDefId: 'getOnTask',
+        container: {
+          id: 'source2Container',
+          assetPath: 'images/image-get-on/Dockerfile',
+        },
+        enableDlq: true,
+        scheduleExpression: 'rate(2 hours)',
       },
       vpc,
       cluster,
