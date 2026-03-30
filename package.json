@@ -23,6 +23,8 @@
   "bugs": {
     "url": "https://github.com/akumar282/node-project-template/issues"
   },
+  "private": true,
+  "workspaces": ["packages/*", "images/*"],
   "homepage": "https://github.com/akumar282/node-project-template#readme",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.130",

@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
-import { ulid } from 'ulid'
 
 const list: Upcoming[] = []
 const BASE_URL = 'https://www.metacritic.com/browse/albums/release-date/coming-soon/date'
