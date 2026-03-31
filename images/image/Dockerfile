@@ -2,10 +2,11 @@ FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.58.2-jammy AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
+COPY images/ ./images/
+COPY packages/ ./packages/
+RUN --mount=type=cache,target=/root/.npm npm ci --workspace=images/image
 
-COPY . .
-
+WORKDIR /app/images/image
 RUN npm run build
 
 # install google chrome
@@ -17,7 +18,7 @@ RUN apt-get update && apt-get install -y wget gnupg \
 
 
 FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.58.2-jammy
-WORKDIR /app
+WORKDIR /app/images/image
 ENV NODE_ENV=production
 
 COPY --from=build /app /app

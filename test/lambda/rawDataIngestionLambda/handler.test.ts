@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda'
 import { mockClient } from 'aws-sdk-client-mock'
 import {
   DynamoDBDocumentClient,
+  DeleteCommand,
   PutCommand,
   QueryCommand,
   UpdateCommand,
@@ -107,7 +108,7 @@ describe('Raw data ingestion handler', () => {
   })
 
   test('DELETE /raw/{id} returns 404 when item is missing', async () => {
-    dynamoDocMock.on(QueryCommand).resolves({})
+    dynamoDocMock.on(DeleteCommand).resolves({})
 
     const result = await handler(
       makeEvent({
@@ -162,7 +163,6 @@ describe('Raw data ingestion handler', () => {
         TableName: 'recordsTableNew',
         Key: {
           postId: item.postId,
-          created_time: item.created_time,
         },
       })
     )

@@ -60,7 +60,7 @@ export async function handler(event: SQSEvent) {
             status: 'STARTED',
             processed: false,
             to: [],
-            ttl: Math.floor(Date.now() / 1000) + 86400,
+            expires: Math.floor(Date.now() / 1000) + 86400,
           },
           ConditionExpression: 'attribute_not_exists(postId)',
         })
@@ -84,7 +84,7 @@ export async function handler(event: SQSEvent) {
         item.customTitle,
         item.genre
       )
-      console.log(JSON.stringify(userQueryBody))
+      console.log(item.postId, JSON.stringify(userQueryBody))
 
       let users: OpenSearchUserResult
 
@@ -97,15 +97,16 @@ export async function handler(event: SQSEvent) {
           authHeader
         )
         users = await data.json()
+
+        users.hits.hits.forEach((x) => usersToProcess.push(x._source))
       } catch (e) {
-        console.log(`Opensearch Query Failure: ${e}`)
+        console.error(`Opensearch Query Failure: ${e}`)
+        await updateLedgerItem(docClient, [], item.postId, 'OS_QUERY_FAILURE')
         batchItemFailures.push({ itemIdentifier: eventRecord.messageId })
         continue
       }
 
       console.log(JSON.stringify(users.hits))
-
-      users.hits.hits.forEach((x) => usersToProcess.push(x._source))
 
       const strippedUsers = usersToProcess.map(
         ({ id, email, phone, notifyType, countryCode }) =>

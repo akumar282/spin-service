@@ -348,7 +348,7 @@ async function main() {
       }
     }
   } catch (e) {
-    console.error('[MAIN]: Execution failed with message ' + JSON.stringify(e))
+    console.error('[MAIN]: Execution failed with message ' + e)
   }
 }
 

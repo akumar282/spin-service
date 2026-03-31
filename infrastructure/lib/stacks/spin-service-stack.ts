@@ -117,15 +117,11 @@ export class SpinServiceStack extends Stack {
       target: RecordTarget.fromAlias(new ApiGatewayDomain(apiDomainName)),
     })
 
-    const recordsTable = new dynamodb.TableV2(this, 'recordsTableNew', {
-      tableName: 'recordsTableNew',
+    const recordsTable = new dynamodb.TableV2(this, 'recordsTableNewV2', {
+      tableName: 'recordsTableNewV2',
       tags: [{ key: 'SpinServiceRecords', value: 'SpinServiceRecords' }],
       partitionKey: {
         name: 'postId',
-        type: AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'created_time',
         type: AttributeType.STRING,
       },
       billing: Billing.onDemand(),

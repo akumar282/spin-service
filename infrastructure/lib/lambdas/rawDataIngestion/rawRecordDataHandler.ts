@@ -79,22 +79,10 @@ export async function handler(
             }
           }
           case 'DELETE': {
-            const item = await getItem(docClient, 'postId = :postId', {
-              ':postId': id,
-            })
-            if (item === null) {
-              return response
-                .addBody({
-                  data: `No Item found with id: ${id}`,
-                })
-                .addStatus(404)
-                .build()
-            }
             const command = new DeleteCommand({
               TableName: getEnv('TABLE_NAME'),
               Key: {
-                id: item.postId,
-                created_time: item.created_time,
+                postId: id,
               },
             })
             const remove = await docClient.send(command)
@@ -118,18 +106,6 @@ export async function handler(
           case 'PATCH': {
             if (event.body) {
               const body: Partial<Records> = JSON.parse(event.body)
-              // Getting first as I created a composite key like a moron
-              const item = await getItem(docClient, 'postId = :postId', {
-                ':postId': id,
-              })
-              if (item === null) {
-                return response
-                  .addBody({
-                    data: `No Item found with id: ${id}`,
-                  })
-                  .addStatus(404)
-                  .build()
-              }
               const input: UpdateCommandInput = {
                 ExpressionAttributeNames: {
                   '#ti': 'title',
@@ -145,7 +121,6 @@ export async function handler(
                 },
                 Key: {
                   postId: id,
-                  created_time: item.created_time,
                 },
                 ReturnValues: 'ALL_NEW',
                 TableName: getEnv('TABLE_NAME'),

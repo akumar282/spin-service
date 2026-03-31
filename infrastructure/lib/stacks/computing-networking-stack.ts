@@ -131,6 +131,8 @@ export class ComputingNetworkingStack extends Stack {
       {
         environment: {
           API_URL: apiUrl,
+          PROXY_IP: props.proxy_ip,
+          PROXY_AUTH_TOKEN: props.proxy_auth_token,
         },
         logs: logGroup,
       }
@@ -145,7 +147,7 @@ export class ComputingNetworkingStack extends Stack {
           id: 'source2Container',
           assetPath: 'images/image-get-on/Dockerfile',
         },
-        enableDlq: true,
+        enableDlq: false,
         scheduleExpression: 'rate(2 hours)',
       },
       vpc,
@@ -156,6 +158,9 @@ export class ComputingNetworkingStack extends Stack {
       {
         environment: {
           API_URL: apiUrl,
+          PROXY_IP: props.proxy_ip,
+          PROXY_AUTH_TOKEN: props.proxy_auth_token,
+          DISCOGS_TOKEN: props.discogs_token,
         },
         logs: logGroup,
       }

@@ -28,6 +28,7 @@ async function getHtml(
 ): Promise<HTMLElement | null> {
   try {
     const result = await axios.get(endpoint, {
+      httpsAgent: proxyAgent,
       headers: {
         'user-agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
@@ -58,13 +59,6 @@ function getSrc(value: string | undefined) {
   return ''
 }
 
-function makeId(input: string) {
-  return crypto
-    .createHash("sha256")
-    .update(input)
-    .digest("hex")
-}
-
 async function getFullTitle(link: string) {
   if (link === 'https://getondown.com') {
     return null
@@ -75,21 +69,20 @@ async function getFullTitle(link: string) {
     'h1[class="product-meta__title heading h1"]'
   )?.text
 
+  const searchString =
+    (data as HTMLElement).querySelector('a.product-meta__vendor')?.text +
+    ' ' +
+    title?.split('(')[0]
+
   return {
-    postId: makeId(
-      (data as HTMLElement).querySelector('a.product-meta__vendor')?.text +
-        title?.split('(')[0]!
-    ),
     postTitle: title,
     artist: (data as HTMLElement).querySelector(
       'a[class="product-meta__vendor link link--accented"]'
     )?.text,
     color: getColor(title!),
     album: title?.split('(')[0],
-    searchString:
-      (data as HTMLElement).querySelector('a.product-meta__vendor')?.text +
-      ' ' +
-      title?.split('(')[0],
+    searchString: searchString,
+    customTitle: searchString
   }
 }
 
@@ -147,6 +140,9 @@ async function getItems() {
               .querySelector('a.product-item__image-wrapper')
               ?.getAttribute('href')
         )),
+        postId: item.querySelector(
+          'input[name="product-id"]'
+        )?.getAttribute('value'),
         content:
           'https://getondown.com' +
           item
