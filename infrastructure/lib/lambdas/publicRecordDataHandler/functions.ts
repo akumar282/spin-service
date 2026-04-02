@@ -1,57 +1,12 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { getEnv } from '../../shared/utils'
-
-type DynamoCursorKey = Record<string, unknown> | null
-
-type SchemalessRecords = {
-  created_time?: string
-  [key: string]: unknown
-}
-
-export type Cursor = {
-  anchor: string
-  monthAKey: DynamoCursorKey
-  monthBKey: DynamoCursorKey
-}
-
-type RecordsReturned = {
-  items: SchemalessRecords[]
-  cursor: string | null
-}
-
-function getAnchorDate(cursor?: Cursor): Date {
-  if (!cursor) {
-    return new Date()
-  }
-
-  const parsed = new Date(cursor.anchor)
-  if (isNaN(parsed.getTime())) {
-    throw new Error('Invalid cursor anchor')
-  }
-
-  return parsed
-}
-
-function getMonthGroups(anchor: Date): {
-  monthA: string
-  monthB: string
-  isLastDay: boolean
-} {
-  const currentMonth = anchor.getMonth() + 1
-  const nextMonth = (currentMonth % 12) + 1
-  const endOfMonth = new Date(
-    anchor.getFullYear(),
-    anchor.getMonth() + 1,
-    0
-  ).getDate()
-
-  return {
-    monthA: `DATE#${currentMonth}`,
-    monthB: `DATE#${nextMonth}`,
-    isLastDay: anchor.getDate() === endOfMonth,
-  }
-}
+import {
+  Cursor,
+  DynamoCursorKey,
+  RecordsReturned,
+  SchemalessRecords,
+} from './types'
 
 function sortByCreatedTimeDesc(
   items: SchemalessRecords[]
@@ -70,7 +25,7 @@ export function decodeCursor(cursor?: string): Cursor | undefined {
 
   const decoded = JSON.parse(Buffer.from(cursor, 'base64').toString('utf8'))
 
-  if (decoded?.anchor && ('monthAKey' in decoded || 'monthBKey' in decoded)) {
+  if (decoded?.anchor) {
     return {
       anchor: decoded.anchor,
       monthAKey: decoded.monthAKey ?? null,
@@ -80,7 +35,7 @@ export function decodeCursor(cursor?: string): Cursor | undefined {
 
   return {
     anchor: new Date().toISOString(),
-    monthAKey: (decoded as Record<string, unknown>) ?? null,
+    monthAKey: null,
     monthBKey: null,
   }
 }
@@ -131,17 +86,26 @@ export async function getRecordsInInterval(
 ): Promise<RecordsReturned> {
   const limit = !isNaN(Number(count)) ? Number(count) : 20
   const cursor = decodeCursor(encodedCursor)
-  const anchor = getAnchorDate(cursor)
+  const anchor = cursor?.anchor ? new Date(cursor.anchor) : new Date()
+
+  const currentMonth = anchor.getMonth() + 1
+  const nextMonth = (currentMonth % 12) + 1
+
+  const endOfMonth = new Date(
+    anchor.getFullYear(),
+    anchor.getMonth() + 1,
+    0
+  ).getDate()
+
   const lookbackMs =
     (!isNaN(interval) && interval ? interval : 24) * 60 * 60 * 1000
   const start = new Date(anchor.getTime() - lookbackMs)
-
-  const { monthA, monthB, isLastDay } = getMonthGroups(anchor)
+  const isLastDay = anchor.getDate() === endOfMonth
 
   const monthAResult = await queryByMonth(
     client,
     limit,
-    monthA,
+    `DATE#${currentMonth}`,
     start,
     anchor,
     cursor?.monthAKey ?? null
@@ -154,21 +118,17 @@ export async function getRecordsInInterval(
     const monthBResult = await queryByMonth(
       client,
       limit,
-      monthB,
+      `DATE#${nextMonth}`,
       start,
       anchor,
       cursor?.monthBKey ?? null
     )
 
     items = items.concat(monthBResult.Items as SchemalessRecords[])
-    monthBKey =
-      (monthBResult.LastEvaluatedKey as Record<string, unknown> | undefined) ??
-      null
+    monthBKey = monthBResult.LastEvaluatedKey ?? null
   }
 
-  const monthAKey =
-    (monthAResult.LastEvaluatedKey as Record<string, unknown> | undefined) ??
-    null
+  const monthAKey = monthAResult.LastEvaluatedKey ?? null
   const sortedItems = sortByCreatedTimeDesc(items)
 
   const hasMore = monthAKey !== null || (isLastDay && monthBKey !== null)
