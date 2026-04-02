@@ -8,6 +8,7 @@ import {
 import { getEnv, getItem } from '../../shared/utils'
 import { Records } from '../../apigateway/types'
 import { ResponseBuilder } from '../../apigateway/response'
+import { getRecordsInInterval } from './functions'
 
 const client = new DynamoDBClient({})
 const docClient = DynamoDBDocumentClient.from(client)
@@ -21,60 +22,23 @@ export async function handler(
       switch (event.httpMethod) {
         case 'GET': {
           try {
-            const nextToken = event.queryStringParameters?.cursor
+            const cursor = event.queryStringParameters?.cursor
             const count = event.queryStringParameters?.count
             const interval = parseInt(
               event.queryStringParameters?.interval ?? '24'
             )
 
-            const yesterday = new Date(
-              Date.now() -
-                (!isNaN(interval) && interval ? interval : 24) * 60 * 60 * 1000
+            const item = await getRecordsInInterval(
+              client,
+              count ?? null,
+              interval,
+              cursor
             )
-
-            const rightNow = new Date().toISOString()
-            const monthString = `DATE#${(yesterday.getMonth() + 1).toString()}`
-            const cutoff = monthString
-            console.log(monthString)
-
-            const input = {
-              TableName: getEnv('TABLE_NAME'),
-              IndexName: 'dateGroup',
-              Limit: !isNaN(Number(count)) ? Number(count) : 20,
-              KeyConditionExpression:
-                'dateGroup = :dateGroup AND created_time BETWEEN :yesterday AND :today',
-              FilterExpression: '#rt <> :releaseType',
-              ExpressionAttributeNames: {
-                '#rt': 'releaseType',
-              },
-              ScanIndexForward: false,
-              ExpressionAttributeValues: {
-                ':releaseType': 'RELEASE NEWS',
-                ':dateGroup': cutoff,
-                ':yesterday': yesterday.toISOString(),
-                ':today': rightNow,
-              },
-            }
-
-            if (nextToken) {
-              const cursor = JSON.parse(
-                Buffer.from(nextToken, 'base64').toString('utf8')
-              )
-              Object.assign(input, { ExclusiveStartKey: cursor })
-            }
-
-            const command = new QueryCommand(input)
-
-            const item = await client.send(command)
 
             return response
               .addBody({
-                items: item.Items,
-                cursor: item.LastEvaluatedKey
-                  ? Buffer.from(JSON.stringify(item.LastEvaluatedKey)).toString(
-                      'base64'
-                    )
-                  : null,
+                items: item.items,
+                cursor: item.cursor,
               })
               .addStatus(200)
               .build()
@@ -169,7 +133,6 @@ export async function handler(
           const command = new QueryCommand(input)
 
           const query = await client.send(command)
-          console.log(response)
           return response
             .addBody({
               items: query.Items,
