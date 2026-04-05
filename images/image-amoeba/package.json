@@ -1,12 +1,12 @@
 {
-  "name": "image-get-on",
+  "name": "image-amoeba",
   "version": "1.0.0",
   "description": "",
   "target": "es2022",
   "module": "es2022",
   "main": "index.js",
   "scripts": {
-    "build": "npx esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
+    "build": "npx esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js --external:playwright --external:playwright-core",
     "start": "node dist/index.js"
   },
   "author": "",

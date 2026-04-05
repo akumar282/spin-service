@@ -20,6 +20,9 @@ build:
 build-all:
 	npm run build-all
 
+build-client:
+	npm run build-client
+
 deploy:
 	npm run cdk deploy --exclusively SpinClientStack-prod
 
@@ -56,7 +59,7 @@ buildDeploy: build deploy-all
 
 buildDeployApi: build deploy-api
 
-buildDeployClient: build deploy-client
+buildDeployClient: build-client deploy-client
 
 buildDeployAll: build-all deploy-all
 

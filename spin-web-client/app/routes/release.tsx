@@ -114,7 +114,7 @@ export default function ReleasePage() {
                       target='_blank'
                       className='text-center dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500'
                       title={'View on Discogs'}
-                      href={info.content}
+                      href={info.content !== null ? info.content : info.moreContent}
                       rel='noreferrer'>
                       Buy now (Go to this drop)
                     </a>

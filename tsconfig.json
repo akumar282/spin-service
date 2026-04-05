@@ -33,5 +33,5 @@
     }
   },
   "include": ["./infrastructure/**/*", "./service/**/*", "./shared/**/*", "./test/**/*"],
-  "exclude": ["cdk.out", "node_modules"]
+  "exclude": ["cdk.out", "node_modules", "images"]
 }
