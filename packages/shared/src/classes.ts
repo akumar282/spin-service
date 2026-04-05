@@ -1,5 +1,7 @@
-export interface SourcerInterface {
-  getData(sourceUrl: string): void
-  extractData(rawSourcedData: object[]): void
-  getDataPlay
+export interface Sourcer {
+  getColor(text: string): string
+  getArtist(text: string): string
+  getAlbum(text: string): string
+  getMedia(text: string): string
+  extractData(rawData: object[]): void
 }
