@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { chromium } from 'playwright'
 import { PostInfo } from 'shared/src/types'

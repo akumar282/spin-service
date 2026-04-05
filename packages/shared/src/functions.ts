@@ -15,7 +15,7 @@ export async function mergeDiscogsData(items: Partial<PostInfo>[]) {
       { query: item.searchString }
     )
     if ('results' in data) {
-      const filteredList = data.results.filter((item) => item.type != 'artist')
+      const filteredList = data.results.filter((item) => item.type !== 'artist')
       const first = filteredList[0]
       if (first !== undefined) {
         item.resource_url = first.resource_url
@@ -38,7 +38,10 @@ export function getEnv(name: string): string {
   return val
 }
 
-export async function submitItems(items: Partial<PostInfo>[], endpointUrl: string) {
+export async function submitItems(
+  items: Partial<PostInfo>[],
+  endpointUrl: string
+) {
   for (const item of items) {
     try {
       await axios.post('raw', item, { baseURL: endpointUrl })

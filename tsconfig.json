@@ -32,6 +32,6 @@
       "*": ["../node_modules/*"]
     }
   },
-  "include": ["./infrastructure/**/*", "./service/**/*", "./shared/**/*", "./test/**/*"],
+  "include": ["./infrastructure/**/*", "./service/**/*", "./shared/**/*", "./test/**/*", "./packages/**/*"],
   "exclude": ["cdk.out", "node_modules", "images"]
 }
