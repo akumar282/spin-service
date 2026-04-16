@@ -75,13 +75,13 @@ type ExtraArtists = {
   tracks: string
 }
 
-type format =  {
+type Format = {
   descriptions: string[]
   name: string
   qty: string
 }
 
-type ArtistTrunc =  {
+type ArtistTrunc = {
   anv: string
   id: string
   join: string
@@ -133,7 +133,7 @@ export type Release = {
   estimated_weight: number
   extraartists: ExtraArtists[]
   format_quantity: number
-  formats: format[]
+  formats: Format[]
   genres: string[]
   identifiers: Identifier[]
   images: ImageAsset[]
@@ -155,7 +155,7 @@ export type Release = {
   year: number
 }
 
-export type ResultSearch =  {
+export type ResultSearch = {
   style: string[]
   thumb: string
   title: string

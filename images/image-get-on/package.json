@@ -6,7 +6,7 @@
   "module": "es2022",
   "main": "index.js",
   "scripts": {
-    "build": "npx esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
+    "build": "npx esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js --external:playwright --external:playwright-core",
     "start": "node dist/index.js"
   },
   "author": "",
@@ -20,7 +20,6 @@
     "https-proxy-agent": "^7.0.6",
     "node-html-parser": "^6.1.5",
     "openai": "^6.9.1",
-    "playwright": "^1.58.2",
     "ulid": "^3.0.1"
   }
 }

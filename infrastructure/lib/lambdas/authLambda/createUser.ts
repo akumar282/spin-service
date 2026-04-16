@@ -19,6 +19,7 @@ export async function CreateUser(
         labels: [],
         artists: [],
         albums: [],
+        custom: [],
         countryCode: {
           iso: 'US',
           dial: '+1',

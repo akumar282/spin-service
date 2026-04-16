@@ -2,7 +2,6 @@ import axios from 'axios'
 import { HTMLElement, parse as parseHTML } from 'node-html-parser'
 import { getEnv, mergeDiscogsData, PostInfo, submitItems } from 'shared'
 import { ulid } from 'ulid'
-import crypto from 'node:crypto'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const itemsList: Partial<PostInfo>[] = []
