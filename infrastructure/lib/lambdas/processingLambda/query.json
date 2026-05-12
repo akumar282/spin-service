@@ -1,7 +1,6 @@
 {
   "query": {
     "bool": {
-      "minimum_should_match": 1,
       "should": [
         {
           "nested": {
@@ -18,12 +17,11 @@
                 "must": [
                   {
                     "bool": {
-                      "minimum_should_match": 1,
                       "should": [
                         {
                           "match_phrase": {
                             "albums.album": {
-                              "query": "poop",
+                              "query": "By Storm - My Ghosts Go Ghost",
                               "slop": 2,
                               "boost": 6
                             }
@@ -32,16 +30,17 @@
                         {
                           "match": {
                             "albums.album": {
-                              "query": "poop",
+                              "query": "By Storm - My Ghosts Go Ghost",
                               "fuzziness": "AUTO",
                               "prefix_length": 2,
-                              "max_expansions": 50,
-                              "minimum_should_match": "3<75%",
+                              "max_expansions": 20,
+                              "minimum_should_match": "2<100% 5<85%",
                               "boost": 2
                             }
                           }
                         }
-                      ]
+                      ],
+                      "minimum_should_match": 1
                     }
                   }
                 ]
@@ -53,38 +52,70 @@
           "nested": {
             "path": "artists",
             "query": {
-              "match": {
-                "artists.artist": {
-                  "query": "d",
-                  "fuzziness": "AUTO",
-                  "prefix_length": 1
-                }
+              "bool": {
+                "should": [
+                  {
+                    "match_phrase": {
+                      "artists.artist": {
+                        "query": "By Storm",
+                        "slop": 1,
+                        "boost": 4
+                      }
+                    }
+                  },
+                  {
+                    "match": {
+                      "artists.artist": {
+                        "query": "By Storm",
+                        "fuzziness": "AUTO",
+                        "prefix_length": 2,
+                        "max_expansions": 20,
+                        "minimum_should_match": "100%",
+                        "boost": 1
+                      }
+                    }
+                  }
+                ],
+                "minimum_should_match": 1
               }
             }
           }
         },
         {
-          "match": {
-            "custom": {
-              "query": "pinpanteress heavn",
-              "fuzziness": "AUTO",
-              "minimum_should_match": "2<75%"
-            }
+          "bool": {
+            "should": [
+              {
+                "match_phrase": {
+                  "custom": {
+                    "query": "By Storm My Ghosts Go Ghost",
+                    "slop": 2,
+                    "boost": 5
+                  }
+                }
+              },
+              {
+                "match": {
+                  "custom": {
+                    "query": "By Storm My Ghosts Go Ghost",
+                    "fuzziness": "AUTO",
+                    "prefix_length": 2,
+                    "max_expansions": 20,
+                    "minimum_should_match": "2<100% 5<85%",
+                    "boost": 1
+                  }
+                }
+              }
+            ],
+            "minimum_should_match": 1
           }
         },
-
         {
           "term": {
-            "genres": "R&B"
-          }
-        },
-
-        {
-          "term": {
-            "genres": "Pop"
+            "genres": "Hip Hop"
           }
         }
-      ]
+      ],
+      "minimum_should_match": 1
     }
   }
 }

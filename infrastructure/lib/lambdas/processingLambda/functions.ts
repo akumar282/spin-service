@@ -12,6 +12,7 @@ export function createQuery(
   genres: string[]
 ) {
   const shouldList = []
+  const releaseQuery = `${artist} - ${album}`
 
   shouldList.push({
     nested: {
@@ -26,7 +27,7 @@ export function createQuery(
                   {
                     match_phrase: {
                       'albums.album': {
-                        query: `${artist} - ${album}`,
+                        query: releaseQuery,
                         slop: 2,
                         boost: 6,
                       },
@@ -35,11 +36,11 @@ export function createQuery(
                   {
                     match: {
                       'albums.album': {
-                        query: `${artist} - ${album}`,
+                        query: releaseQuery,
                         fuzziness: 'AUTO',
                         prefix_length: 2,
-                        max_expansions: 50,
-                        minimum_should_match: '3<75%',
+                        max_expansions: 20,
+                        minimum_should_match: '2<100% 5<85%',
                         boost: 2,
                       },
                     },
@@ -58,24 +59,62 @@ export function createQuery(
     nested: {
       path: 'artists',
       query: {
-        match: {
-          'artists.artist': {
-            query: artist,
-            fuzziness: 'AUTO',
-            prefix_length: 1,
-          },
+        bool: {
+          should: [
+            {
+              match_phrase: {
+                'artists.artist': {
+                  query: artist,
+                  slop: 1,
+                  boost: 4,
+                },
+              },
+            },
+            {
+              match: {
+                'artists.artist': {
+                  query: artist,
+                  fuzziness: 'AUTO',
+                  prefix_length: 2,
+                  max_expansions: 20,
+                  minimum_should_match: '100%',
+                  boost: 1,
+                },
+              },
+            },
+          ],
+          minimum_should_match: 1,
         },
       },
     },
   })
 
   shouldList.push({
-    match: {
-      custom: {
-        query: title,
-        fuzziness: 'AUTO',
-        minimum_should_match: '2<75%',
-      },
+    bool: {
+      should: [
+        {
+          match_phrase: {
+            custom: {
+              query: title,
+              slop: 2,
+              boost: 5,
+            },
+          },
+        },
+        {
+          match: {
+            custom: {
+              query: title,
+              fuzziness: 'AUTO',
+              prefix_length: 2,
+              max_expansions: 20,
+              minimum_should_match: '2<100% 5<85%',
+              boost: 1,
+            },
+          },
+        },
+      ],
+      minimum_should_match: 1,
     },
   })
 

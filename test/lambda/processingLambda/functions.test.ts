@@ -77,8 +77,8 @@ describe('Assorted test for functions', () => {
                                   query: 'PinkPantheress - Fancy That',
                                   fuzziness: 'AUTO',
                                   prefix_length: 2,
-                                  max_expansions: 50,
-                                  minimum_should_match: '3<75%',
+                                  max_expansions: 20,
+                                  minimum_should_match: '2<100% 5<85%',
                                   boost: 2,
                                 },
                               },
@@ -95,23 +95,61 @@ describe('Assorted test for functions', () => {
               nested: {
                 path: 'artists',
                 query: {
-                  match: {
-                    'artists.artist': {
-                      query: 'PinkPantheress',
-                      fuzziness: 'AUTO',
-                      prefix_length: 1,
-                    },
+                  bool: {
+                    should: [
+                      {
+                        match_phrase: {
+                          'artists.artist': {
+                            query: 'PinkPantheress',
+                            slop: 1,
+                            boost: 4,
+                          },
+                        },
+                      },
+                      {
+                        match: {
+                          'artists.artist': {
+                            query: 'PinkPantheress',
+                            fuzziness: 'AUTO',
+                            prefix_length: 2,
+                            max_expansions: 20,
+                            minimum_should_match: '100%',
+                            boost: 1,
+                          },
+                        },
+                      },
+                    ],
+                    minimum_should_match: 1,
                   },
                 },
               },
             },
             {
-              match: {
-                custom: {
-                  query: 'PinkPantheress - Fancy That',
-                  fuzziness: 'AUTO',
-                  minimum_should_match: '2<75%',
-                },
+              bool: {
+                should: [
+                  {
+                    match_phrase: {
+                      custom: {
+                        query: 'PinkPantheress - Fancy That',
+                        slop: 2,
+                        boost: 5,
+                      },
+                    },
+                  },
+                  {
+                    match: {
+                      custom: {
+                        query: 'PinkPantheress - Fancy That',
+                        fuzziness: 'AUTO',
+                        prefix_length: 2,
+                        max_expansions: 20,
+                        minimum_should_match: '2<100% 5<85%',
+                        boost: 1,
+                      },
+                    },
+                  },
+                ],
+                minimum_should_match: 1,
               },
             },
 
@@ -177,8 +215,8 @@ describe('Assorted test for functions', () => {
                                   query: 'PinkPantheress - Fancy That',
                                   fuzziness: 'AUTO',
                                   prefix_length: 2,
-                                  max_expansions: 50,
-                                  minimum_should_match: '3<75%',
+                                  max_expansions: 20,
+                                  minimum_should_match: '2<100% 5<85%',
                                   boost: 2,
                                 },
                               },
@@ -195,23 +233,61 @@ describe('Assorted test for functions', () => {
               nested: {
                 path: 'artists',
                 query: {
-                  match: {
-                    'artists.artist': {
-                      query: 'PinkPantheress',
-                      fuzziness: 'AUTO',
-                      prefix_length: 1,
-                    },
+                  bool: {
+                    should: [
+                      {
+                        match_phrase: {
+                          'artists.artist': {
+                            query: 'PinkPantheress',
+                            slop: 1,
+                            boost: 4,
+                          },
+                        },
+                      },
+                      {
+                        match: {
+                          'artists.artist': {
+                            query: 'PinkPantheress',
+                            fuzziness: 'AUTO',
+                            prefix_length: 2,
+                            max_expansions: 20,
+                            minimum_should_match: '100%',
+                            boost: 1,
+                          },
+                        },
+                      },
+                    ],
+                    minimum_should_match: 1,
                   },
                 },
               },
             },
             {
-              match: {
-                custom: {
-                  query: 'PinkPantheress - Fancy That',
-                  fuzziness: 'AUTO',
-                  minimum_should_match: '2<75%',
-                },
+              bool: {
+                should: [
+                  {
+                    match_phrase: {
+                      custom: {
+                        query: 'PinkPantheress - Fancy That',
+                        slop: 2,
+                        boost: 5,
+                      },
+                    },
+                  },
+                  {
+                    match: {
+                      custom: {
+                        query: 'PinkPantheress - Fancy That',
+                        fuzziness: 'AUTO',
+                        prefix_length: 2,
+                        max_expansions: 20,
+                        minimum_should_match: '2<100% 5<85%',
+                        boost: 1,
+                      },
+                    },
+                  },
+                ],
+                minimum_should_match: 1,
               },
             },
           ],

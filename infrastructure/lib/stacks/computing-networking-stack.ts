@@ -239,6 +239,9 @@ export class ComputingNetworkingStack extends Stack {
       service: ec2.InterfaceVpcEndpointAwsService.SQS,
       privateDnsEnabled: true,
       securityGroups: [endpointSG],
+      subnets: {
+        subnets: [vpc.isolatedSubnets[0]],
+      },
     })
 
     this.securityGroup = securityGroup
