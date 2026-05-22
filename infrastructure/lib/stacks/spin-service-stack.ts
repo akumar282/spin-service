@@ -46,6 +46,8 @@ import { gatewayRole } from '../iam/gatewayRole'
 import { getEnv } from '../shared/utils'
 import { ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { ApiGatewayDomain } from 'aws-cdk-lib/aws-route53-targets'
+import * as events from 'aws-cdk-lib/aws-events'
+import * as targets from 'aws-cdk-lib/aws-events-targets'
 
 export class SpinServiceStack extends Stack {
   public constructor(scope: Construct, id: string, props: SpinStackProps) {
@@ -507,6 +509,11 @@ export class SpinServiceStack extends Stack {
       code: lambda.Code.fromAsset('dist/moneyLambda'),
       handler: 'index.handler',
       timeout: Duration.seconds(10),
+    })
+
+    new events.Rule(this, 'moneyLambdaHourlySchedule', {
+      schedule: events.Schedule.rate(Duration.hours(1)),
+      targets: [new targets.LambdaFunction(moneyLambda)],
     })
 
     userPool.addTrigger(

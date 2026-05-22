@@ -1,10 +1,11 @@
 import { Construct } from 'constructs'
+import { IgnoreMode, aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { SecurityGroup, SubnetType } from 'aws-cdk-lib/aws-ec2'
-import { aws_scheduler as scheduler, aws_sqs as sqs } from 'aws-cdk-lib'
 import { ContainerEnvVars, FargateScheduleProps } from './types'
 import { Role } from 'aws-cdk-lib/aws-iam'
+import * as path from 'node:path'
 
 export class FargateTask extends Construct {
   constructor(
@@ -20,10 +21,26 @@ export class FargateTask extends Construct {
   ) {
     super(scope, `FargateScraperConstruct-${id}`)
     const taskDefinition = new ecs.FargateTaskDefinition(scope, props.taskDefId)
+    const imageDirectory = path.dirname(props.container.assetPath)
 
     taskDefinition.addContainer(props.container.id, {
       image: ecs.ContainerImage.fromAsset('.', {
         file: props.container.assetPath,
+        ignoreMode: IgnoreMode.DOCKER,
+        exclude: [
+          '**',
+          '!package.json',
+          '!package-lock.json',
+          '!packages/**',
+          `!${imageDirectory}/**`,
+          '**/node_modules',
+          '**/dist',
+          '.git',
+          '.gitignore',
+          'cdk.out',
+          '.build',
+          '**/.DS_Store',
+        ],
       }),
       environment: {
         ...passthroughProps?.environment,
