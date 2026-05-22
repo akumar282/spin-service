@@ -502,6 +502,13 @@ export class SpinServiceStack extends Stack {
       timeout: Duration.seconds(10),
     })
 
+    const moneyLambda = new lambda.Function(this, 'moneyLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset('dist/moneyLambda'),
+      handler: 'index.handler',
+      timeout: Duration.seconds(10),
+    })
+
     userPool.addTrigger(
       cognito.UserPoolOperation.POST_CONFIRMATION,
       postSignUpLambda
@@ -558,6 +565,24 @@ export class SpinServiceStack extends Stack {
         sid: 'SESOptions',
         effect: Effect.ALLOW,
         actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      })
+    )
+
+    moneyLambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'SESOptions',
+        effect: Effect.ALLOW,
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        resources: ['*'],
+      })
+    )
+
+    moneyLambda.addToRolePolicy(
+      new PolicyStatement({
+        sid: 'ECSOptions',
+        effect: Effect.ALLOW,
+        actions: ['ecs:ListTasks', 'ecs:DescribeTasks', 'ecs:StopTask'],
         resources: ['*'],
       })
     )
