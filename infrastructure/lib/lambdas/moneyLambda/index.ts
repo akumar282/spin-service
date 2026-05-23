@@ -10,7 +10,7 @@ import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
 const ecsClient = new ECSClient()
 const sesClient = new SESClient()
-const ONE_HOUR_IN_MS = 60 * 60 * 1000
+const TWENTY_MINUTES_IN_MS = 20 * 60 * 1000
 
 export async function handler(event: ScheduledEvent) {
   try {
@@ -42,7 +42,7 @@ export async function handler(event: ScheduledEvent) {
         const timeDuration = Math.abs(
           rightNow.getDate() - task.startedAt.getDate()
         )
-        if (timeDuration > ONE_HOUR_IN_MS) {
+        if (timeDuration > TWENTY_MINUTES_IN_MS) {
           const taskId = task.taskArn?.split('/').pop()
           if (!taskId) {
             continue
@@ -59,13 +59,13 @@ export async function handler(event: ScheduledEvent) {
 
     await sendMoneyMail(
       'Check console',
-      'long running tasks stopped check console'
+      `long running tasks stopped check console ${event.time}`
     )
   } catch (e) {
     if (e instanceof AccessDeniedException) {
       await sendMoneyMail(
         'yo money gone',
-        'Running tasks failed to stop check console'
+        `Running tasks failed to stop check console ${event.time}`
       )
     }
   }
