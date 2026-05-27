@@ -31,4 +31,5 @@ export type PostInfo = {
   isAnnouncement: boolean
   productImage: string
   customTitle: string
+  price: string | number | null
 }

@@ -23,7 +23,7 @@ export async function handler(event: APIGatewayProxyEvent) {
       )
 
       if (parsed.idToken === undefined || parsed.idToken === null) {
-        return response.addBody('deny').addStatus(400).build()
+        return response.addBody('deny').addStatus(401).build()
       }
 
       const data: CognitoIdTokenPayload = await verifier.verify(parsed.idToken)
@@ -31,7 +31,7 @@ export async function handler(event: APIGatewayProxyEvent) {
         const data = Buffer.from(parsed.idToken).toString('base64')
         return response.addBody({ token: data }).addStatus(200).build()
       } else {
-        return response.addBody('deny').addStatus(400).build()
+        return response.addBody('deny').addStatus(401).build()
       }
     }
   }
@@ -41,5 +41,5 @@ export async function handler(event: APIGatewayProxyEvent) {
       .addCookies(cookies('none', 'none', 'none'))
       .build()
   }
-  return response.addBody('deny').addStatus(404).build()
+  return response.addBody('deny').addStatus(401).build()
 }

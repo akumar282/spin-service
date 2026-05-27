@@ -4,18 +4,27 @@ import axios, { AxiosError } from 'axios'
 import { HTMLElement, parse } from 'node-html-parser'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export async function mergeDiscogsData(items: Partial<PostInfo>[]) {
   const discogsClient = new DiscogsClient({
     personalToken: getEnv('DISCOGS_TOKEN'),
   })
+  let numOfReqs = 0
   for (const item of items) {
     if (!item.searchString) {
       continue
+    }
+    if (numOfReqs >= 55) {
+      console.info('Sleeping for 60 seconds for rate limits')
+      await sleep(60000)
+      numOfReqs = 0
     }
     const data = await discogsClient.getData<ResponseBody<SearchResult>>(
       'database/search',
       { query: item.searchString }
     )
+    numOfReqs++
     if ('results' in data) {
       const filteredList = data.results.filter((item) => item.type !== 'artist')
       const first = filteredList[0]

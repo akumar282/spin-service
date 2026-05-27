@@ -104,16 +104,20 @@ export default function AddPrefButtons(props: ButtonProps) {
 
   return (
     <div className='w-full mx-auto mb-3 flex flex-col space-y-2 pt-2 justify-center'>
-      <button onClick={() => addAlbum(albumData)}
-              disabled={submissionState}
-              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500 disabled:opacity-50
-                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'>
+      <button
+        onClick={() => addAlbum(albumData)}
+        disabled={submissionState}
+        className='dark:bg-indigo-300 border-2 hover:bg-orange-400 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 dark:hover:bg-indigo-500 disabled:opacity-50
+                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'
+      >
         Notify me for this album
       </button>
-      <button onClick={() => addArtist(artistData)}
-              disabled={submissionState}
-              className='dark:bg-indigo-300 border-2 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 lg:px-0 px-1.5 dark:hover:bg-indigo-500 disabled:opacity-50
-                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'>
+      <button
+        onClick={() => addArtist(artistData)}
+        disabled={submissionState}
+        className='dark:bg-indigo-300 border-2 hover:bg-orange-400 border-orange-400 dark:border-indigo-500 bg-orange-300 text-md rounded-xl w-full py-0.5 lg:px-0 px-1.5 dark:hover:bg-indigo-500 disabled:opacity-50
+                  disabled:cursor-not-allowed disabled:hover:bg-orange-300 disabled:dark:hover:bg-indigo-300'
+      >
         Notify me this artists releases
       </button>
     </div>

@@ -508,11 +508,11 @@ export class SpinServiceStack extends Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('dist/moneyLambda'),
       handler: 'index.handler',
-      timeout: Duration.seconds(10),
+      timeout: Duration.seconds(30),
     })
 
     new events.Rule(this, 'moneyLambdaHourlySchedule', {
-      schedule: events.Schedule.rate(Duration.hours(1)),
+      schedule: events.Schedule.rate(Duration.minutes(20)),
       targets: [new targets.LambdaFunction(moneyLambda)],
     })
 

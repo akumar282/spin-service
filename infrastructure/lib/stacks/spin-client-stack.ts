@@ -29,6 +29,9 @@ export class SpinClientStack extends Stack {
     super(scope, id, props)
 
     const env = getEnv('ENV')
+    const baseDomain = 'spinmyrecords.com'
+    const clientDomains =
+      env === 'prod' ? [`www.${baseDomain}`, baseDomain] : [props.sub]
 
     const deploymentBucket = new Bucket(this, 'DeploymentBucketSpinClient', {
       bucketName: `deployment-bucket-spin-client-${env}`,
@@ -66,7 +69,7 @@ export class SpinClientStack extends Stack {
           ttl: Duration.seconds(0),
         },
       ],
-      domainNames: [props.sub],
+      domainNames: clientDomains,
       certificate: props.certificate,
     })
 
@@ -100,5 +103,17 @@ export class SpinClientStack extends Stack {
       recordName: env === 'prod' ? 'www' : 'dev',
       target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDistro)),
     })
+
+    if (env === 'prod') {
+      new ARecord(this, 'ARecordRoot-prod', {
+        zone: props.zone,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDistro)),
+      })
+
+      new AaaaRecord(this, 'AaaaRecordRoot-prod', {
+        zone: props.zone,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(cloudfrontDistro)),
+      })
+    }
   }
 }

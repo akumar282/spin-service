@@ -194,6 +194,34 @@ export class ComputingNetworkingStack extends Stack {
       }
     )
 
+    new FargateTask(
+      this,
+      'Trade',
+      {
+        taskDefId: 'TradeTask',
+        container: {
+          id: 'tradeContainer',
+          assetPath: 'images/image-trade/Dockerfile',
+        },
+        enableDlq: false,
+        scheduleExpression: 'rate(2 hours)',
+      },
+      vpc,
+      cluster,
+      schedulePerms,
+      securityGroup,
+      SubnetType.PUBLIC,
+      {
+        environment: {
+          API_URL: apiUrl,
+          PROXY_IP: props.proxy_ip,
+          PROXY_AUTH_TOKEN: props.proxy_auth_token,
+          DISCOGS_TOKEN: props.discogs_token,
+        },
+        logs: logGroup,
+      }
+    )
+
     const bastionSG = new SecurityGroup(this, 'BastionSG', {
       vpc,
       description: 'Security group for bastion host',
