@@ -2,6 +2,7 @@ import { chromium } from 'playwright'
 import { PostInfo } from 'shared/src/types'
 import { getEnv, mergeDiscogsData, submitItems } from 'shared/src/functions'
 import { RoughTradeSearchResponse } from './types'
+import { ulid } from 'ulid'
 
 const pushPostsQueue: Partial<PostInfo>[] = []
 
@@ -33,8 +34,7 @@ async function getCertainRequest(url: string): Promise<RoughTradeSearchResponse 
 
     const queryResponsePromise = page.waitForResponse(
       (response) =>
-        response.url().includes('algolia') &&
-        response.url().includes('/1/indexes/*/queries'),
+        response.url().includes('algolia'),
       { timeout: 60000 }
     )
 
@@ -59,6 +59,7 @@ function parseResult(data: RoughTradeSearchResponse | null) {
   const list = data?.results[0].hits
   if (list) {
     for (const items of list) {
+      const yesterday = new Date(Date.now())
       const mappedItem: Partial<PostInfo> = {
         artist: items.artists[0].label,
         album: items.title,
@@ -70,7 +71,17 @@ function parseResult(data: RoughTradeSearchResponse | null) {
         color: items.meta.custom.colour_swatch,
         price: items.price,
         searchString: items.title + ' ' + items.artists[0].label,
-        content: `https://www.roughtrade.com/en-us/search?q=${items.id.toString()}`
+        content: `https://www.roughtrade.com/en-us/search?q=${items.id.toString()}`,
+        dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}`,
+        created_time: new Date().toISOString(),
+        source: 'Rough Trade',
+        secondaryId: ulid(),
+        media: 'Vinyl',
+        expires: Math.floor(
+          (new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000
+        ),
+        customTitle: items.title + ' ' + items.artists[0].label,
+        title: items.title + ' ' + items.artists[0].label,
       }
       pushPostsQueue.push(mappedItem)
     }
@@ -87,7 +98,6 @@ async function main() {
     )
     parseResult(result)
     await mergeDiscogsData(pushPostsQueue)
-    console.dir(pushPostsQueue, { depth: null })
     await submitItems(pushPostsQueue, endpointUrl)
   } catch (e) {
     console.error('[MAIN]: Execution failed with message ' + e)

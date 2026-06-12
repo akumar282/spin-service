@@ -4,9 +4,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY images/ ./images/
 COPY packages/ ./packages/
-RUN --mount=type=cache,target=/root/.npm npm ci --workspace=images/image-amoeba
+RUN --mount=type=cache,target=/root/.npm npm ci --workspace=images/image-trade
 
-WORKDIR /app/images/image-amoeba
+WORKDIR /app/images/image-trade
 RUN npm run build
 
 # install google chrome
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y wget gnupg \
 
 
 FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.58.2-jammy
-WORKDIR /app/images/image-amoeba
+WORKDIR /app/images/image-trade
 ENV NODE_ENV=production
 
 COPY --from=build /app /app
