@@ -34,7 +34,8 @@ async function getCertainRequest(url: string): Promise<RoughTradeSearchResponse 
 
     const queryResponsePromise = page.waitForResponse(
       (response) =>
-        response.url().includes('algolia'),
+        response.url().includes('/api/algolia/search') &&
+        response.request().method() === 'POST',
       { timeout: 60000 }
     )
 
@@ -43,6 +44,7 @@ async function getCertainRequest(url: string): Promise<RoughTradeSearchResponse 
     const response = await queryResponsePromise
 
     const contentType = response.headers()['content-type'] ?? ''
+    const requestPostData = response.request().postData()
 
     return contentType.includes('application/json')
       ? await response.json()
@@ -60,18 +62,25 @@ function parseResult(data: RoughTradeSearchResponse | null) {
   if (list) {
     for (const items of list) {
       const yesterday = new Date(Date.now())
+      const artist = items.taxonomy.artists[0]?.label ?? items.product.artist_primary
+      const album = items.product.title
+      const market = items.markets.north_america
+      const availableRegions = Object.entries(items.markets)
+        .filter(([, marketInfo]) => marketInfo.available)
+        .map(([region]) => region)
+
       const mappedItem: Partial<PostInfo> = {
-        artist: items.artists[0].label,
-        album: items.title,
-        thumbnail: items.image,
-        postId: items.id.toString(),
-        preorder: items.meta.custom.is_pre_order !== 'false',
-        format: items.meta.custom.format,
-        region: items.meta.custom.manual_regional_availability?.toString(),
-        color: items.meta.custom.colour_swatch,
-        price: items.price,
-        searchString: items.title + ' ' + items.artists[0].label,
-        content: `https://www.roughtrade.com/en-us/search?q=${items.id.toString()}`,
+        artist,
+        album,
+        thumbnail: items.variant.image ?? items.product.image,
+        postId: items.product.id,
+        preorder: items.availability.status === 'pre_order',
+        format: items.attributes.format ?? undefined,
+        region: availableRegions.toString(),
+        color: items.attributes.colour_swatch ?? items.attributes.colour_group ?? undefined,
+        price: market.price ?? undefined,
+        searchString: album + ' ' + artist,
+        content: `https://www.roughtrade.com/en-us/search?q=${items.product.id}`,
         dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}`,
         created_time: new Date().toISOString(),
         source: 'Rough Trade',
@@ -80,8 +89,8 @@ function parseResult(data: RoughTradeSearchResponse | null) {
         expires: Math.floor(
           (new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000
         ),
-        customTitle: items.title + ' ' + items.artists[0].label,
-        title: items.title + ' ' + items.artists[0].label,
+        customTitle: album + ' ' + artist,
+        title: album + ' ' + artist,
       }
       pushPostsQueue.push(mappedItem)
     }

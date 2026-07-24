@@ -11,11 +11,11 @@ const SOURCE_URL =
 
 const ProxyIp = getEnv('PROXY_IP')
 
-const proxyAgent = new HttpsProxyAgent(ProxyIp, {
-  headers: {
-    'x-auth-token': getEnv('PROXY_AUTH_TOKEN'),
-  },
-})
+// const proxyAgent = new HttpsProxyAgent(ProxyIp, {
+//   headers: {
+//     'x-auth-token': getEnv('PROXY_AUTH_TOKEN'),
+//   },
+// })
 
 const getPaginatedUrl = (page: number) => {
   return SOURCE_URL + page.toString()
@@ -27,7 +27,7 @@ async function getHtml(
 ): Promise<HTMLElement | null> {
   try {
     const result = await axios.get(endpoint, {
-      httpsAgent: proxyAgent,
+      // httpsAgent: proxyAgent,
       headers: {
         'user-agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
@@ -122,6 +122,9 @@ function getMediaType(productInformation: string | undefined) {
   return 'Vinyl'
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+
 async function getItems() {
   for (let i = 1; i < 2; i++) {
     const url = getPaginatedUrl(i)
@@ -164,7 +167,9 @@ async function getItems() {
 
       })
       index++
+
     }
+    await sleep(80000)
   }
 }
 

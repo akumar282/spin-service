@@ -236,9 +236,7 @@ async function getRawPosts(url: string) {
     const posts = (data as HTMLElement)?.querySelectorAll('article[class="w-full m-0"]')
     for(let post of posts){
       for (let elements of post.querySelectorAll(
-        'shreddit-post[class="block relative cursor-pointer group bg-neutral-background ' +
-        'focus-within:bg-neutral-background-hover hover:bg-neutral-background-hover xs:rounded-4 ' +
-        'px-md py-2xs my-2xs nd:visible nd:pb-[2.25rem]"]'
+        'shreddit-post.block.relative.cursor-pointer.group.bg-neutral-background'
       )) {
         rawPostsQueue.push(elements)
         let token = elements.getAttribute('more-posts-cursor')
