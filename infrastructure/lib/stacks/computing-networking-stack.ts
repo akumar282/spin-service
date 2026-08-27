@@ -222,6 +222,34 @@ export class ComputingNetworkingStack extends Stack {
       }
     )
 
+    new FargateTask(
+      this,
+      'BloodRecs',
+      {
+        taskDefId: 'BloodRecTask',
+        container: {
+          id: 'BloodContainer',
+          assetPath: 'images/image-b-records/Dockerfile',
+        },
+        enableDlq: false,
+        scheduleExpression: 'rate(20 minutes)',
+      },
+      vpc,
+      cluster,
+      schedulePerms,
+      securityGroup,
+      SubnetType.PUBLIC,
+      {
+        environment: {
+          API_URL: apiUrl,
+          PROXY_IP: props.proxy_ip,
+          PROXY_AUTH_TOKEN: props.proxy_auth_token,
+          DISCOGS_TOKEN: props.discogs_token,
+        },
+        logs: logGroup,
+      }
+    )
+
     const bastionSG = new SecurityGroup(this, 'BastionSG', {
       vpc,
       description: 'Security group for bastion host',
