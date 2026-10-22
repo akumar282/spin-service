@@ -12,8 +12,6 @@ import { SeeMore, SeeMoreSmall } from '~/components/SeeMore'
 import UpcomingCard from '~/components/UpcomingCard'
 import { AuthContext } from '~/components/AuthContext'
 import CardLoader from '~/components/CardLoader'
-import spinLogo from '~/assets/spinLogo.png'
-import spinLogoDark from '~/assets/spinLogoDark.png'
 import Footer from '~/components/Footer'
 
 export function meta({}: Route.MetaArgs) {

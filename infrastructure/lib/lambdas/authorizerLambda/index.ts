@@ -7,6 +7,12 @@ import { getEnv } from '../../shared/utils'
 import { generatePolicy } from './functions'
 import { CognitoIdTokenPayload } from 'aws-jwt-verify/jwt-model'
 
+const verifier = CognitoJwtVerifier.create({
+  clientId: [getEnv('WEB_CLIENT_ID'), getEnv('MOBILE_CLIENT_ID')],
+  userPoolId: getEnv('USER_POOL_ID'),
+  tokenUse: 'id',
+})
+
 export async function handler(
   event: APIGatewayRequestAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> {
@@ -28,11 +34,7 @@ export async function handler(
       event.methodArn
     ) as APIGatewayAuthorizerResult
   }
-  const verifier = CognitoJwtVerifier.create({
-    clientId: [getEnv('WEB_CLIENT_ID'), getEnv('MOBILE_CLIENT_ID')],
-    userPoolId: getEnv('USER_POOL_ID'),
-    tokenUse: 'id',
-  })
+
   try {
     const payload: CognitoIdTokenPayload = await verifier.verify(token)
     if (payload['custom:role'] === 'user' && payload.exp * 1000 > Date.now()) {

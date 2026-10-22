@@ -46,6 +46,8 @@ async function followLinks(links: Partial<PostInfo>[]) {
     item.customTitle = item.artist + ' ' + item.album
     item.dateGroup = `DATE#${(yesterday.getMonth() + 1).toString()}`
     item.postId = imageUrlToId(item.thumbnail!)
+    item.media = 'Vinyl'
+    item.format = 'LP'
   }
 }
 
@@ -62,10 +64,14 @@ async function getLinks(data: HTMLElement[]) {
 
 async function main() {
   try {
-    const data = await getParsedHtml('https://blood-records.co.uk/collections/all')
-    const chunk = (data as HTMLElement).querySelector(
-      'div.slideshow--vinyl'
+    const data = await getParsedHtml(
+      'https://blood-records.co.uk/collections/drops'
     )
+    console.log(data)
+    const chunk = (data as HTMLElement).querySelector(
+      'div.highlighted-product-refined__layout'
+    )
+    console.log(chunk)
     const item = chunk?.querySelectorAll('div.slideshow__slide')
     if (item === null || item === undefined) {
       console.log('no item')
@@ -74,7 +80,6 @@ async function main() {
     await getLinks(item)
     await followLinks(parsedData)
     await mergeDiscogsData(parsedData)
-    console.log(parsedData)
     await submitItems(parsedData, getEnv('API_URL'))
   } catch (e) {
     console.error('[MAIN]: Execution failed with message ' + e)
