@@ -27,6 +27,7 @@
 		3825933B308981F000743ED3 /* spin-mobile-client.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "spin-mobile-client.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3825934A308981F100743ED3 /* spin-mobile-clientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "spin-mobile-clientTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		38259354308981F100743ED3 /* spin-mobile-clientUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "spin-mobile-clientUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		382593C9308A858800743ED3 /* spin-mobile-client-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "spin-mobile-client-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,6 +81,7 @@
 		38259332308981F000743ED3 = {
 			isa = PBXGroup;
 			children = (
+				382593C9308A858800743ED3 /* spin-mobile-client-Info.plist */,
 				38259367308A159100743ED3 /* Resources */,
 				3825933D308981F000743ED3 /* SpinMobileClient */,
 				3825934D308981F100743ED3 /* SpinMobileClientTests */,
@@ -404,6 +406,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "spin-mobile-client-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -435,6 +438,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "spin-mobile-client-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
