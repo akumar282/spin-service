@@ -9,8 +9,52 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    
+    public var currentTheme: MainSpinTheme = MainSpinTheme()
+    
     var body: some View {
-        Text("Hello, World!").font(MainSpinTheme.init().font)
+        VStack {
+            HomeNavButton(action: {}, title: "Browse Latest Releases", assetName: "vinyl")
+            HomeNavButton(action: {}, title: "Manage Notifications", assetName: "alarm")
+            HomeNavButton(action: {}, title: "Manage User Information", assetName: "settings")
+        }
+        .font(currentTheme.font)
+        .foregroundStyle(.black)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(currentTheme.mainColor)
+    }
+}
+
+struct HomeNavButton: View {
+    let action: () -> Void
+    let title: String
+    let assetName: String
+    
+    var body: some View {
+        VStack {
+            Button(action: action) {
+                HStack {
+                    Text(title)
+                        .padding(.leading, 3)
+                    Spacer()
+                    Image(assetName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 35, height: 35)
+                        .padding(.trailing, 5)
+                }
+                .padding(.all, 10)
+                .overlay(RoundedRectangle(cornerRadius:8)
+                    .stroke(Orange400, lineWidth: 1.5)
+                )
+                .background(
+                    LinearGradient(colors: [Slate300, .white, Slate300], startPoint: .top, endPoint: .bottom),
+                    in: RoundedRectangle(cornerRadius: 8)
+                )
+                .shadow(radius: 2, y: 1)
+            }
+            .padding([.bottom, .leading, .trailing], 7)
+        }
     }
 }
 
