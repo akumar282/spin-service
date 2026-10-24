@@ -14,13 +14,29 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            HomeNavButton(action: {}, title: "Browse Latest Releases", assetName: "vinyl")
-            HomeNavButton(action: {}, title: "Manage Notifications", assetName: "alarm")
-            HomeNavButton(action: {}, title: "Manage User Information", assetName: "settings")
+            HStack {
+                Button(action: {}) {
+                    Image(systemName: "bell")
+                        .font(.system(size: 23))
+                }
+                .padding([.trailing, .bottom], 2)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
+            }
+            .padding([.trailing])
+            
+            VStack {
+                HomeNavButton(action: {}, title: "Browse Latest Releases", assetName: "vinyl")
+                HomeNavButton(action: {}, title: "Manage Notification Targets", assetName: "alarm")
+                HomeNavButton(action: {}, title: "Manage User Information", assetName: "settings")
+            }
+            .padding([.top], 5)
         }
         .font(currentTheme.font)
+        .padding(.top, 10)
         .foregroundStyle(.black)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(currentTheme.mainColor)
     }
 }
