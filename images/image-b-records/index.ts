@@ -81,6 +81,7 @@ async function main() {
     await followLinks(parsedData)
     await mergeDiscogsData(parsedData)
     await submitItems(parsedData, getEnv('API_URL'))
+    console.log('here')
   } catch (e) {
     console.error('[MAIN]: Execution failed with message ' + e)
   }

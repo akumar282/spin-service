@@ -18,7 +18,7 @@ enum Media: String, Codable {
 }
 
 struct Record: Codable {
-    let releaseType: String
+    let releaseType: String?
     let preorder: Bool
     let album: String
     let postId: String

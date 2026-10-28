@@ -54,6 +54,7 @@ export type PostInfo = {
   region: string | null
   isAnnouncement: boolean
   productImage: string
+  customTitle: string
 }
 
 export type Records = {
