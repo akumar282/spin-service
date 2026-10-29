@@ -1,84 +1,63 @@
 import axios from 'axios'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { HTMLElement, parse as parseHTML } from 'node-html-parser'
-import { chromium } from 'playwright'
+import { HTMLElement } from 'node-html-parser'
 import { PostInfo } from 'shared/src/types'
 import { ulid } from 'ulid'
 import {
   getEnv,
-  getParsedHtml,
   mergeDiscogsData,
   submitItems,
 } from 'shared/src/functions'
 
-let unparsedData: HTMLElement[] = []
 const parsedData: Partial<PostInfo>[] = []
 
-function imageUrlToId(url: string): string {
-  let hash = 5381
-
-  for (let i = 0; i < url.length; i++) {
-    hash = ((hash << 5) + hash) ^ url.charCodeAt(i)
-  }
-
-  return (hash >>> 0).toString(36)
-}
-
-async function followLinks(links: Partial<PostInfo>[]) {
-  for (let item of links) {
-    const yesterday = new Date(Date.now())
-    const data = await getParsedHtml(item.content!) as HTMLElement
-    item.artist = data.querySelector('h1.block-product__title')?.text.trim()
-    item.album = data.querySelector(
-      'div.block-product__sub-title'
-    )?.text.trim()
-    item.price = data.querySelector('div.block-product__price')?.text.trim()
-    item.releaseDate = data.querySelector('div.block-product__small')?.text.trim()
-    item.releaseType = data.querySelector('div.block-product__buy')?.text.trim() != 'Sold Out' ? null : 'SOLD OUT'
-    item.source = 'BLOODRECS'
-    item.created_time = new Date().toISOString()
-    item.expires = Math.floor(
-      (new Date().getTime() + 20 * 24 * 60 * 60 * 1000) / 1000
-    )
-    item.secondaryId = ulid()
-    item.searchString = item.artist + ' ' + item.album
-    item.color = 'Special Edition'
-    item.customTitle = item.artist + ' ' + item.album
-    item.dateGroup = `DATE#${(yesterday.getMonth() + 1).toString()}`
-    item.postId = imageUrlToId(item.thumbnail!)
-    item.media = 'Vinyl'
-    item.format = 'LP'
-  }
-}
-
-async function getLinks(data: HTMLElement[]) {
-  for (const item of data) {
-    parsedData.push({
-      content: 'https://blood-records.co.uk' + item.querySelector('a')?.getAttribute('href'),
-      thumbnail: 'https:' + item.querySelector('img.lazy')?.getAttribute('data-src')
-    })
-  }
+type BloodType = {
+  REDACTED: string
 }
 
 
+async function getData(
+  url: string,
+  headers?: object,
+) {
+  const data = await axios.get(url, {
+    headers: {
+      ...headers,
+    },
+    withCredentials: true,
+    timeout: 7000,
+  })
+  return data.data as { products: BloodType[] }
+}
 
 async function main() {
   try {
-    const data = await getParsedHtml(
-      'https://blood-records.co.uk/collections/drops'
+    const data = await getData(
+      'I am not telling you. Blocking dev tools won\'t stop anyone'
     )
-    console.log(data)
-    const chunk = (data as HTMLElement).querySelector(
-      'div.highlighted-product-refined__layout'
-    )
-    console.log(chunk)
-    const item = chunk?.querySelectorAll('div.slideshow__slide')
-    if (item === null || item === undefined) {
-      console.log('no item')
-      return
+    // console.log(data)
+    for (const item of data.products) {
+      const yesterday = new Date(Date.now())
+      const artbum = item.title.split('-', 2)
+      const mappedItem: Partial<PostInfo> = {
+        postId: item.id.toString(),
+        title: item.title,
+        content: `https://blood-records.co.uk/products/${item.handle}`,
+        created_time: new Date().toISOString(),
+        dateGroup: `DATE#${(yesterday.getMonth() + 1).toString()}`,
+        secondaryId: ulid(),
+        artist: artbum.at(0)?.trim() ?? null,
+        album: artbum.at(1)?.trim() ?? 'Default Album',
+        media: item.product_type,
+        customTitle: artbum.toString(),
+        productImage: item.images[0].src,
+        price: item.variants[0].price,
+        thumbnail: item.images[0].src,
+        link: `https://blood-records.co.uk/products/${item.handle}`,
+        searchString: artbum.at(0)?.trim() + " " + artbum.at(1)?.trim(),
+      }
+      parsedData.push(mappedItem)
     }
-    await getLinks(item)
-    await followLinks(parsedData)
+
     await mergeDiscogsData(parsedData)
     await submitItems(parsedData, getEnv('API_URL'))
     console.log('here')

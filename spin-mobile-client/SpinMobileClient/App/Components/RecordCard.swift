@@ -13,11 +13,19 @@ struct RecordCard: View {
     let color: String
     let genre: [String]
     let storeLink: String
-    let image: String?
+    var image: String?
     let preOrder: Bool
+    let tag: String
+    
     
     
     var body: some View {
-        
+        VStack {
+            HStack {
+                Text(tag)
+            }
+            Image(image ?? "NotFoundImage")
+            
+        }
     }
 }
