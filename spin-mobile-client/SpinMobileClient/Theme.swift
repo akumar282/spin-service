@@ -17,6 +17,11 @@ let Slate300 = Color(red: 226 / 255, green: 232 / 255, blue: 240 / 255)
 let Orange300 = Color(red: 253 / 255, green: 186 / 255, blue: 116 / 255)
 let Orange400 = Color(red: 255 / 255, green: 137 / 255, blue: 4 / 255)
 
+struct ThemeDefaults {
+    let italic: Font = Font.custom("JetBrainsMono-Italic", size: 12)
+    
+}
+
 struct MainSpinTheme: AppTheme {
     let mainColor: Color = Orange300
     let secondaryColor: Color = Orange400
@@ -31,4 +36,16 @@ struct DarkSpinTheme: AppTheme {
     
 }
 
+extension ColorScheme {
+    var currentTheme: AppTheme {
+        switch self {
+        case .light:
+            return MainSpinTheme()
+        case .dark:
+            return DarkSpinTheme()
+        @unknown default:
+            return MainSpinTheme()
+        }
+    }
+}
 

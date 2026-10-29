@@ -10,7 +10,11 @@ import SwiftData
 
 struct ContentView: View {
     
-    public var currentTheme: MainSpinTheme = MainSpinTheme()
+    @Environment(\.colorScheme) var colorScheme
+    
+    var currentTheme: AppTheme {
+        colorScheme.currentTheme
+    }
     
     var body: some View {
         VStack {
@@ -26,12 +30,58 @@ struct ContentView: View {
             }
             .padding([.trailing])
             
-            VStack {
+            VStack(alignment: .leading) {
+                Text("Welcome!")
+                    .padding([.leading, .top], 10)
+                    .padding(.bottom, 2)
+                    .font(.custom("JetBrainsMono-Regular", size: 16))
                 HomeNavButton(action: {}, title: "Browse Latest Releases", assetName: "vinyl")
                 HomeNavButton(action: {}, title: "Manage Notification Targets", assetName: "alarm")
                 HomeNavButton(action: {}, title: "Manage User Information", assetName: "settings")
             }
             .padding([.top], 5)
+            
+            VStack(alignment: .leading) {
+                Text("Recent Releases")
+                    .padding([.leading, .top], 10)
+                    .padding(.bottom, 1)
+                    .font(.custom("JetBrainsMono-Regular", size: 16))
+                Text("Releases, Restocks, Represses that have happened in the past 24 hours")
+                    .padding([.leading], 10)
+                    .font(.custom("JetBrainsMono-Regular", size: 11))
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        RecordCard(
+                            artist: "Vince Guaraldi Trio",
+                            album: "A Charlie Brown Christmas",
+                            color: "Blue",
+                            genre: ["Rock"],
+                            storeLink: "https://blood-records.co.uk/collections/drops/products.json?limit=250",
+                            preOrder: true,
+                            tag: "Tag"
+                        )
+                        RecordCard(
+                            artist: "Vince Guaraldi Trio",
+                            album: "A Charlie Brown Christmas",
+                            color: "Blue",
+                            genre: ["Rock"],
+                            storeLink: "https://blood-records.co.uk/collections/drops/products.json?limit=250",
+                            preOrder: true,
+                            tag: "Tag"
+                        )
+                        RecordCard(
+                            artist: "Vince Guaraldi Trio",
+                            album: "A Charlie Brown Christmas",
+                            color: "Blue",
+                            genre: ["Rock"],
+                            storeLink: "https://blood-records.co.uk/collections/drops/products.json?limit=250",
+                            preOrder: true,
+                            tag: "Tag"
+                        )
+                    }
+                }
+                .padding([.leading], 5)
+            }
         }
         .font(currentTheme.font)
         .padding(.top, 10)

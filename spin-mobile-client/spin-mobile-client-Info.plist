@@ -4,6 +4,8 @@
 <dict>
 	<key>UIAppFonts</key>
 	<array>
+		<string>JetBrainsMono-Light.ttf</string>
+		<string>JetBrainsMono-Italic.ttf</string>
 		<string>JetBrainsMono-Regular.ttf</string>
 		<string>JetBrainsMono-Medium.ttf</string>
 		<string>JetBrainsMono-Bold.ttf</string>
