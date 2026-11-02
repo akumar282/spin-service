@@ -19,10 +19,10 @@ enum Media: String, Codable {
 
 struct Record: Codable {
     let releaseType: String?
-    let preorder: Bool
+    let preorder: Bool?
     let album: String
     let postId: String
-    let artist: String?
+    let artist: String
     let year: String?
     let media: Media
     let postTitle: String?
@@ -31,7 +31,7 @@ struct Record: Codable {
     let pagination: String?
     let searchString: String?
     let color: String?
-    let thumbnail: String?
+    let thumbnail: String
     let genre: [String]?
     let title: String?
     let label: [String]?
@@ -51,7 +51,20 @@ struct Record: Codable {
     let productImage: String?
 }
 
+struct UpcomingRelease: Codable {
+    let album: String
+    let artist: String
+    let id: String
+    let note: String
+    let date: String
+}
+
 nonisolated struct RecordsResult: Decodable {
     let items: [Record]
+    let cursor: String?
+}
+
+nonisolated struct UpcomingResult: Decodable {
+    let items: [UpcomingRelease]
     let cursor: String?
 }

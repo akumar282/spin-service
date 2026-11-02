@@ -13,54 +13,76 @@ struct RecordCard: View {
     let color: String
     let genre: [String]
     let storeLink: String
-    var image: String?
-    let preOrder: Bool
-    let tag: String
+    var image: String
+//    let preOrder: Bool
+    let releaseType: String?
     
-    
-    let testvar = "https://cdn.shopify.com/s/files/1/0271/7941/7698/files/CHARLIEBROWN-SQUARE.png?v=1793109871"
     
     var body: some View {
-        VStack {
-            HStack {
+        VStack(alignment: .leading, spacing: 6) {
+            AnnoTag(tagText: releaseType?.capitalized ?? "New Release")
+                .padding(6)
+
+            AsyncImage(url: URL(string: image)) { phase in
+                if let image = phase.image {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Image("shrug")
+                        .resizable()
+                        .scaledToFit()
+                }
             }
-            AsyncImage(url: URL(string: testvar)) {
-                image in image
-                    .image?.resizable()
-                    .scaledToFit()
-            }
-                .frame(width: 140, height: 140)
+            .frame(width: 120, height: 120)
+            .clipped()
+            .frame(maxWidth: .infinity)
+
             VStack(alignment: .leading, spacing: 3) {
                 Text(album)
+                    .font(.custom("JetBrainsMono-Regular", size: 15))
                     .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(2)
+
                 Text(artist)
                     .font(ThemeDefaults().italic)
-                    .padding(.bottom, 5)
-                Button(action: {}) {
-                    Text("Get Notified")
-                        .font(.custom("JetBrainsMono-Regular",size: 12))
-                        .padding(5)
-                        .frame(maxWidth: .infinity)
-                }
-                .background(
-                    Orange300,
-                    in: RoundedRectangle(cornerRadius: 8)
-                )
-                .overlay(RoundedRectangle(cornerRadius:8)
-                    .stroke(Orange400, lineWidth: 1.5)
-                )
+                    .lineLimit(1)
             }
-            .padding(.all, 7)
-            
+            .padding(.horizontal, 9)
+
+
+            Spacer(minLength: 0)
+
+            Button(action: {}) {
+                Text("Get Notified")
+                    .font(.custom("JetBrainsMono-Regular", size: 12))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 5)
+            }
+            .background(
+                Orange300,
+                in: RoundedRectangle(cornerRadius: 9)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 9)
+                    .stroke(Orange400, lineWidth: 1.5)
+            }
+            .padding(.horizontal, 9)
+            .padding(.bottom, 12)
         }
-        .overlay(RoundedRectangle(cornerRadius:8)
-            .stroke(Orange400, lineWidth: 1.5)
-        )
-        .background(
-            LinearGradient(colors: [Slate300, .white, Slate300], startPoint: .top, endPoint: .bottom),
-            in: RoundedRectangle(cornerRadius: 8)
-        )
-        .frame(width: 170, height: 270)
-        
+        .frame(width: 190, height: 276)
+        .background {
+            LinearGradient(
+                colors: [Slate300, .white, Slate300],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 9))
+        .overlay {
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Orange400, lineWidth: 1.5)
+        }
     }
+
 }

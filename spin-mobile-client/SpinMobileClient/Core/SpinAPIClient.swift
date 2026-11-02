@@ -7,22 +7,11 @@
 import Foundation
 
 struct SpinAPIClient {
-    
-    let baseURL: URL
-    let client: BareAPIClient
-    
-    init() throws {
-        guard let baseURL = URL(string: "https://api.spinmyrecords.com/") else {
-            throw URLError(.badURL)
-        }
         
-        self.baseURL = baseURL
+    let client = BareAPIClient(baseUrl: URL(string: "https://api.spinmyrecords.com/")!, headers: ["Content-Type" : "application/json"], useCredentials: true)
     
-        client = BareAPIClient(baseUrl: baseURL, headers: ["Content-Type" : "application/json"], useCredentials: true)
-    }
-    
-    func getRecords(paginationToken: String?, interval: String?) async throws -> [Record] {
-        var result: ResponseData<RecordsResult> = try await client.get(
+    func getRecords(paginationToken: String? = nil, interval: String? = nil) async throws -> [Record] {
+        let result: ResponseData<RecordsResult> = try await client.get(
             resource: "public",
             queryParams: [
                 URLQueryItem(name: "count", value: "10"),
@@ -33,6 +22,16 @@ struct SpinAPIClient {
         return result.data.items
     }
     
-
+    func getUpcoming(paginationToken: String? = nil) async throws -> [UpcomingRelease] {
+        let result: ResponseData<UpcomingResult> = try await client.get(
+            resource: "public/upcoming",
+            queryParams: [
+                URLQueryItem(name: "count", value: "10"),
+                URLQueryItem(name: "token", value: paginationToken)
+            ]
+        )
+        return result.data.items
+    }
     
+
 }

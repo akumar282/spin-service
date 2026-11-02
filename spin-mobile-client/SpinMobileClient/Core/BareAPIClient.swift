@@ -14,7 +14,14 @@ struct BareAPIClient {
     var useCredentials: Bool
     
     func get<T: Decodable>(resource: String, queryParams: [URLQueryItem] = []) async throws -> ResponseData<T>  {
-        let request = URLRequest(url: baseUrl.appending(path: resource).appending(queryItems: queryParams))
+        var request = URLRequest(url: baseUrl.appending(path: resource).appending(queryItems: queryParams))
+        
+        request.httpMethod = "GET"
+        
+        headers.forEach {
+            item in request.setValue(item.key, forHTTPHeaderField: item.value)
+        }
+        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let apiResponse = response as? HTTPURLResponse else {
@@ -25,4 +32,6 @@ struct BareAPIClient {
         
         return ResponseData(statusCode: apiResponse.statusCode, data: decoded)
     }
+
+    
 }
