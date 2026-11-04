@@ -36,7 +36,7 @@ struct UpcomingReleaseCard: View {
                     .font(ThemeDefaults().italic)
                     .padding(.bottom, 5)
             }
-            .padding(.all, 5.5)
+            .padding(.all, 10)
             
             Button(action: {}) {
                 Text("Get Notified")
@@ -57,13 +57,20 @@ struct UpcomingReleaseCard: View {
             
         }
         .frame(width: 190, height: 276)
-        .overlay(RoundedRectangle(cornerRadius:9)
-            .stroke(Orange400, lineWidth: 1.5)
-        )
-        .background(
-            LinearGradient(colors: [Slate300, .white, Slate300], startPoint: .top, endPoint: .bottom),
-            in: RoundedRectangle(cornerRadius: 9)
-        )
+        .background {
+            LinearGradient(
+                colors: [Slate300, .white, Slate300],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Orange400, lineWidth: 1.5)
+                .shadow(radius: 2, y: 1)
+        }
+        .padding(2)
         
     }
 }

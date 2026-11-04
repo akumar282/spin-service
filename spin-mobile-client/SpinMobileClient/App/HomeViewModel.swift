@@ -20,6 +20,7 @@ class HomeViewModel {
     func getRecords() async {
         do {
             recordsData = try await apiClient.getRecords()
+            print(recordsData)
         } catch {
             print("API call failed")
         }

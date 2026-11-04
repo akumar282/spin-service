@@ -22,7 +22,7 @@ struct RecordCard: View {
         VStack(alignment: .leading, spacing: 6) {
             AnnoTag(tagText: releaseType?.capitalized ?? "New Release")
                 .padding(6)
-
+            
             AsyncImage(url: URL(string: image)) { phase in
                 if let image = phase.image {
                     image
@@ -37,22 +37,22 @@ struct RecordCard: View {
             .frame(width: 120, height: 120)
             .clipped()
             .frame(maxWidth: .infinity)
-
+            
             VStack(alignment: .leading, spacing: 3) {
                 Text(album)
                     .font(.custom("JetBrainsMono-Regular", size: 15))
                     .fixedSize(horizontal: false, vertical: true)
                     .lineLimit(2)
-
+                
                 Text(artist)
                     .font(ThemeDefaults().italic)
                     .lineLimit(1)
             }
             .padding(.horizontal, 9)
-
-
+            
+            
             Spacer(minLength: 0)
-
+            
             Button(action: {}) {
                 Text("Get Notified")
                     .font(.custom("JetBrainsMono-Regular", size: 12))
@@ -78,11 +78,12 @@ struct RecordCard: View {
                 endPoint: .bottom
             )
         }
-        .clipShape(RoundedRectangle(cornerRadius: 9))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay {
-            RoundedRectangle(cornerRadius: 9)
+            RoundedRectangle(cornerRadius: 10)
                 .stroke(Orange400, lineWidth: 1.5)
+                .shadow(radius: 2, y: 1)
         }
+        .padding(2)
     }
-
 }

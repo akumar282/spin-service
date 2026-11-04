@@ -37,7 +37,7 @@ struct HomeView: View {
             }
             .padding([.trailing])
             ScrollView(.vertical, showsIndicators: false) {
-            
+                
                 VStack(alignment: .leading) {
                     Text("Welcome!")
                         .padding([.leading, .top], 10)
@@ -66,10 +66,13 @@ struct HomeView: View {
                                     color: records.color ?? "Blue",
                                     genre: records.genre ?? ["Strings"],
                                     storeLink: records.link ?? "https://google.com",
-                                    image: records.thumbnail,
+                                    image: records.thumbnail?.replacing("http://", with: "https://") ?? "https://media1.tenor.com/m/LYl36-NgLeUAAAAd/idk-emoji-shrug-emoji.gif",
                                     releaseType: records.releaseType
                                 )
+                                .transition(.opacity)
                             }
+                            SeeMore()
+                        
                         }
                     }
                     .padding([.leading], 5)
@@ -94,6 +97,7 @@ struct HomeView: View {
                                     album: upcoming.album
                                 )
                             }
+                            SeeMore()
                         }
                         .padding([.leading], 5)
                     }
@@ -109,42 +113,11 @@ struct HomeView: View {
         .foregroundStyle(.black)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(currentTheme.mainColor)
-    }
-}
-
-struct HomeNavButton: View {
-    let action: () -> Void
-    let title: String
-    let assetName: String
-    
-    var body: some View {
-        VStack {
-            Button(action: action) {
-                HStack {
-                    Text(title)
-                        .padding(.leading, 3)
-                    Spacer()
-                    Image(assetName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 35, height: 35)
-                        .padding(.trailing, 5)
-                }
-                .padding(.all, 10)
-                .overlay(RoundedRectangle(cornerRadius:8)
-                    .stroke(Orange400, lineWidth: 1.5)
-                )
-                .background(
-                    LinearGradient(colors: [Slate300, .white, Slate300], startPoint: .top, endPoint: .bottom),
-                    in: RoundedRectangle(cornerRadius: 8)
-                )
-                .shadow(radius: 2, y: 1)
-            }
-            .padding([.bottom, .leading, .trailing], 7)
+        .refreshable {
+            await viewModel.getRecords()
         }
     }
 }
-
 
 #Preview {
     HomeView()

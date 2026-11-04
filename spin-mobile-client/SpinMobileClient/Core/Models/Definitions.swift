@@ -31,7 +31,7 @@ struct Record: Codable {
     let pagination: String?
     let searchString: String?
     let color: String?
-    let thumbnail: String
+    let thumbnail: String?
     let genre: [String]?
     let title: String?
     let label: [String]?
@@ -67,4 +67,36 @@ nonisolated struct RecordsResult: Decodable {
 nonisolated struct UpcomingResult: Decodable {
     let items: [UpcomingRelease]
     let cursor: String?
+}
+
+struct Community: Codable {
+    let want: Int
+    let have: Int
+}
+
+struct Master: Codable {
+    let country: String
+    let year: String
+    let format: [String]
+    let label: [String]
+    let type: String
+    let genre: [String]
+    let style: [String]
+    let id: Int32
+    let barcode: [String]
+    let master_id: Int32
+    let master_url: String
+    let uri: String
+    let catno: String
+    let title: String
+    let thumb: String
+    let cover_image: String
+    let resource_url: String
+    let community: Community
+}
+
+enum UnionDiscogsResult {
+    case Master(Master)
+    case Artist(Master)
+    case Release(Master)
 }

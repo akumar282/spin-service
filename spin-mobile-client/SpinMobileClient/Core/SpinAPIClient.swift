@@ -33,5 +33,8 @@ struct SpinAPIClient {
         return result.data.items
     }
     
+//    func browseData(paginationToken: String? = nil) async throws -> 
+    
 
 }
+
