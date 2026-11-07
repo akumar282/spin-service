@@ -6,14 +6,17 @@
 //
 import SwiftUI
 
-struct HomeNavButton: View {
+struct HomeNavButton<Destination: View>: View {
     let action: () -> Void
     let title: String
     let assetName: String
+    @ViewBuilder let destination: () -> Destination
     
     var body: some View {
-        VStack {
-            Button(action: action) {
+        NavigationLink {
+            destination()
+        } label: {
+            VStack {
                 HStack {
                     Text(title)
                         .padding(.leading, 3)
@@ -33,8 +36,8 @@ struct HomeNavButton: View {
                     in: RoundedRectangle(cornerRadius: 8)
                 )
                 .shadow(radius: 2, y: 1)
+                .padding([.bottom, .leading, .trailing], 7)
             }
-            .padding([.bottom, .leading, .trailing], 7)
         }
     }
 }

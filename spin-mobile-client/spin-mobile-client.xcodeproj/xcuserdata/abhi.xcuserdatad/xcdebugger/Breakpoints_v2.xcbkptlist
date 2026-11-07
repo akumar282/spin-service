@@ -8,7 +8,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "F204E817-CCCD-41BF-AC4A-292CB7F319C6"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SpinMobileClient/Core/SpinAPIClient.swift"
@@ -16,7 +16,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "14"
             endingLineNumber = "14"
-            landmarkName = "getRecords(paginationToken:interval:)"
+            landmarkName = "getRecords(paginationToken:interval:count:)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -124,64 +124,6 @@
             endingLineNumber = "22"
             landmarkName = "getRecords()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C4041142-9383-43A0-965C-BD491BA18645 - f516387f42542d86"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for spin_mobile_client.HomeViewModel.getRecords() async -&gt; ()"
-                  moduleName = "spin-mobile-client.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhi/repos/spin-service/spin-mobile-client/SpinMobileClient/App/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "22"
-                  endingLineNumber = "22">
-               </Location>
-               <Location
-                  uuid = "C4041142-9383-43A0-965C-BD491BA18645 - ec3607949236ab4a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for spin_mobile_client.HomeViewModel.getRecords() async -&gt; ()"
-                  moduleName = "spin-mobile-client.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhi/repos/spin-service/spin-mobile-client/SpinMobileClient/App/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "22"
-                  endingLineNumber = "22">
-               </Location>
-               <Location
-                  uuid = "C4041142-9383-43A0-965C-BD491BA18645 - 6cf333e54cc01198"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for spin_mobile_client.HomeViewModel.getRecords() async -&gt; ()"
-                  moduleName = "spin-mobile-client.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhi/repos/spin-service/spin-mobile-client/SpinMobileClient/App/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "22"
-                  endingLineNumber = "22">
-               </Location>
-               <Location
-                  uuid = "C4041142-9383-43A0-965C-BD491BA18645 - 285d891e34067b9f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for spin_mobile_client.HomeViewModel.getRecords() async -&gt; ()"
-                  moduleName = "spin-mobile-client.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/abhi/repos/spin-service/spin-mobile-client/SpinMobileClient/App/HomeViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "22"
-                  endingLineNumber = "22">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -194,26 +136,10 @@
             filePath = "SpinMobileClient/App/HomeViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "25"
-            endingLineNumber = "25"
+            startingLineNumber = "24"
+            endingLineNumber = "24"
             landmarkName = "getRecords()"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "31D1ED75-1EF2-4592-A641-D3E2B06CDBE0"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SpinMobileClient/App/HomeView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "75"
-            endingLineNumber = "75"
-            landmarkName = "body"
-            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

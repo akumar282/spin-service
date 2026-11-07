@@ -20,103 +20,113 @@ struct HomeView: View {
     private var viewModel: HomeViewModel = HomeViewModel()
     
     var body: some View {
-        VStack {
-            HStack (alignment: .center) {
-                Text("spin-service")
-                    .font(.custom("JetBrainsMono-Regular", size: 21))
-                    .frame(maxWidth: .infinity)
-                    .overlay(alignment: .trailing) {
-                        Button(action: {}) {
-                            Image(systemName: "bell")
-                                .font(.system(size: 23))
-                        }
-                        .buttonStyle(.glass)
-                        .buttonBorderShape(.circle)
-                    }
-                    .padding(.leading)
-            }
-            .padding([.trailing])
-            ScrollView(.vertical, showsIndicators: false) {
-                
-                VStack(alignment: .leading) {
-                    Text("Welcome!")
-                        .padding([.leading, .top], 10)
-                        .padding(.bottom, 2)
-                        .font(.custom("JetBrainsMono-Regular", size: 16))
-                    HomeNavButton(action: {}, title: "Browse Latest Releases", assetName: "vinyl")
-                    HomeNavButton(action: {}, title: "Manage Notification Targets", assetName: "alarm")
-                    HomeNavButton(action: {}, title: "Manage User Information", assetName: "settings")
-                }
-                .padding([.top], 5)
-                
-                VStack(alignment: .leading) {
-                    Text("Recent Releases")
-                        .padding([.leading, .top], 10)
-                        .padding(.bottom, 1)
-                        .font(.custom("JetBrainsMono-Regular", size: 16))
-                    Text("Releases, Restocks, Represses that have happened in the past 24 hours")
-                        .padding([.leading], 10)
-                        .font(.custom("JetBrainsMono-Regular", size: 11))
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(viewModel.recordsData, id: \.postId) {
-                                records in RecordCard(
-                                    artist: records.artist,
-                                    album: records.album,
-                                    color: records.color ?? "Blue",
-                                    genre: records.genre ?? ["Strings"],
-                                    storeLink: records.link ?? "https://google.com",
-                                    image: records.thumbnail?.replacing("http://", with: "https://") ?? "https://media1.tenor.com/m/LYl36-NgLeUAAAAd/idk-emoji-shrug-emoji.gif",
-                                    releaseType: records.releaseType
-                                )
-                                .transition(.opacity)
+        NavigationStack {
+            VStack {
+                HStack (alignment: .center) {
+                    Text("spin-service")
+                        .font(.custom("JetBrainsMono-Regular", size: 21))
+                        .frame(maxWidth: .infinity)
+                        .overlay(alignment: .trailing) {
+                            Button(action: {}) {
+                                Image(systemName: "bell")
+                                    .font(.system(size: 23))
                             }
-                            SeeMore()
-                        
+                            .buttonStyle(.glass)
+                            .buttonBorderShape(.circle)
+                        }
+                        .padding(.leading)
+                }
+                .padding([.trailing])
+                ScrollView(.vertical, showsIndicators: false) {
+                    
+                    VStack(alignment: .leading) {
+                        Text("Welcome!")
+                            .padding([.leading, .top], 10)
+                            .padding(.bottom, 2)
+                            .font(.custom("JetBrainsMono-Regular", size: 16))
+                        HomeNavButton(action: {}, title: "Browse Latest Releases", assetName: "vinyl") {
+                            BrowseView()
+                        }
+                        HomeNavButton(action: {}, title: "Manage Notification Targets", assetName: "alarm") {
+                            BrowseView()
+                        }
+                        HomeNavButton(action: {}, title: "Manage User Information", assetName: "settings") {
+                            
                         }
                     }
-                    .padding([.leading], 5)
-                }
-                .task {
-                    await viewModel.getRecords()
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Upcoming Albums")
-                        .padding([.leading, .top], 10)
-                        .padding(.bottom, 1)
-                        .font(.custom("JetBrainsMono-Regular", size: 16))
-                    Text("Albums that have potential drops upon release")
-                        .padding([.leading], 10)
-                        .font(.custom("JetBrainsMono-Regular", size: 11))
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(viewModel.upcomingReleaseData, id: \.id) {
-                                upcoming in UpcomingReleaseCard(
-                                    artist: upcoming.artist,
-                                    album: upcoming.album
-                                )
+                    .padding([.top], 5)
+                    
+                    VStack(alignment: .leading) {
+                        Text("Recent Releases")
+                            .padding([.leading, .top], 10)
+                            .padding(.bottom, 1)
+                            .font(.custom("JetBrainsMono-Regular", size: 16))
+                        Text("Releases, Restocks, Represses that have happened in the past 24 hours")
+                            .padding([.leading], 10)
+                            .font(.custom("JetBrainsMono-Regular", size: 11))
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(viewModel.recordsData, id: \.postId) {
+                                    records in RecordCard(
+                                        artist: records.artist,
+                                        album: records.album,
+                                        color: records.color ?? "Blue",
+                                        genre: records.genre ?? ["Strings"],
+                                        storeLink: records.link ?? "https://google.com",
+                                        image: records.thumbnail?.replacing("http://", with: "https://") ?? "https://media1.tenor.com/m/LYl36-NgLeUAAAAd/idk-emoji-shrug-emoji.gif",
+                                        releaseType: records.releaseType
+                                    )
+                                    .transition(.opacity)
+                                }
+                                SeeMore()
+                            
                             }
-                            SeeMore()
                         }
                         .padding([.leading], 5)
                     }
+                    .task {
+                        await viewModel.getRecords()
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text("Upcoming Albums")
+                            .padding([.leading, .top], 10)
+                            .padding(.bottom, 1)
+                            .font(.custom("JetBrainsMono-Regular", size: 16))
+                        Text("Albums that have potential drops upon release")
+                            .padding([.leading], 10)
+                            .font(.custom("JetBrainsMono-Regular", size: 11))
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(viewModel.upcomingReleaseData, id: \.id) {
+                                    upcoming in UpcomingReleaseCard(
+                                        artist: upcoming.artist,
+                                        album: upcoming.album
+                                    )
+                                }
+                                SeeMore()
+                            }
+                            .padding([.leading], 5)
+                        }
+                    }
+                    .task {
+                        await viewModel.getUpcoming()
+                    }
                 }
-                .task {
-                    await viewModel.getUpcoming()
-                }
+                
             }
-            
-        }
-        .font(currentTheme.font)
-        .padding(.top, 10)
-        .foregroundStyle(.black)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(currentTheme.mainColor)
-        .refreshable {
-            await viewModel.getRecords()
+            .font(currentTheme.font)
+            .padding(.top, 10)
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(currentTheme.mainColor)
+            .refreshable {
+                await viewModel.getRecords()
+            }
+
         }
     }
+    
 }
 
 #Preview {

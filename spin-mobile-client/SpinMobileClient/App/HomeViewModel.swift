@@ -19,8 +19,7 @@ class HomeViewModel {
     
     func getRecords() async {
         do {
-            recordsData = try await apiClient.getRecords()
-            print(recordsData)
+            recordsData = try await apiClient.getRecords().items
         } catch {
             print("API call failed")
         }
@@ -29,7 +28,7 @@ class HomeViewModel {
     
     func getUpcoming() async {
         do {
-            upcomingReleaseData = try await apiClient.getUpcoming()
+            upcomingReleaseData = try await apiClient.getUpcoming().items
         } catch {
             print("API call failed")
         }
